@@ -22,7 +22,7 @@
     { label: "我的假勤", items: [
       { key: "my-balance", label: "我的假期余额", href: "02-额度管理/index.html?page=my-balance" },
       { key: "my-leave-pc", label: "我的休假-PC端", href: "04-我的休假-PC端/index.html" },
-      { key: "my-leave-mobile", label: "我的休假-移动端", href: "06-我的休假-移动端/index.html?from=unified", target: "_blank" }
+      { key: "my-leave-mobile", label: "我的休假-移动端", href: "https://ulricaapi-maker.github.io/hrone-leave-plan-prototype/leave-prototype/07-%E7%A7%BB%E5%8A%A8%E7%AB%AF%E4%BC%91%E5%81%87%E5%8E%9F%E5%9E%8B/", target: "_blank" }
     ] }
   ];
 
@@ -73,9 +73,10 @@
     const active = config.active || "leave-plan";
     const sections = groups.map(function (group) {
       const items = group.items.map(function (item) {
+        const href = /^https?:\/\//.test(item.href) ? item.href : root + item.href;
         const attributes = [
           'class="unified-nav__item"',
-          'href="' + root + item.href + '"',
+          'href="' + href + '"',
           'data-unified-key="' + item.key + '"'
         ];
         if (item.key === "leave-plan") attributes.push('id="navPlans"');

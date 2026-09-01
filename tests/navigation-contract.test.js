@@ -5,6 +5,7 @@ const path = require("node:path");
 const root = path.resolve(__dirname, "..");
 const navPath = path.join(root, "assets/unified-navigation.js");
 const cssPath = path.join(root, "assets/unified-navigation.css");
+const canonicalMobileUrl = "https://ulricaapi-maker.github.io/hrone-leave-plan-prototype/leave-prototype/07-%E7%A7%BB%E5%8A%A8%E7%AB%AF%E4%BC%91%E5%81%87%E5%8E%9F%E5%9E%8B/";
 
 assert.ok(fs.existsSync(navPath), "missing unified-navigation.js");
 assert.ok(fs.existsSync(cssPath), "missing unified-navigation.css");
@@ -39,6 +40,8 @@ assertOrdered(navSource, expectedGroups, "group");
 assertOrdered(navSource, expectedItems.flat(), "menu item");
 assert.ok(!navSource.includes("附件类型"), "unified navigation must not expose 附件类型");
 assert.match(navSource, /target:\s*"_blank"/);
+assert.ok(navSource.includes(canonicalMobileUrl), "mobile navigation must use the canonical published prototype");
+assert.ok(!navSource.includes("06-我的休假-移动端/index.html"), "mobile navigation must not use a stale local copy");
 
 const leavePlan = fs.readFileSync(path.join(root, "01-基础配置/01-假期方案/index.html"), "utf8");
 assert.match(leavePlan, /data-unified-page="leave-plan"/);
@@ -70,7 +73,6 @@ assert.match(leaveApplication, /entryMode==='self'\?'\.\.\/04-我的休假-PC端
 
 const myLeave = fs.readFileSync(path.join(root, "04-我的休假-PC端/index.html"), "utf8");
 const myLeaveDetail = fs.readFileSync(path.join(root, "04-我的休假-PC端/detail.html"), "utf8");
-const mobileLeave = fs.readFileSync(path.join(root, "06-我的休假-移动端/index.html"), "utf8");
 assert.match(myLeave, /data-unified-page="my-leave"/);
 assert.match(myLeaveDetail, /data-unified-page="my-leave-detail"/);
 assert.match(myLeave, /unified-navigation\.css/);
@@ -79,7 +81,7 @@ assert.match(myLeave, /\.\.\/05-休假申请\/index\.html\?mode=self/);
 assert.match(myLeave, /entryMode:'self'/);
 assert.match(myLeaveDetail, /const unifiedReturn = record\.entryMode === "self"/);
 assert.match(myLeaveDetail, /\.\.\/03-休假管理\/index\.html\?mode=\$\{record\.entryMode\}/);
-assert.ok(!mobileLeave.includes("unified-navigation.js"), "mobile must remain standalone");
+assert.ok(!fs.existsSync(path.join(root, "06-我的休假-移动端")), "stale local mobile directory must not be published");
 assert.match(navSource, /target="' \+ item\.target \+ '"', 'rel="noopener"'/);
 
 console.log("navigation contract: passed");

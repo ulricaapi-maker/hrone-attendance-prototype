@@ -27,11 +27,12 @@
 - 我的假勤
   - 我的假期余额
   - 我的休假-PC端
-- 我的休假-移动端（新标签打开，顶部可返回 PC 端）
+- 我的休假-移动端（新标签直接打开已发布的最新移动端原型）
 
 ## 发布说明
 
 - 同步日期：2026-09-01。
-- 仓库只包含正式运行文件和独立可执行的交互测试。
+- 仓库只包含 PC 端正式运行文件和独立可执行的交互测试。
+- 移动端不保留本地副本，统一菜单直连 [最新移动端休假原型](https://ulricaapi-maker.github.io/hrone-leave-plan-prototype/leave-prototype/07-%E7%A7%BB%E5%8A%A8%E7%AB%AF%E4%BC%91%E5%81%87%E5%8E%9F%E5%9E%8B/)。
 - 旧版备份、评审变体、过程稿和 HRONE 总仓内部检查未发布。
-- GitHub Pages 未开启。
+- GitHub Pages：`https://ulricaapi-maker.github.io/hrone-attendance-prototype/`

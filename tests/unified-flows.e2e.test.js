@@ -3,6 +3,7 @@ const { chromium } = require("playwright");
 
 const chromePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const base = "http://127.0.0.1:4173";
+const canonicalMobileUrl = "https://ulricaapi-maker.github.io/hrone-leave-plan-prototype/leave-prototype/07-%E7%A7%BB%E5%8A%A8%E7%AB%AF%E4%BC%91%E5%81%87%E5%8E%9F%E5%9E%8B/";
 const routes = [
   ["leave-plan", "/01-基础配置/01-假期方案/index.html", ""],
   ["quota-balance", "/02-额度管理/index.html", "page=balance"],
@@ -94,24 +95,21 @@ async function verifyDetailRoundTrip(page, mode) {
   const mobileAnchor = page.locator('[data-unified-key="my-leave-mobile"]');
   assert.equal(await mobileAnchor.getAttribute("target"), "_blank");
   assert.equal(await mobileAnchor.getAttribute("rel"), "noopener");
+  assert.equal(await mobileAnchor.getAttribute("href"), canonicalMobileUrl);
   const [mobilePopup] = await Promise.all([
     context.waitForEvent("page"),
     mobileAnchor.click()
   ]);
   collectErrors(mobilePopup, errors);
-  await mobilePopup.waitForURL(url =>
-    decodeURIComponent(url.pathname) === "/06-我的休假-移动端/index.html" &&
-    url.searchParams.get("from") === "unified"
-  );
+  await mobilePopup.waitForURL(canonicalMobileUrl);
   await mobilePopup.waitForLoadState("domcontentloaded");
-  assert.equal(decodeURIComponent(new URL(mobilePopup.url()).pathname), "/06-我的休假-移动端/index.html");
-  assert.equal(new URL(mobilePopup.url()).searchParams.get("from"), "unified");
-  assert.equal(await mobilePopup.getByRole("link", { name: "返回 PC 端" }).isVisible(), true);
-  assert.equal(await mobilePopup.locator("iframe").count(), 0);
-  await mobilePopup.getByRole("link", { name: "返回 PC 端" }).click();
-  await mobilePopup.waitForLoadState("domcontentloaded");
-  assert.equal(decodeURIComponent(new URL(mobilePopup.url()).pathname), "/04-我的休假-PC端/index.html");
-  await assertActive(mobilePopup, "my-leave-pc");
+  assert.equal(mobilePopup.url(), canonicalMobileUrl);
+  assert.equal(await mobilePopup.title(), "HR One 移动端休假交互方案");
+  await mobilePopup.locator(".quick-app.leave").click();
+  assert.equal(await mobilePopup.locator("#scenario-trigger").isVisible(), true);
+  assert.equal(await mobilePopup.locator("#scenario-value").innerText(), "固定班次·按休息时长休");
+  assert.equal(page.url(), `${base}/01-%E5%9F%BA%E7%A1%80%E9%85%8D%E7%BD%AE/01-%E5%81%87%E6%9C%9F%E6%96%B9%E6%A1%88/index.html`);
+  await assertActive(page, "leave-plan");
   await mobilePopup.close();
 
   for (const quotaPage of quotaPages) {
@@ -166,15 +164,6 @@ async function verifyDetailRoundTrip(page, mode) {
   await verifyDetailRoundTrip(page, "team");
   await verifyDetailRoundTrip(page, "hr");
 
-  const mobileContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
-  const mobilePage = await mobileContext.newPage();
-  collectErrors(mobilePage, errors);
-  await mobilePage.goto(`${base}/06-我的休假-移动端/index.html`);
-  await mobilePage.locator("#page-balance .header-action").click();
-  assert.equal(await mobilePage.locator("#page-records .page-title").innerText(), "我的休假");
-  assert.equal(await mobilePage.locator(".sidebar,.unified-nav").count(), 0);
-
-  await mobileContext.close();
   await context.close();
   await browser.close();
   assert.deepEqual(errors, [], `浏览器错误:\n${errors.join("\n")}`);
