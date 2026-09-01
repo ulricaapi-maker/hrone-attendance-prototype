@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>HR One · 移动端休假完整原型</title>
+<style>
+:root{
+  --primary:#2563eb;--primary-dark:#1d4ed8;--primary-soft:#eff6ff;--primary-line:#bfdbfe;
+  --success:#10b981;--success-soft:#ecfdf5;--warning:#f59e0b;--warning-soft:#fffbeb;
+  --danger:#ef4444;--danger-soft:#fef2f2;--text:#0f172a;--text-2:#334155;--muted:#64748b;
+  --placeholder:#94a3b8;--line:#e2e8f0;--line-soft:#f1f5f9;--surface:#fff;--page:#f3f6fa;
+  --shadow:0 2px 10px rgba(15,23,42,.06);--radius:22px;--safe-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:#cbd5e1;color:var(--text);font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+body{display:flex;justify-content:center;align-items:flex-start}
+.app-shell{position:relative;width:100%;max-width:750px;height:100vh;min-height:720px;background:var(--page);overflow:hidden;box-shadow:0 0 40px rgba(15,23,42,.14)}
+.status-bar{height:58px;padding:18px 34px 0;display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.96);font-size:14px;font-weight:700;position:relative;z-index:60}
+.status-icons{display:flex;gap:8px;align-items:center;color:var(--text-2)}
+.status-icons svg{width:19px;height:19px}
+.page{position:absolute;top:58px;left:0;right:0;bottom:0;background:var(--page);opacity:0;pointer-events:none;transform:translateX(16px);transition:.2s ease;overflow:hidden}
+.page.active{opacity:1;pointer-events:auto;transform:none}
+.page-header{height:76px;background:#fff;display:flex;align-items:center;padding:0 26px;border-bottom:1px solid rgba(15,23,42,.06);position:relative;z-index:10}
+.header{background:#fff}
+.page-title{position:absolute;left:120px;right:120px;text-align:center;font-size:22px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.header-action{margin-left:auto;border:0;background:transparent;color:var(--primary);font-size:16px;font-weight:700;min-height:44px;padding:0 4px}
+.back{width:52px;height:52px;border:0;border-radius:18px;background:transparent;display:grid;place-items:center}
+.back:active{background:var(--line-soft)}
+.back svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:2.2}
+.scroll{height:calc(100% - 76px);overflow-y:auto;padding:24px 28px 128px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.scroll::-webkit-scrollbar{display:none}
+.card{background:var(--surface);border:1px solid rgba(15,23,42,.055);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;margin-bottom:18px}
+.section-label{display:inline-flex;align-items:center;min-height:32px;padding:4px 12px;background:#e8f0fe;border-radius:8px;font-size:15px;font-weight:700;color:#1e3a5f;margin-bottom:16px}
+.hero{padding:26px;background:var(--surface);border:1px solid rgba(15,23,42,.055);border-radius:28px;box-shadow:var(--shadow);margin-bottom:18px}
+.hero-top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px}
+.hero-kicker{font-size:15px;color:var(--muted);font-weight:650}
+.hero-total{font-size:48px;font-weight:800;line-height:1.1;margin-top:8px;letter-spacing:-1px}
+.hero-total small{font-size:18px;margin-left:5px;color:var(--muted);font-weight:650}
+.hero-link{border:0;background:var(--primary-soft);color:var(--primary);font-size:16px;font-weight:750;border-radius:17px;min-height:48px;padding:0 18px}
+.hero-note{font-size:14px;color:var(--muted);line-height:1.6;margin-top:14px;padding-top:14px;border-top:1px solid var(--line-soft)}
+.quota-row{width:100%;border:0;background:#fff;border-bottom:1px solid var(--line-soft);padding:20px 4px;display:grid;grid-template-columns:1fr auto;gap:16px;text-align:left}
+.quota-row:last-child{border-bottom:0;padding-bottom:6px}
+.quota-row:first-child{padding-top:4px}
+.quota-name{font-size:18px;font-weight:750}
+.quota-meta{font-size:14px;color:var(--muted);line-height:1.6;margin-top:5px}
+.quota-balance{text-align:right;align-self:center}
+.quota-number{font-size:26px;font-weight:800;color:var(--text)}
+.quota-unit{font-size:13px;color:var(--placeholder);margin-top:2px}
+.chev{display:inline-flex;align-items:center;color:var(--placeholder);font-size:24px;margin-left:6px}
+.bottom-bar{position:absolute;left:0;right:0;bottom:0;z-index:30;background:rgba(255,255,255,.97);border-top:1px solid rgba(15,23,42,.08);padding:16px 28px calc(16px + var(--safe-bottom));display:grid;grid-template-columns:1fr 1fr;gap:14px;min-height:92px}
+.bottom-bar.single{grid-template-columns:1fr}
+.btn{min-height:56px;border-radius:18px;border:1px solid var(--line);background:#fff;font-size:17px;font-weight:750;padding:0 18px}
+.btn:active{transform:scale(.985)}
+.btn.primary{background:var(--primary);border-color:var(--primary);color:#fff;box-shadow:0 5px 14px rgba(37,99,235,.22)}
+.btn.danger{color:var(--danger);border-color:#fecaca;background:#fff}
+.btn.warning{color:#b45309;border-color:#fde68a;background:#fff}
+.btn:disabled{background:#e5e7eb;border-color:#e5e7eb;color:#94a3b8;box-shadow:none;cursor:not-allowed}
+.person-card{display:flex;align-items:center;gap:14px}
+.avatar{width:58px;height:58px;border-radius:50%;background:var(--primary-soft);color:var(--primary);display:grid;place-items:center;font-size:21px;font-weight:800;flex:0 0 auto}
+.person-name{font-size:18px;font-weight:800}
+.person-meta{font-size:14px;color:var(--muted);margin-top:5px;line-height:1.45}
+.policy{padding:0;overflow:hidden}
+.policy-toggle{width:100%;border:0;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:20px 22px;font-size:17px;font-weight:750;text-align:left}
+.policy-body{display:none;padding:0 22px 20px;font-size:14px;line-height:1.75;color:var(--text-2)}
+.policy.open .policy-body{display:block}
+.policy.open .toggle-arrow{transform:rotate(180deg)}
+.trial{border-color:var(--primary-line);background:#f8fbff}
+.trial-head{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.trial-title{font-size:15px;color:var(--muted)}
+.trial-value{font-size:30px;font-weight:850;color:var(--primary);margin-top:5px}
+.text-link{border:0;background:transparent;color:var(--primary);font-size:15px;font-weight:750}
+.trial-sub{font-size:14px;line-height:1.55;color:var(--muted);margin-top:12px}
+.form-card{padding:0;overflow:hidden}
+.field{min-height:76px;padding:18px 20px;border-bottom:1px solid var(--line-soft);display:flex;align-items:center;gap:12px;background:#fff;width:100%;text-align:left}
+.field:last-child{border-bottom:0}
+.field.clickable:active{background:#f8fafc}
+.field-label{font-size:16px;color:var(--muted);font-weight:650;flex:0 0 158px;line-height:1.45}
+.required{color:var(--danger);margin-right:4px}
+.rule-link{border:0;background:transparent;color:var(--primary);font-size:13px;font-weight:700;margin-left:7px;white-space:nowrap}
+.field-value{margin-left:auto;min-width:0;text-align:right;font-size:16px;font-weight:650;line-height:1.5;word-break:break-word}
+.field-value.placeholder{color:var(--placeholder);font-weight:500}
+.field-value.readonly{color:var(--muted);font-weight:550}
+.field-input{margin-left:auto;width:min(330px,55%);min-height:46px;border:1px solid var(--line);border-radius:14px;padding:8px 12px;background:#fff;text-align:right;outline:none;font-size:16px}
+.field-input:focus,.textarea:focus,.daily-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.textarea-wrap{padding:18px 20px}
+.textarea-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.textarea-label{font-size:16px;color:var(--muted);font-weight:650}
+.counter{font-size:13px;color:var(--placeholder)}
+.textarea{width:100%;min-height:116px;resize:none;border:1px solid var(--line);border-radius:15px;padding:13px 14px;outline:none;line-height:1.6;background:#fbfdff}
+.error-text{display:none;color:var(--danger);font-size:13px;line-height:1.5;margin-top:7px}
+.invalid .error-text{display:block}
+.invalid .field-input,.invalid .textarea{border-color:#fca5a5;background:var(--danger-soft)}
+.special-block{margin-top:18px}
+.daily-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.daily-head strong{font-size:17px}
+.small-btn{min-height:40px;border-radius:14px;border:1px solid var(--primary-line);background:var(--primary-soft);color:var(--primary);font-size:14px;font-weight:700;padding:0 12px}
+.daily-card{border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:12px;background:#fff}
+.daily-card:last-child{margin-bottom:0}
+.daily-date{display:flex;align-items:center;justify-content:space-between;font-size:16px;font-weight:800;margin-bottom:14px}
+.daily-status{font-size:13px;color:var(--muted);font-weight:600}
+.daily-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.daily-item label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+.daily-input{width:100%;height:46px;border:1px solid var(--line);border-radius:13px;padding:0 10px;background:#fff;outline:none}
+.daily-input:disabled{background:#f1f5f9;color:#94a3b8}
+.daily-result{grid-column:1/-1;background:#f8fafc;border-radius:13px;padding:12px 14px;display:flex;justify-content:space-between;font-size:14px;color:var(--muted)}
+.daily-result b{color:var(--text);font-size:16px}
+.upload-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.upload-item{min-height:102px;border:1px dashed #cbd5e1;border-radius:16px;background:#f8fafc;padding:12px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:13px;line-height:1.4}
+.upload-item.done{border-style:solid;border-color:#a7f3d0;background:var(--success-soft);color:#047857}
+.upload-icon{font-size:27px;line-height:1;margin-bottom:8px}
+.demo-panel{border:1px dashed #93c5fd;background:#f8fbff}
+.demo-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.demo-title{font-size:16px;font-weight:800;color:#1e40af}
+.demo-note{font-size:13px;color:var(--muted);line-height:1.55}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:3px 0;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;min-height:40px;padding:0 14px;white-space:nowrap;color:var(--text-2);font-size:14px;font-weight:650}
+.chip.active{background:var(--primary);border-color:var(--primary);color:#fff}
+.demo-errors{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.demo-error{border:0;background:#fff7ed;color:#c2410c;border-radius:12px;padding:8px 11px;font-size:13px;font-weight:700}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:5px;background:#e9eef5;border-radius:20px;padding:5px;margin-bottom:16px}
+.tab{height:48px;border:0;background:transparent;border-radius:16px;font-size:16px;font-weight:750;color:var(--muted)}
+.tab.active{background:#fff;color:var(--primary);box-shadow:var(--shadow)}
+.filter-card{padding:16px;margin-bottom:16px}
+.filter-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.filter-chip{min-height:56px;border:1px solid var(--line);border-radius:16px;background:#fff;padding:8px 12px;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.filter-name{font-size:12px;color:var(--placeholder)}
+.filter-value{font-size:15px;font-weight:700;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:235px}
+.filter-reset{display:flex;justify-content:flex-end;margin-top:10px}
+.record-card{background:#fff;border:1px solid rgba(15,23,42,.055);border-radius:22px;padding:20px;margin-bottom:14px;box-shadow:var(--shadow)}
+.record-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.record-type{font-size:19px;font-weight:850}
+.record-no{font-size:13px;color:var(--placeholder);margin-top:5px}
+.tag{display:inline-flex;align-items:center;min-height:30px;padding:0 11px;border-radius:999px;font-size:13px;font-weight:750;white-space:nowrap}
+.tag.blue{color:#1d4ed8;background:#eff6ff}.tag.green{color:#047857;background:#ecfdf5}.tag.gray{color:#64748b;background:#f1f5f9}.tag.red{color:#b91c1c;background:#fef2f2}.tag.orange{color:#b45309;background:#fffbeb}
+.record-period{font-size:15px;line-height:1.6;color:var(--text-2);margin-top:16px}
+.record-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;padding:13px 0;border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft)}
+.meta-item span{display:block;font-size:12px;color:var(--placeholder)}
+.meta-item b{display:block;font-size:15px;margin-top:4px}
+.record-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:13px}
+.action-link{border:0;background:transparent;color:var(--primary);font-size:15px;font-weight:750;min-height:38px;padding:0 4px}
+.action-link.danger{color:var(--danger)}
+.empty{text-align:center;padding:76px 20px;color:var(--muted);font-size:15px;line-height:1.7}
+.empty-icon{font-size:46px;opacity:.45;margin-bottom:12px}
+.summary-card{background:#fff;border-radius:22px;border:1px solid rgba(15,23,42,.055);box-shadow:var(--shadow);padding:22px;margin-bottom:18px}
+.summary-row{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.summary-title{font-size:21px;font-weight:850}
+.summary-meta{font-size:13px;color:var(--muted);line-height:1.7;margin-top:8px}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px 22px}
+.info-item.full{grid-column:1/-1}
+.info-label{font-size:13px;color:var(--placeholder);margin-bottom:6px}
+.info-value{font-size:16px;line-height:1.55;word-break:break-word}
+.timeline{position:relative;padding-left:28px}
+.timeline:before{content:"";position:absolute;left:7px;top:9px;bottom:9px;width:2px;background:#dbe4ef}
+.timeline-item{position:relative;padding-bottom:24px}
+.timeline-item:last-child{padding-bottom:0}
+.timeline-dot{position:absolute;left:-28px;top:5px;width:16px;height:16px;border-radius:50%;background:var(--primary);border:4px solid #dbeafe}
+.timeline-dot.pending{background:#fff;border-color:#93c5fd}.timeline-dot.red{background:var(--danger);border-color:#fee2e2}.timeline-dot.gray{background:#94a3b8;border-color:#e2e8f0}
+.timeline-title{font-size:16px;font-weight:800}
+.timeline-meta{font-size:14px;color:var(--muted);line-height:1.6;margin-top:5px}
+.source-link{border:0;background:transparent;color:var(--primary);font-weight:750;text-align:left;padding:0}
+.notice{border-radius:16px;padding:14px 16px;font-size:14px;line-height:1.65;margin-bottom:16px;background:var(--warning-soft);color:#92400e;border:1px solid #fde68a}
+.notice.danger{background:var(--danger-soft);color:#991b1b;border-color:#fecaca}
+.sheet-mask,.modal-mask{position:absolute;inset:0;background:rgba(15,23,42,.42);z-index:100;opacity:0;pointer-events:none;transition:.2s}
+.sheet-mask.show,.modal-mask.show{opacity:1;pointer-events:auto}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:30px 30px 0 0;max-height:78%;transform:translateY(105%);transition:.25s ease;display:flex;flex-direction:column;overflow:hidden}
+.sheet-mask.show .sheet{transform:none}
+.sheet-handle{width:56px;height:6px;border-radius:3px;background:#dbe2ea;margin:12px auto 4px}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 26px;border-bottom:1px solid var(--line-soft)}
+.sheet-title{font-size:20px;font-weight:800}
+.icon-btn{width:46px;height:46px;border:0;border-radius:15px;background:#f8fafc;font-size:25px;color:var(--muted)}
+.sheet-body{padding:18px 26px;overflow-y:auto}
+.sheet-option{width:100%;min-height:66px;border:0;border-bottom:1px solid var(--line-soft);background:#fff;text-align:left;display:flex;align-items:center;justify-content:space-between;padding:12px 3px;font-size:16px;font-weight:700}
+.sheet-option small{display:block;font-size:13px;color:var(--muted);font-weight:500;margin-top:3px}
+.sheet-option.selected{color:var(--primary)}
+.sheet-foot{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px 26px calc(14px + var(--safe-bottom));border-top:1px solid var(--line-soft)}
+.sheet-date-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sheet-field label{font-size:13px;color:var(--muted);display:block;margin-bottom:7px}
+.sheet-field input{width:100%;height:54px;border:1px solid var(--line);border-radius:15px;padding:0 12px;background:#fff}
+.modal{position:absolute;left:30px;right:30px;top:50%;transform:translateY(-46%) scale(.98);background:#fff;border-radius:24px;padding:24px;opacity:0;transition:.2s}
+.modal-mask.show .modal{opacity:1;transform:translateY(-50%) scale(1)}
+.modal-title{font-size:21px;font-weight:850;margin-bottom:12px}
+.modal-body{font-size:15px;color:var(--text-2);line-height:1.75;max-height:55vh;overflow:auto}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}
+.modal-actions .btn{min-height:50px;font-size:16px;min-width:112px}
+.success-page{position:absolute;inset:0;background:var(--page);z-index:150;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;opacity:0;pointer-events:none;transition:.24s}
+.success-page.show{opacity:1;pointer-events:auto}
+.success-icon{width:92px;height:92px;border-radius:50%;background:var(--success-soft);color:var(--success);display:grid;place-items:center;font-size:48px;font-weight:800}
+.success-title{font-size:27px;font-weight:850;margin-top:22px}
+.success-sub{font-size:15px;color:var(--muted);line-height:1.65;text-align:center;margin-top:10px}
+.success-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;margin-top:34px}
+.toast{position:absolute;left:50%;bottom:118px;transform:translate(-50%,18px);z-index:220;background:rgba(15,23,42,.92);color:#fff;border-radius:16px;padding:13px 18px;font-size:15px;line-height:1.45;max-width:82%;text-align:center;opacity:0;pointer-events:none;transition:.2s}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.hidden{display:none!important}
+@media(max-width:480px){
+  .status-bar{height:48px;padding:13px 20px 0}.page{top:48px}.page-header{height:58px;padding:0 14px}.page-title{left:84px;right:84px;font-size:17px}.back{width:42px;height:42px;border-radius:13px}.back svg{width:22px;height:22px}
+  .scroll{height:calc(100% - 58px);padding:14px 14px 100px}.card,.summary-card{padding:16px;border-radius:16px;margin-bottom:12px}.hero{padding:18px;border-radius:20px;margin-bottom:12px}.hero-total{font-size:36px}.hero-link{font-size:14px;min-height:42px;padding:0 13px}
+  .quota-name{font-size:16px}.quota-number{font-size:22px}.field{min-height:62px;padding:13px 15px}.field-label{font-size:14px;flex-basis:116px}.field-value,.field-input{font-size:14px}.field-input{min-height:40px}.bottom-bar{padding:10px 14px calc(10px + var(--safe-bottom));min-height:72px}.btn{min-height:48px;border-radius:14px;font-size:15px}.section-label{font-size:13px;min-height:28px;margin-bottom:12px}.trial-value{font-size:24px}
+  .daily-card{padding:14px;border-radius:15px}.daily-grid{gap:9px}.daily-input{height:42px}.upload-grid{grid-template-columns:repeat(2,1fr)}.filter-row{grid-template-columns:1fr 1fr}.filter-chip{min-height:48px}.filter-value{font-size:13px;max-width:116px}.record-card{padding:16px;border-radius:16px}.record-type{font-size:17px}.info-grid{gap:15px 16px}.info-value{font-size:14px}.modal{left:18px;right:18px}.sheet-head,.sheet-body,.sheet-foot{padding-left:18px;padding-right:18px}
+}
+</style>
+</head>
+<body>
+<main class="app-shell" id="app">
+  <div class="status-bar"><span>09:41</span><span class="status-icons" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M3 18h2v-3H3v3zm4 0h2v-6H7v6zm4 0h2V9h-2v9zm4 0h2V6h-2v12zm4 0h2V3h-2v15z"/></svg><svg viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 9a12 12 0 0116 0M7 12a8 8 0 0110 0m-7 3a4 4 0 014 0"/><circle cx="12" cy="18" r="1.5" fill="currentColor"/></svg><svg viewBox="0 0 28 14"><rect x="1" y="1" width="23" height="12" rx="3" fill="none" stroke="currentColor"/><rect x="25" y="4" width="2" height="6" rx="1" fill="currentColor"/><rect x="3" y="3" width="17" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+
+  <section class="page active" id="page-balance" aria-label="假期余额首页">
+    <header class="page-header header"><button class="back" type="button" aria-label="返回首页" onclick="showToast('已返回首页')"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><h1 class="page-title">假期余额</h1><button class="header-action" type="button" onclick="openRecords()">休假记录</button></header>
+    <div class="scroll">
+      <section class="hero">
+        <div class="hero-top"><div><div class="hero-kicker">当前可休假额度</div><div class="hero-total">84<span style="color:var(--placeholder);font-size:30px">.0</span><small>小时</small></div></div><button class="hero-link" type="button" onclick="openQuotaSheet()">额度明细</button></div>
+        <div class="hero-note">额度按最近失效时间优先展示；实际提交时由系统重新试算并校验。</div>
+      </section>
+      <section class="card"><div class="section-label">可申请假期</div><div id="quotaList"></div></section>
+    </div>
+    <footer class="bottom-bar"><button class="btn" type="button" onclick="openRecords()">休假记录</button><button class="btn primary" type="button" onclick="openApply()">请假</button></footer>
+  </section>
+
+  <section class="page" id="page-apply" aria-label="休假申请">
+    <header class="page-header header"><button class="back" type="button" aria-label="返回" onclick="goBack()"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><h1 class="page-title" id="applyTitle">请假</h1><button class="header-action" type="button" onclick="openRecords()">休假记录</button></header>
+    <div class="scroll" id="applyScroll"><div id="applyContent"></div></div>
+    <footer class="bottom-bar single"><button class="btn primary" type="button" onclick="submitLeave()">提交申请</button></footer>
+  </section>
+
+  <section class="page" id="page-records" aria-label="我的休假">
+    <header class="page-header header"><button class="back" type="button" aria-label="返回" onclick="goBack()"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><h1 class="page-title">我的休假</h1><button class="header-action" type="button" onclick="openApply()">新增</button></header>
+    <div class="scroll">
+      <div class="tabs"><button class="tab active" id="leaveTab" type="button" onclick="switchRecordTab('leave')">休假</button><button class="tab" id="cancelTab" type="button" onclick="switchRecordTab('cancel')">销假</button></div>
+      <section class="card filter-card"><div class="filter-row" id="filterRow"></div><div class="filter-reset"><button class="text-link" type="button" onclick="resetFilters()">重置筛选</button></div></section>
+      <div id="recordList"></div>
+    </div>
+  </section>
+
+  <section class="page" id="page-detail" aria-label="申请详情">
+    <header class="page-header header"><button class="back" type="button" aria-label="返回" onclick="goBack()"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><h1 class="page-title" id="detailTitle">休假详情</h1></header>
+    <div class="scroll" id="detailContent"></div>
+    <footer class="bottom-bar hidden" id="detailActions"></footer>
+  </section>
+
+  <section class="page" id="page-cancel" aria-label="销假申请">
+    <header class="page-header header"><button class="back" type="button" aria-label="返回" onclick="goBack()"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><h1 class="page-title" id="cancelTitle">销假申请</h1></header>
+    <div class="scroll" id="cancelContent"></div>
+    <footer class="bottom-bar single"><button class="btn primary" type="button" onclick="submitCancel()">提交销假</button></footer>
+  </section>
+
+  <div class="sheet-mask" id="sheetMask" onclick="maskCloseSheet(event)"><section class="sheet rule-drawer" role="dialog" aria-modal="true"><div class="sheet-handle"></div><div class="sheet-head"><div class="sheet-title" id="sheetTitle">请选择</div><button class="icon-btn" type="button" aria-label="关闭" onclick="closeSheet()">×</button></div><div class="sheet-body" id="sheetBody"></div><div class="sheet-foot hidden" id="sheetFoot"></div></section></div>
+  <div class="modal-mask" id="modalMask" onclick="maskCloseModal(event)"><section class="modal" role="dialog" aria-modal="true"><div class="modal-title" id="modalTitle"></div><div class="modal-body" id="modalBody"></div><div class="modal-actions" id="modalActions"></div></section></div>
+  <section class="success-page" id="successPage"><div class="success-icon">✓</div><div class="success-title">提交成功</div><div class="success-sub" id="successSub">休假申请已进入审批流程</div><div class="success-actions"><button class="btn" type="button" onclick="closeSuccess(false)">继续查看</button><button class="btn primary" type="button" onclick="closeSuccess(true)">返回首页</button></div></section>
+  <div class="toast" id="toast"></div>
+</main>
+
+<script>
+/* MODEL_START */
+const leaveModel=(()=>{
+  const attachmentRules={
+    marriage:{all:['结婚证明']},
+    sick:{threshold:1,items:['诊断证明','病历','医疗费用单据']},
+    bereavement:{all:['死亡证明','亲属关系证明']},
+    maternity:{all:['生育证明','出生证明']},
+    prenatal:{all:['产检证明']}
+  };
+  function requiredAttachments(type,duration){
+    const rule=attachmentRules[type];
+    if(!rule)return[];
+    if(rule.all)return rule.all.slice();
+    if(rule.threshold!=null&&Number(duration)>rule.threshold)return rule.items.slice();
+    return[];
+  }
+  function hourDuration(start,end,rest,max){
+    if(!start||!end)return 0;
+    const value=(new Date(end)-new Date(start))/3600000-Number(rest||0);
+    return Math.max(0,Math.ceil(Math.min(Number(max||8),value)*2)/2);
+  }
+  function dateRangeOverlap(aStart,aEnd,bStart,bEnd){return String(aEnd)>=String(bStart)&&String(aStart)<=String(bEnd)}
+  function recordActions(record){
+    if(record.status==='审批中')return['撤回'];
+    if(record.status==='已撤回'||record.status==='已驳回')return['重新提交'];
+    if(record.kind==='leave'&&record.status==='审批完成'&&record.follow!=='已销假')return['撤销'];
+    return[];
+  }
+  function canCancel(record){
+    if(!record||record.status!=='审批完成'||record.follow==='已销假')return{ok:false,reason:'休假状态已变化，请刷新后重试'};
+    if(record.pendingCancel||record.follow==='销假审批中')return{ok:false,reason:'该休假已有销假申请正在审批，不允许重复提交'};
+    if(record.archiveMode==='partial'||record.archiveMode==='full')return{ok:false,reason:'该休假包含已封存考勤日期，不允许销假'};
+    return{ok:true,reason:''};
+  }
+  return{requiredAttachments,hourDuration,dateRangeOverlap,recordActions,canCancel};
+})();
+/* MODEL_END */
+
+const leaveTypeConfig={
+  annual:{name:'年假',unit:'小时',balance:40,expires:'2026-12-31',limited:true,policy:['年假按可用额度的失效顺序进行扣减。','申请时间需落在员工可申请的班次范围内。']},
+  comp:{name:'调休假',unit:'小时',balance:32,expires:'2026-08-31',limited:true,policy:['调休假优先使用即将到期的可用额度。','申请时长由员工排班、申请时段及休息方式共同计算。']},
+  marriage:{name:'婚假',unit:'天',balance:5,expires:'2027-02-28',fixedDuration:5,dayBasis:'attendance',policy:['婚假可休时长根据员工工作城市命中的婚假规则返回。','选择开始日期后，系统按5个考勤日自动带出结束日期。']},
+  sick:{name:'病假',unit:'小时',balance:null,expires:'按规则校验',policy:['病假材料要求由当前假别规则返回。','提交前请确认申请时间及附件要求。']},
+  bereavement:{name:'丧假',unit:'天',balance:null,expires:'按政策确定',dayBasis:'attendance',policy:['丧假可休范围根据去世亲属身份确定。','申请时只选择开始日期和结束日期。']},
+  maternity:{name:'产假',unit:'天',balance:158,expires:'按政策确定',fixedDuration:158,dayBasis:'natural',policy:['产假根据预产期及适用政策计算，当前示例规则返回158天。','选择开始日期后，系统按158个自然日自动带出结束日期。']},
+  breastfeeding:{name:'哺乳假',unit:'小时',balance:null,expires:'周期控制',policy:['哺乳假按日期区间一次申请，系统按有效考勤日生成每日休假。','固定班次选择每日上班后或下班前使用。']},
+  prenatal:{name:'产检假',unit:'小时',balance:null,expires:'按孕周确定',policy:['产检假需按“周数＋余天”填写申请时对应孕周。','系统根据孕周命中当前自然月的可休规则。']}
+};
+const scenarios=[
+  {key:'day',label:'按天申请',type:'marriage',start:'2026-08-10',end:'2026-08-14',shift:'fixed',restMode:'none'},
+  {key:'hour-period',label:'固定班次＋按时间段休',type:'annual',start:'2026-08-10T09:00',end:'2026-08-10T14:00',shift:'fixed',restMode:'period'},
+  {key:'hour-single',label:'固定班次＋按休息时长休（单日）',type:'comp',start:'2026-08-10T13:00',end:'2026-08-10T18:00',shift:'fixed',restMode:'duration'},
+  {key:'hour-daily',label:'固定班次＋按休息时长休（多日）',type:'comp',start:'2026-08-10T09:00',end:'2026-08-11T18:00',shift:'fixed',restMode:'duration'},
+  {key:'hour-free',label:'自由班次（多日）',type:'comp',start:'2026-08-10T09:00',end:'2026-08-11T18:00',shift:'free',restMode:'duration'},
+  {key:'breastfeeding',label:'哺乳假周期申请',type:'breastfeeding',start:'2026-08-10',end:'2026-08-14',shift:'fixed',restMode:'none'}
+];
+const leaveOrders=[
+  {id:'L20260803009',kind:'leave',type:'comp',start:'2026-08-15T09:00',end:'2026-08-15T12:00',duration:'3小时',reason:'个人事务安排',status:'审批完成',follow:'—',created:'2026-08-03 11:12',archiveMode:'none',daily:[{date:'2026-08-15',start:'09:00',end:'12:00',rest:0,duration:'3小时',archived:false}]},
+  {id:'L20260801007',kind:'leave',type:'comp',start:'2026-08-11T09:00',end:'2026-08-11T12:00',duration:'3小时',reason:'个人事务安排',status:'审批完成',follow:'销假审批中',created:'2026-08-01 09:18',archiveMode:'none',daily:[{date:'2026-08-11',start:'09:00',end:'12:00',rest:0,duration:'3小时',archived:false}]},
+  {id:'L20260807003',kind:'leave',type:'comp',start:'2026-08-12T13:00',end:'2026-08-12T17:00',duration:'4小时',reason:'个人事务安排',status:'审批中',follow:'—',created:'2026-08-07 14:25',archiveMode:'none',approver:'直属领导'},
+  {id:'L20260806002',kind:'leave',type:'sick',start:'2026-08-10T09:00',end:'2026-08-10T18:00',duration:'1天',reason:'身体不适',status:'已驳回',follow:'—',created:'2026-08-06 09:42',archiveMode:'none',attachments:['诊断证明.pdf']},
+  {id:'L20260805006',kind:'leave',type:'marriage',start:'2026-08-24',end:'2026-08-28',duration:'5天',reason:'办理结婚相关事项',status:'已撤回',follow:'—',created:'2026-08-05 17:08',archiveMode:'none',attachments:['结婚证明.pdf']},
+  {id:'L20260804004',kind:'leave',type:'annual',start:'2026-08-04',end:'2026-08-04',duration:'1天',reason:'家庭事务安排',status:'审批完成',follow:'已销假',cancelId:'C20260808002',created:'2026-08-03 16:31',archiveMode:'none'},
+  {id:'L20260802001',kind:'leave',type:'annual',start:'2026-07-31T13:00',end:'2026-08-01T12:00',duration:'6.5小时',reason:'家庭事务安排',status:'审批完成',follow:'—',created:'2026-08-02 10:16',archiveMode:'partial',daily:[{date:'2026-07-31',start:'13:00',end:'17:00',rest:0,duration:'4小时',archived:true,archiveTime:'2026-08-05 18:00'},{date:'2026-08-01',start:'09:00',end:'12:00',rest:.5,duration:'2.5小时',archived:false}]},
+  {id:'L20260725008',kind:'leave',type:'annual',start:'2026-07-25',end:'2026-07-25',duration:'1天',reason:'家庭事务安排',status:'审批完成',follow:'—',created:'2026-07-20 15:42',archiveMode:'full',daily:[{date:'2026-07-25',start:'—',end:'—',rest:'—',duration:'1天',archived:true,archiveTime:'2026-07-31 18:00'}]}
+];
+const cancelOrders=[
+  {id:'C20260808002',source:'L20260804004',kind:'cancel',type:'annual',start:'2026-08-04',end:'2026-08-04',duration:'1天',reason:'休假计划取消',status:'审批完成',created:'2026-08-05 09:20'},
+  {id:'C20260807001',source:'L20260801007',kind:'cancel',type:'comp',start:'2026-08-11T09:00',end:'2026-08-11T12:00',duration:'3小时',reason:'提前返岗',status:'审批中',created:'2026-08-07 18:02',approver:'直属领导'},
+  {id:'C20260801003',source:'L20260806002',kind:'cancel',type:'sick',start:'2026-08-10T09:00',end:'2026-08-10T18:00',duration:'1天',reason:'无需继续休假',status:'已撤回',created:'2026-08-01 10:11'}
+];
+
+const state={page:'balance',stack:[],recordTab:'leave',selected:null,demo:new URLSearchParams(location.search).get('demo')!=='0',scenario:'day',form:null,cancelForm:null,lastSubmitKind:'leave',filters:{type:'',status:'',follow:'',start:'',end:''},uploaded:new Set(),errors:{}};
+const $=id=>document.getElementById(id);
+const escapeHtml=value=>String(value??'').replace(/[&<>"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[char]));
+function formatDateTime(value){return value?String(value).replace('T',' ').replaceAll('-','/'):''}
+function dateOnly(value){return String(value||'').slice(0,10)}
+function isWeekend(date){const day=new Date(`${date}T00:00:00`).getDay();return day===0||day===6}
+function dateRange(start,end){const rows=[];if(!start||!end)return rows;const a=new Date(`${dateOnly(start)}T00:00:00`),b=new Date(`${dateOnly(end)}T00:00:00`);if(isNaN(a)||isNaN(b)||a>b)return rows;for(const d=new Date(a);d<=b&&rows.length<180;d.setDate(d.getDate()+1)){const text=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;rows.push(text)}return rows}
+function addEligibleDays(start,count,natural){const cursor=new Date(`${dateOnly(start)}T00:00:00`);let used=0;while(used<count){if(natural||!isWeekend(cursor.toISOString().slice(0,10)))used++;if(used<count)cursor.setDate(cursor.getDate()+1)}return cursor.toISOString().slice(0,10)}
+function typeName(code){return leaveTypeConfig[code]?.name||code||'—'}
+function statusTag(status){const cls=status==='审批中'?'blue':status==='审批完成'?'green':status==='已驳回'?'red':status==='已撤回'?'gray':'orange';return `<span class="tag ${cls}">${escapeHtml(status)}</span>`}
+function navigate(page,push=true){if(page===state.page)return;if(push)state.stack.push(state.page);document.querySelectorAll('.page').forEach(node=>node.classList.toggle('active',node.id===`page-${page}`));state.page=page}
+function goBack(){const page=state.stack.pop()||'balance';document.querySelectorAll('.page').forEach(node=>node.classList.toggle('active',node.id===`page-${page}`));state.page=page}
+function showToast(text){const toast=$('toast');toast.textContent=text;toast.classList.add('show');clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>toast.classList.remove('show'),2200)}
+function showModal(title,body,actions=[{label:'我知道了',primary:true,onClick:closeModal}]){$('modalTitle').textContent=title;$('modalBody').innerHTML=body;$('modalActions').innerHTML='';actions.forEach(item=>{const button=document.createElement('button');button.className=`btn${item.primary?' primary':''}${item.danger?' danger':''}`;button.textContent=item.label;button.onclick=item.onClick;$('modalActions').appendChild(button)});$('modalMask').classList.add('show')}
+function closeModal(){$('modalMask').classList.remove('show')}
+function maskCloseModal(event){if(event.target===$('modalMask'))closeModal()}
+function showSheet(title,body,footer=''){$('sheetTitle').textContent=title;$('sheetBody').innerHTML=body;$('sheetFoot').innerHTML=footer;$('sheetFoot').classList.toggle('hidden',!footer);$('sheetMask').classList.add('show')}
+function closeSheet(){$('sheetMask').classList.remove('show')}
+function maskCloseSheet(event){if(event.target===$('sheetMask'))closeSheet()}
+
+function renderBalance(){
+  $('quotaList').innerHTML=Object.entries(leaveTypeConfig).map(([code,item])=>`<button class="quota-row" type="button" onclick="openApply('${code}')"><span><span class="quota-name">${item.name}</span><span class="quota-meta">${item.balance==null?item.expires:`有效期至：${item.expires}`}<br>${item.policy[0]}</span></span><span class="quota-balance"><span class="quota-number">${item.balance==null?'—':item.balance}</span><span class="chev">›</span><span class="quota-unit">${item.balance==null?'按申请试算':`余额（${item.unit}）`}</span></span></button>`).join('');
+}
+function openQuotaSheet(){showSheet('可休假额度明细',`<div class="notice">以下为当前示例员工的可用额度批次；正式提交时以服务端重新试算为准。</div>${[['年假','16小时','2026-09-30'],['年假','24小时','2026-12-31'],['调休假','2小时','2026-08-31'],['调休假','10小时','2026-10-31'],['调休假','20小时','2026-12-31'],['婚假','5天','2027-02-28']].map(row=>`<div class="field"><span class="field-label">${row[0]}</span><span class="field-value">${row[1]}<small style="display:block;color:var(--muted);font-weight:500">${row[2]} 到期</small></span></div>`).join('')}`)}
+function defaultForm(type='comp'){return{type,start:'',end:'',reason:'个人事务安排',relative:'',dueDate:'2026-10-18',earlyDays:0,useMode:'下班前',weeks:25,days:3,rest:1,daily:[],resubmitId:''}}
+function defaultScenarioForType(type){return type==='breastfeeding'?'breastfeeding':leaveTypeConfig[type]?.unit==='天'?'day':type==='comp'?'hour-single':'hour-period'}
+function openApply(type='',scenarioKey=''){
+  const chosen=scenarioKey?scenarios.find(item=>item.key===scenarioKey):null;
+  const formType=type||chosen?.type||'comp';
+  state.scenario=chosen?.key||defaultScenarioForType(formType);
+  state.form=defaultForm(formType);
+  if(chosen){state.form.type=chosen.type;state.form.start=chosen.start;state.form.end=chosen.end}
+  state.uploaded=new Set();state.errors={};syncFixedEnd();buildDailyLines();renderApply();navigate('apply');
+}
+function openResubmitApply(record){
+  state.scenario=leaveTypeConfig[record.type]?.unit==='天'?'day':'hour-period';
+  state.form={...defaultForm(record.type),start:record.start,end:record.end,reason:record.reason,resubmitId:record.id};
+  state.uploaded=new Set((record.attachments||[]).map(name=>name.replace('.pdf','')));state.errors={};buildDailyLines();renderApply();navigate('apply');
+}
+function currentScenario(){return scenarios.find(item=>item.key===state.scenario)||scenarios[0]}
+function setScenario(key){state.scenario=key;const item=currentScenario();state.form={...defaultForm(item.type),type:item.type,start:item.start,end:item.end};state.uploaded=new Set();state.errors={};syncFixedEnd();buildDailyLines();renderApply()}
+function syncFixedEnd(){const cfg=leaveTypeConfig[state.form.type];if(cfg?.fixedDuration&&state.form.start){state.form.end=addEligibleDays(state.form.start,cfg.fixedDuration,cfg.dayBasis==='natural')}}
+function buildDailyLines(){
+  const form=state.form,cfg=leaveTypeConfig[form.type],scenario=currentScenario();form.daily=[];
+  if(!form.start||!form.end||cfg.unit==='天')return;
+  if(form.type==='breastfeeding'){form.daily=dateRange(form.start,form.end).filter(date=>!isWeekend(date)).map(date=>({date,start:form.useMode==='上班后'?'09:00':'17:00',end:form.useMode==='上班后'?'10:00':'18:00',rest:0,duration:1,locked:true}));return}
+  if(!(scenario.restMode==='duration'&&dateOnly(form.start)!==dateOnly(form.end)))return;
+  const valid=dateRange(form.start,form.end).filter(date=>!isWeekend(date));form.daily=valid.map((date,index)=>({date,start:scenario.shift==='fixed'?(index===0?String(form.start).slice(11,16)||'09:00':'09:00'):(index===0?String(form.start).slice(11,16):''),end:scenario.shift==='fixed'?(index===valid.length-1?String(form.end).slice(11,16)||'18:00':'18:00'):(index===valid.length-1?String(form.end).slice(11,16):''),rest:index===1&&scenario.shift==='fixed'?0:index===0?1:'',locked:index===1&&scenario.shift==='fixed'}));
+}
+function dayCount(){const cfg=leaveTypeConfig[state.form.type],dates=dateRange(state.form.start,state.form.end);return dates.filter(date=>cfg.dayBasis==='natural'||!isWeekend(date)).length}
+function calculateForm(){
+  const form=state.form,cfg=leaveTypeConfig[form.type],scenario=currentScenario();if(!form.start||!form.end)return{duration:'待计算',number:0,remaining:'—',summary:'选择开始、结束时间后试算'};
+  let number=0,summary='';
+  if(form.type==='breastfeeding'){number=form.daily.length;summary=`${form.daily.length}个有效考勤日，每日1小时`}
+  else if(cfg.unit==='天'){number=dayCount();summary=`${number}个有效休假日，按${cfg.dayBasis==='natural'?'自然日':'考勤日'}计算`}
+  else if(form.daily.length){number=form.daily.reduce((sum,row)=>sum+(row.start&&row.end&&row.rest!==''?leaveModel.hourDuration(`${row.date}T${row.start}`,`${row.date}T${row.end}`,row.rest,8):0),0);summary=`${form.daily.length}个有效考勤日，逐日汇总`}
+  else{let rest=scenario.restMode==='duration'?Number(form.rest||0):scenario.restMode==='period'?1:0;number=leaveModel.hourDuration(form.start,form.end,rest,8);summary=`固定班次 09:00—18:00，${scenario.restMode==='period'?'按时间段休':scenario.restMode==='duration'?'按休息时长休':'系统按排班计算'}`}
+  const remaining=cfg.limited?`${Math.max(0,cfg.balance-number)}${cfg.unit}`:'按规则校验';return{duration:`${number}${cfg.unit}`,number,remaining,summary}
+}
+function demoPanel(){if(!state.demo)return'';return`<section class="card demo-panel"><div class="demo-head"><div><div class="demo-title">原型场景</div><div class="demo-note">仅用于评审，不属于业务字段；使用 ?demo=0 隐藏。</div></div></div><div class="chips">${scenarios.map(item=>`<button class="chip ${state.scenario===item.key?'active':''}" type="button" onclick="setScenario('${item.key}')">${item.label}</button>`).join('')}</div><div class="demo-errors"><button class="demo-error" onclick="runDemoError('quota')">额度不足</button><button class="demo-error" onclick="runDemoError('time')">时间错误</button><button class="demo-error" onclick="runDemoError('daily')">明细缺失</button><button class="demo-error" onclick="runDemoError('mix')">组合拆单</button><button class="demo-error" onclick="runDemoError('duplicate')">重复休假</button><button class="demo-error" onclick="runDemoError('archive')">考勤封存</button></div></section>`}
+function renderApply(){
+  const form=state.form,cfg=leaveTypeConfig[form.type],calc=calculateForm();$('applyTitle').textContent=form.resubmitId?'重新提交休假':'请假';
+  $('applyContent').innerHTML=`${demoPanel()}<section class="card person-card"><div class="avatar">陈</div><div><div class="person-name">陈思远</div><div class="person-meta">工号 cs013 · 产品中心 / AI产品部</div></div></section>
+  <section class="card policy" id="policyCard"><button class="policy-toggle" type="button" onclick="togglePolicy()"><span>休假政策 · ${cfg.name}</span><span class="toggle-arrow">⌄</span></button><div class="policy-body">${cfg.policy.map(item=>`<p>• ${item}</p>`).join('')}</div></section>
+  <section class="card trial"><div class="trial-head"><div><div class="trial-title">本次休假时长</div><div class="trial-value">${calc.duration}</div></div><button class="text-link" type="button" onclick="openTrialDetail()">查看明细 ›</button></div><div class="trial-sub">${calc.summary}<br>${cfg.limited?`预计剩余：${calc.remaining}`:'提交时按当前假别规则校验'}</div></section>
+  <div class="section-label">休假信息</div><section class="card form-card">
+    <button class="field clickable" type="button" onclick="openTypePicker()"><span class="field-label"><span class="required">*</span>休假类别</span><span class="field-value">${cfg.name}</span><span class="chev">›</span></button>
+    <button class="field clickable" type="button" onclick="openDatePicker('start')"><span class="field-label"><span class="required">*</span>${cfg.unit==='天'||form.type==='breastfeeding'?'开始日期':'开始时间'}</span><span class="field-value ${form.start?'':'placeholder'}">${form.start?formatDateTime(form.start):'请选择'}</span><span class="chev">›</span></button>
+    <button class="field clickable" type="button" onclick="openDatePicker('end')"><span class="field-label"><span class="required">*</span>${cfg.unit==='天'||form.type==='breastfeeding'?'结束日期':'结束时间'}</span><span class="field-value ${form.end?'':'placeholder'}">${form.end?formatDateTime(form.end):'请选择'}</span><span class="chev">›</span></button>
+    ${specialFieldsHtml()}
+    ${currentScenario().restMode==='duration'&&!form.daily.length&&form.type!=='breastfeeding'?`<div class="field"><span class="field-label"><span class="required">*</span>扣减休息时长<button class="rule-link" type="button" onclick="openRestRule(event)">规则说明</button></span><input class="field-input" type="number" min="0" step="0.5" value="${form.rest}" onchange="updateForm('rest',this.value)"></div>`:''}
+    <div class="textarea-wrap ${state.errors.reason?'invalid':''}"><div class="textarea-head"><span class="textarea-label"><span class="required">*</span>休假说明</span><span class="counter">${form.reason.length}/32766</span></div><textarea class="textarea" maxlength="32766" placeholder="请输入休假说明" oninput="updateReason(this.value,this)">${escapeHtml(form.reason)}</textarea><div class="error-text">必填项不能为空</div></div>
+  </section>
+  ${dailyHtml()}${attachmentHtml()}`;
+}
+function specialFieldsHtml(){const form=state.form;if(form.type==='bereavement')return`<button class="field clickable" type="button" onclick="openRelativePicker()"><span class="field-label"><span class="required">*</span>去世亲属的身份</span><span class="field-value ${form.relative?'':'placeholder'}">${form.relative||'请选择'}</span><span class="chev">›</span></button>`;if(form.type==='maternity')return`<div class="field"><span class="field-label"><span class="required">*</span>预产期</span><input class="field-input" type="date" value="${form.dueDate}" onchange="updateForm('dueDate',this.value)"></div><div class="field"><span class="field-label">提前休产假天数</span><span class="field-value readonly">${form.earlyDays}天</span></div>`;if(form.type==='breastfeeding')return`<button class="field clickable" type="button" onclick="openUseModePicker()"><span class="field-label"><span class="required">*</span>每日使用方式</span><span class="field-value">${form.useMode}</span><span class="chev">›</span></button><div class="field"><span class="field-label">每日可休时长</span><span class="field-value readonly">1小时</span></div>`;if(form.type==='prenatal')return`<div class="field"><span class="field-label"><span class="required">*</span>孕周<button class="rule-link" type="button" onclick="openGestationRule(event)">规则说明</button></span><span class="field-value"><input class="field-input" style="width:100px" type="number" min="0" step="1" value="${form.weeks}" onchange="updateForm('weeks',this.value)"> 周 <input class="field-input" style="width:86px" type="number" min="0" max="6" step="1" value="${form.days}" onchange="updateForm('days',this.value)"> 天</span></div>`;return''}
+function dailyHtml(){const form=state.form;if(!form.daily.length)return'';return`<div class="daily-head"><strong>扣减休息时长明细</strong>${currentScenario().shift==='free'?'<button class="small-btn" type="button" onclick="copyDailyLine()">应用到其他未填写日期</button>':''}</div><section class="card">${form.daily.map((row,index)=>{const duration=row.start&&row.end&&row.rest!==''?leaveModel.hourDuration(`${row.date}T${row.start}`,`${row.date}T${row.end}`,row.rest,8):0;return`<div class="daily-card"><div class="daily-date"><span>${row.date.replaceAll('-','/')}</span><span class="daily-status">${row.locked?'休息已处理':'有效考勤日'}</span></div><div class="daily-grid"><div class="daily-item"><label>开始时间</label><input class="daily-input" type="time" value="${row.start}" onchange="updateDaily(${index},'start',this.value)"></div><div class="daily-item"><label>结束时间</label><input class="daily-input" type="time" value="${row.end}" onchange="updateDaily(${index},'end',this.value)"></div><div class="daily-item"><label>扣减休息时长（小时）</label><input class="daily-input" type="number" min="0" step="0.5" value="${row.rest}" ${row.locked?'disabled':''} onchange="updateDaily(${index},'rest',this.value)"></div><div class="daily-result"><span>${row.locked?'本次不重复扣减休息':'系统按填写结果试算'}</span><b>${row.start&&row.end&&row.rest!==''?`${duration}小时`:'待计算'}</b></div></div></div>`}).join('')}</section>`}
+function attachmentHtml(){const calc=calculateForm(),materials=leaveModel.requiredAttachments(state.form.type,calc.number);if(!materials.length)return`<div class="section-label">附件</div><section class="card"><div style="font-size:14px;color:var(--muted)">当前申请未命中必传材料，可按需上传，最多5个文件。</div><div class="upload-grid" style="margin-top:14px"><button class="upload-item" type="button" onclick="showToast('已选择示例附件')"><span class="upload-icon">＋</span>添加附件</button></div></section>`;return`<div class="section-label">申请材料</div><section class="card ${state.errors.attachments?'invalid':''}"><div class="upload-grid">${materials.map(name=>`<button class="upload-item ${state.uploaded.has(name)?'done':''}" type="button" onclick="toggleAttachment('${name}')"><span class="upload-icon">${state.uploaded.has(name)?'✓':'＋'}</span>${name}${state.uploaded.has(name)?'<small>示例文件.pdf</small>':''}</button>`).join('')}</div><div class="error-text">请按要求上传附件</div></section>`}
+function togglePolicy(){$('policyCard').classList.toggle('open')}
+function updateForm(key,value){state.form[key]=['rest','weeks','days'].includes(key)?Number(value):value;if(key==='useMode'||key==='start'||key==='end')buildDailyLines();renderApply()}
+function updateReason(value,element){state.form.reason=value;state.errors.reason=false;element.closest('.textarea-wrap').classList.remove('invalid');element.closest('.textarea-wrap').querySelector('.counter').textContent=`${value.length}/32766`}
+function updateDaily(index,key,value){state.form.daily[index][key]=key==='rest'&&value!==''?Number(value):value;renderApply()}
+function copyDailyLine(){const source=state.form.daily.find(row=>row.start&&row.end&&row.rest!=='');if(!source)return showToast('请先完整填写一日明细');let count=0;state.form.daily.forEach(row=>{if(!row.start){row.start=source.start;count++}if(!row.end){row.end=source.end;count++}if(row.rest===''&&!row.locked){row.rest=source.rest;count++}});renderApply();showToast(count?'已带入其他日期的空白字段':'没有可带入的空白字段')}
+function toggleAttachment(name){state.uploaded.has(name)?state.uploaded.delete(name):state.uploaded.add(name);state.errors.attachments=false;renderApply()}
+function openTypePicker(){showSheet('休假类别',Object.entries(leaveTypeConfig).map(([code,item])=>`<button class="sheet-option ${state.form.type===code?'selected':''}" type="button" onclick="pickLeaveType('${code}')"><span>${item.name}<small>${item.unit}制 · ${item.balance==null?item.expires:`可用${item.balance}${item.unit}`}</small></span><span>${state.form.type===code?'✓':'›'}</span></button>`).join(''))}
+function pickLeaveType(code){state.form={...defaultForm(code),type:code,reason:state.form.reason};state.uploaded=new Set();state.scenario=code==='breastfeeding'?'breastfeeding':leaveTypeConfig[code].unit==='天'?'day':'hour-period';syncFixedEnd();buildDailyLines();closeSheet();renderApply()}
+function openDatePicker(target){const cfg=leaveTypeConfig[state.form.type],dateMode=cfg.unit==='天'||state.form.type==='breastfeeding',type=dateMode?'date':'datetime-local';showSheet(`选择${target==='start'?'开始':'结束'}${dateMode?'日期':'时间'}`,`<div class="sheet-field"><label>${target==='start'?'开始':'结束'}${dateMode?'日期':'时间'}</label><input id="datePickerInput" type="${type}" value="${state.form[target]||''}"></div>`,`<button class="btn" type="button" onclick="clearPickedDate('${target}')">清空</button><button class="btn primary" type="button" onclick="confirmPickedDate('${target}')">确认</button>`)}
+function clearPickedDate(target){state.form[target]='';buildDailyLines();closeSheet();renderApply()}
+function confirmPickedDate(target){state.form[target]=$('datePickerInput').value;if(target==='start')syncFixedEnd();buildDailyLines();closeSheet();renderApply()}
+function openRelativePicker(){showSheet('去世亲属的身份',['父母','配偶','子女'].map(name=>`<button class="sheet-option ${state.form.relative===name?'selected':''}" onclick="pickRelative('${name}')"><span>${name}</span><span>${state.form.relative===name?'✓':''}</span></button>`).join(''))}
+function pickRelative(value){state.form.relative=value;closeSheet();renderApply()}
+function openUseModePicker(){showSheet('每日使用方式',['下班前','上班后'].map(name=>`<button class="sheet-option ${state.form.useMode===name?'selected':''}" onclick="pickUseMode('${name}')"><span>${name}</span><span>${state.form.useMode===name?'✓':''}</span></button>`).join(''))}
+function pickUseMode(value){state.form.useMode=value;buildDailyLines();closeSheet();renderApply()}
+function openRestRule(event){event.stopPropagation();showSheet('扣减休息时长规则','<p style="line-height:1.8;color:var(--text-2)">按小时申请且班次采用“按休息时长休”时展示。若同一考勤日已有其他有效考勤业务处理休息，本次显示0并不可编辑；多日申请按有效考勤日逐日填写。</p>')}
+function openGestationRule(event){event.stopPropagation();showSheet('孕周填写与判断规则','<p style="line-height:1.8;color:var(--text-2)">孕周由周数和余天组成；余天只能填写0至6。系统内部按“周数×7＋余天”比较，不展示孕周总天数。</p>')}
+function openTrialDetail(){const calc=calculateForm(),form=state.form,cfg=leaveTypeConfig[form.type];const deduct=cfg.limited?`<section class="card"><div class="section-label">额度扣减明细</div><div class="field"><span class="field-label">${cfg.name}</span><span class="field-value">-${calc.number}${cfg.unit}</span></div><div class="field"><span class="field-label">预计剩余</span><span class="field-value">${calc.remaining}</span></div></section>`:'';const rows=form.daily.length?form.daily.map(row=>`<div class="daily-card"><div class="daily-date"><span>${row.date.replaceAll('-','/')}</span><b>${row.duration||'按填写结果试算'}</b></div><div style="font-size:14px;color:var(--muted)">${row.start||'—'}—${row.end||'—'} · 扣减休息 ${row.rest===''?'待填写':row.rest+'小时'}</div></div>`).join(''):`<div class="daily-card"><div class="daily-date"><span>${formatDateTime(form.start)}—${formatDateTime(form.end)}</span><b>${calc.duration}</b></div><div style="font-size:14px;color:var(--muted)">${calc.summary}</div></div>`;showSheet('休假明细',`<div class="trial" style="padding:18px;border-radius:18px;margin-bottom:16px"><div class="trial-title">本次休假时长</div><div class="trial-value">${calc.duration}</div></div>${deduct}<section class="card"><div class="section-label">休假时长明细</div>${rows}</section>`)}
+function validateLeave(){const form=state.form,cfg=leaveTypeConfig[form.type],calc=calculateForm();state.errors={};if(!form.reason.trim())state.errors.reason=true;if(!form.start||!form.end){showToast('请完整填写开始、结束时间');return false}const start=new Date(form.start),end=new Date(form.end);if((cfg.unit==='天'&&end<start)||(cfg.unit==='小时'&&end<=start)){showModal('时间填写有误',cfg.unit==='天'?'结束日期不能早于开始日期':'结束时间应晚于开始时间');return false}if(cfg.fixedDuration&&calc.number!==cfg.fixedDuration){showModal('休假时长不符合规则',`该休假要求一次申请完，本次应申请${cfg.fixedDuration}天。`);return false}if(form.type==='bereavement'&&!form.relative){showToast('请选择去世亲属的身份');return false}if(form.type==='prenatal'&&(!Number.isInteger(Number(form.weeks))||!Number.isInteger(Number(form.days))||form.weeks<0||form.days<0||form.days>6)){showModal('孕周填写有误','请填写不小于0的整数周，余天只能为0至6。');return false}if(form.daily.some(row=>!row.start||!row.end||row.rest==='')){showModal('每日明细未填写完整','请补充每个有效考勤日的开始时间、结束时间和扣减休息时长。');return false}if(cfg.limited&&calc.number>cfg.balance){showModal('可用额度不足',`${cfg.name}当前可用${cfg.balance}${cfg.unit}，本次申请${calc.number}${cfg.unit}，不允许提交。`);return false}const missing=leaveModel.requiredAttachments(form.type,calc.number).filter(name=>!state.uploaded.has(name));if(missing.length){state.errors.attachments=true;renderApply();showToast(`请上传：${missing.join('、')}`);return false}if(state.errors.reason){renderApply();showToast('请填写休假说明');return false}return true}
+function submitLeave(){if(!validateLeave())return;const form=state.form,calc=calculateForm();if(form.resubmitId){const order=leaveOrders.find(item=>item.id===form.resubmitId);Object.assign(order,{type:form.type,start:form.start,end:form.end,duration:calc.duration,reason:form.reason,status:'审批中',approver:'直属领导'});}else leaveOrders.unshift({id:`L${Date.now()}`,kind:'leave',type:form.type,start:form.start,end:form.end,duration:calc.duration,reason:form.reason,status:'审批中',follow:'—',created:'2026-08-28 18:30',archiveMode:'none',approver:'直属领导',daily:form.daily.map(row=>({...row,duration:`${leaveModel.hourDuration(`${row.date}T${row.start}`,`${row.date}T${row.end}`,row.rest,8)}小时`}))});state.lastSubmitKind='leave';$('successSub').textContent='休假申请已进入审批流程';$('successPage').classList.add('show')}
+function runDemoError(code){const errors={quota:['可用额度不足','年假当前可用40小时，本次申请48小时，不允许提交。'],time:['时间填写有误','结束时间应晚于开始时间。'],daily:['每日明细未填写完整','请补充每个有效考勤日的开始时间、结束时间和扣减休息时长。'],mix:['请拆分申请','申请期间存在班次类型、休息方式或跨天属性不一致，不生成混合明细，请拆分申请。'],duplicate:['休假时间冲突','2026/08/10 09:00~2026/08/10 18:00 已存在休假记录，请勿重复提交!'],archive:['考勤已封存','申请区间命中已封存考勤期间，不允许新增考勤单据。']};showModal(errors[code][0],errors[code][1])}
+
+function openRecords(){renderRecords();navigate('records')}
+function switchRecordTab(kind){state.recordTab=kind;state.filters={type:'',status:'',follow:'',start:'',end:''};renderRecords()}
+function renderFilters(){const f=state.filters,isLeave=state.recordTab==='leave';$('filterRow').innerHTML=`<button class="filter-chip" onclick="openRecordFilter('type')"><span><span class="filter-name">休假类别</span><span class="filter-value">${f.type?typeName(f.type):'全部'}</span></span><span>⌄</span></button><button class="filter-chip" onclick="openRecordFilter('status')"><span><span class="filter-name">审批状态</span><span class="filter-value">${f.status||'全部'}</span></span><span>⌄</span></button>${isLeave?`<button class="filter-chip" onclick="openRecordFilter('follow')"><span><span class="filter-name">销假状态</span><span class="filter-value">${f.follow||'全部'}</span></span><span>⌄</span></button>`:''}<button class="filter-chip" onclick="openRecordFilter('date')"><span><span class="filter-name">${isLeave?'休假':'销假'}日期</span><span class="filter-value">${f.start||f.end?`${f.start||'不限'} 至 ${f.end||'不限'}`:'请选择'}</span></span><span>⌄</span></button>`}
+function filteredRecords(){const source=state.recordTab==='leave'?leaveOrders:cancelOrders,f=state.filters;return source.filter(row=>(!f.type||row.type===f.type)&&(!f.status||row.status===f.status)&&(!f.follow||(f.follow==='已销假'?row.follow==='已销假':row.follow!=='已销假'))&&(!f.start&&!f.end||leaveModel.dateRangeOverlap(dateOnly(row.start),dateOnly(row.end),f.start||'0000-01-01',f.end||'9999-12-31')))}
+function renderRecords(){
+  $('leaveTab').classList.toggle('active',state.recordTab==='leave');$('cancelTab').classList.toggle('active',state.recordTab==='cancel');renderFilters();const rows=filteredRecords();
+  $('recordList').innerHTML=rows.length?rows.map(record=>recordCard(record)).join(''):`<div class="empty"><div class="empty-icon">◌</div>暂无符合条件的记录<br>可调整筛选条件后重试</div>`;
+}
+function recordCard(record){const actions=leaveModel.recordActions(record);return`<article class="record-card" onclick="openRecordDetail('${record.kind}','${record.id}')"><div class="record-top"><div><div class="record-type">${typeName(record.type)}${record.kind==='cancel'?'销假':''}</div><div class="record-no">${record.id}</div></div>${statusTag(record.status)}</div><div class="record-period">${formatDateTime(record.start)}<br>至 ${formatDateTime(record.end)}</div><div class="record-meta"><div class="meta-item"><span>${record.kind==='cancel'?'销假':'休假'}时长</span><b>${record.duration}</b></div><div class="meta-item"><span>${record.kind==='leave'?'销假状态':'原休假申请'}</span><b>${record.kind==='leave'?(record.follow==='已销假'?'已销假':record.follow==='销假审批中'?'销假审批中':'未销假'):record.source}</b></div></div>${actions.length?`<div class="record-actions">${actions.map(action=>`<button class="action-link ${action==='撤回'?'danger':''}" type="button" onclick="handleRecordAction(event,'${record.kind}','${record.id}','${action}')">${action}</button>`).join('')}</div>`:''}</article>`}
+function resetFilters(){state.filters={type:'',status:'',follow:'',start:'',end:''};renderRecords()}
+function openRecordFilter(kind){if(kind==='date'){showSheet(`${state.recordTab==='leave'?'休假':'销假'}日期`,`<div class="sheet-date-grid"><div class="sheet-field"><label>开始日期</label><input id="filterStart" type="date" value="${state.filters.start}"></div><div class="sheet-field"><label>结束日期</label><input id="filterEnd" type="date" value="${state.filters.end}"></div></div>`,`<button class="btn" onclick="clearDateFilter()">清空</button><button class="btn primary" onclick="confirmDateFilter()">确认</button>`);return}const values=kind==='type'?Object.keys(leaveTypeConfig):kind==='status'?['审批中','审批完成','已撤回','已驳回']:['未销假','已销假'];showSheet(kind==='type'?'休假类别':kind==='status'?'审批状态':'销假状态',`<button class="sheet-option ${!state.filters[kind]?'selected':''}" onclick="pickRecordFilter('${kind}','')"><span>全部</span><span>${!state.filters[kind]?'✓':''}</span></button>${values.map(value=>`<button class="sheet-option ${state.filters[kind]===value?'selected':''}" onclick="pickRecordFilter('${kind}','${value}')"><span>${kind==='type'?typeName(value):value}</span><span>${state.filters[kind]===value?'✓':''}</span></button>`).join('')}`)}
+function pickRecordFilter(kind,value){state.filters[kind]=value;closeSheet();renderRecords()}
+function clearDateFilter(){state.filters.start='';state.filters.end='';closeSheet();renderRecords()}
+function confirmDateFilter(){state.filters.start=$('filterStart').value;state.filters.end=$('filterEnd').value;closeSheet();renderRecords()}
+
+function openRecordDetail(kind,id){const record=(kind==='leave'?leaveOrders:cancelOrders).find(item=>item.id===id);if(!record)return;state.selected=record;renderDetail(record);navigate('detail')}
+function infoItem(label,value,full=false,raw=false){return`<div class="info-item ${full?'full':''}"><div class="info-label">${label}</div><div class="info-value">${raw?value:escapeHtml(value||'—')}</div></div>`}
+function renderDetail(record){
+  const isCancel=record.kind==='cancel',cfg=leaveTypeConfig[record.type];$('detailTitle').textContent=isCancel?'销假详情':'休假详情';let info='';
+  if(isCancel)info=infoItem('姓名','陈思远')+infoItem('工号','cs013')+infoItem('原休假申请',`<button class="source-link" onclick="openRecordDetail('leave','${record.source}')">${record.source}　查看详情</button>`,true,true)+infoItem('休假类别',cfg.name)+infoItem('销假开始时间',formatDateTime(record.start))+infoItem('销假结束时间',formatDateTime(record.end))+infoItem('销假时长',record.duration)+infoItem('销假说明',record.reason,true)+infoItem('附件','无',true);
+  else info=infoItem('姓名','陈思远')+infoItem('工号','cs013')+infoItem('休假类别',cfg.name)+infoItem('开始时间',formatDateTime(record.start))+infoItem('结束时间',formatDateTime(record.end))+infoItem('休假时长',record.duration)+infoItem('休假说明',record.reason,true)+infoItem('附件',(record.attachments||[]).join('、')||'无',true)+(record.cancelId?infoItem('关联销假申请',`<button class="source-link" onclick="openRecordDetail('cancel','${record.cancelId}')">查看关联销假详情　›</button>`,true,true):'');
+  const archive=record.archiveMode==='partial'?'<div class="notice danger">本次休假包含已封存考勤日。本期仅支持整单销假，因此不可发起销假。</div>':record.archiveMode==='full'?'<div class="notice danger">本次休假涉及的考勤日均已封存，不可发起销假。</div>':'';
+  const daily=!isCancel&&record.daily?.length?`<section class="card"><div class="section-label">休假时长明细</div>${record.daily.map(row=>`<div class="daily-card"><div class="daily-date"><span>${row.date.replaceAll('-','/')}</span><b>${row.duration}</b></div><div style="font-size:14px;color:var(--muted)">${row.start}—${row.end} · 扣减休息 ${row.rest}${typeof row.rest==='number'?'小时':''}</div>${row.archived?`<div class="notice danger" style="margin:12px 0 0">已封存 · ${row.archiveTime}</div>`:'<div style="font-size:13px;color:var(--success);margin-top:9px">未封存</div>'}</div>`).join('')}</section>`:'';
+  $('detailContent').innerHTML=`<section class="summary-card"><div class="summary-row"><div><div class="summary-title">${cfg.name}${isCancel?'销假申请':'申请'}</div><div class="summary-meta">申请单号：${record.id}<br>发起人：陈思远　创建时间：${record.created}</div></div>${statusTag(record.status)}</div></section>${archive}<section class="card"><div class="section-label">${isCancel?'销假信息':'休假信息'}</div><div class="info-grid">${info}</div></section>${daily}<section class="card"><div class="section-label" style="background:transparent;padding-left:0">审批记录</div><div class="timeline">${timelineHtml(record)}</div></section>`;
+  const actions=leaveModel.recordActions(record),bar=$('detailActions');bar.innerHTML=actions.map(action=>`<button class="btn ${action==='撤回'?'danger':action==='重新提交'?'warning':'primary'}" onclick="handleRecordAction(event,'${record.kind}','${record.id}','${action}')">${action}</button>`).join('');bar.classList.toggle('hidden',!actions.length);bar.classList.toggle('single',actions.length===1);$('detailContent').style.paddingBottom=actions.length?'128px':'28px';
+}
+function timelineHtml(record){let rows=[{title:'提交申请',meta:`陈思远｜${record.created}`,cls:''}];if(record.status==='审批中')rows.push({title:'当前审批',meta:`${record.approver||'直属领导'}｜处理中`,cls:'pending'});if(record.status==='审批完成')rows.push({title:'审批通过',meta:'直属领导｜已完成',cls:''});if(record.status==='已驳回')rows.push({title:'审批驳回',meta:'直属领导｜请补充材料后重新提交',cls:'red'});if(record.status==='已撤回')rows.push({title:'撤回申请',meta:'陈思远｜已撤回',cls:'gray'});return rows.map(row=>`<div class="timeline-item"><div class="timeline-dot ${row.cls}"></div><div class="timeline-title">${row.title}</div><div class="timeline-meta">${row.meta}</div></div>`).join('')}
+function handleRecordAction(event,kind,id,action){event?.stopPropagation();const record=(kind==='leave'?leaveOrders:cancelOrders).find(item=>item.id===id);if(!record)return;if(action==='撤回'){showModal('撤回申请','确认撤回当前申请？撤回后，可从列表重新提交。',[{label:'取消',onClick:closeModal},{label:'确认撤回',primary:true,danger:true,onClick:()=>{closeModal();withdrawRecord(kind,id)}}]);return}if(action==='重新提交'){resubmitRecord(kind,id);return}if(action==='撤销')tryOpenCancel(record)}
+function withdrawRecord(kind,id){const record=(kind==='leave'?leaveOrders:cancelOrders).find(item=>item.id===id);record.status='已撤回';if(kind==='cancel'){const source=leaveOrders.find(item=>item.id===record.source);if(source)source.follow='—'}showToast('申请已撤回');if(state.page==='detail')renderDetail(record);else renderRecords()}
+function resubmitRecord(kind,id){const record=(kind==='leave'?leaveOrders:cancelOrders).find(item=>item.id===id);if(kind==='leave')openResubmitApply(record);else{const source=leaveOrders.find(item=>item.id===record.source);openCancel(source,record)}}
+function tryOpenCancel(record){const pending=cancelOrders.some(item=>item.source===record.id&&item.status==='审批中'),result=leaveModel.canCancel({...record,pendingCancel:pending});if(result.ok){openCancel(record);return}if(record.archiveMode==='partial'||record.archiveMode==='full'){const rows=(record.daily||[]).map(row=>`<div class="daily-card"><div class="daily-date"><span>${row.date.replaceAll('-','/')}</span><span class="tag ${row.archived?'red':'green'}">${row.archived?'已封存':'未封存'}</span></div><div style="font-size:14px;color:var(--muted)">${row.start}—${row.end} · ${row.duration}${row.archiveTime?` · 封存时间 ${row.archiveTime}`:''}</div></div>`).join('');showModal('无法销假',`<div class="notice danger">该休假包含已封存考勤日期，不允许销假。</div>${rows}`);return}showModal('无法销假',result.reason)}
+
+function openCancel(leaveRecord,cancelRecord=null){state.selected=leaveRecord;state.cancelForm={reason:cancelRecord?.reason||'',attachment:false,resubmitId:cancelRecord?.id||''};renderCancel();navigate('cancel')}
+function renderCancel(){const record=state.selected,form=state.cancelForm;$('cancelTitle').textContent=form.resubmitId?'重新提交销假':'销假申请';$('cancelContent').innerHTML=`<div class="notice">销假范围与原休假申请一致。本期仅支持整单销假。</div><section class="card"><div class="section-label">销假信息</div><div class="info-grid">${infoItem('原休假申请',`<button class="source-link" onclick="openRecordDetail('leave','${record.id}')">${record.id}　查看详情</button>`,true,true)}${infoItem('休假类别',typeName(record.type))}${infoItem('销假开始时间',formatDateTime(record.start))}${infoItem('销假结束时间',formatDateTime(record.end))}${infoItem('销假时长',record.duration)}</div></section><div class="section-label">申请说明</div><section class="card"><div class="textarea-wrap ${form.error?'invalid':''}" style="padding:0"><div class="textarea-head"><span class="textarea-label"><span class="required">*</span>销假说明</span><span class="counter">${form.reason.length}/32766</span></div><textarea class="textarea" maxlength="32766" placeholder="请输入销假说明" oninput="updateCancelReason(this.value,this)">${escapeHtml(form.reason)}</textarea><div class="error-text">必填项不能为空</div></div></section><div class="section-label">附件</div><section class="card"><button class="upload-item ${form.attachment?'done':''}" type="button" onclick="toggleCancelAttachment()"><span class="upload-icon">${form.attachment?'✓':'＋'}</span>${form.attachment?'销假说明.pdf':'添加附件'}</button><div style="font-size:13px;color:var(--muted);margin-top:12px">最多上传5个文件</div></section>`}
+function updateCancelReason(value,element){state.cancelForm.reason=value;state.cancelForm.error=false;element.closest('.textarea-wrap').classList.remove('invalid');element.closest('.textarea-wrap').querySelector('.counter').textContent=`${value.length}/32766`}
+function toggleCancelAttachment(){state.cancelForm.attachment=!state.cancelForm.attachment;renderCancel()}
+function submitCancel(){const form=state.cancelForm,source=state.selected;if(!form.reason.trim()){form.error=true;renderCancel();showToast('请填写销假说明');return}if(form.resubmitId){const record=cancelOrders.find(item=>item.id===form.resubmitId);Object.assign(record,{reason:form.reason,status:'审批中',approver:'直属领导'});source.follow='销假审批中'}else{source.follow='销假审批中';cancelOrders.unshift({id:`C${Date.now()}`,source:source.id,kind:'cancel',type:source.type,start:source.start,end:source.end,duration:source.duration,reason:form.reason,status:'审批中',created:'2026-08-28 18:35',approver:'直属领导'})}state.lastSubmitKind='cancel';$('successSub').textContent='销假申请已进入审批流程';$('successPage').classList.add('show')}
+function closeSuccess(home){$('successPage').classList.remove('show');if(home){state.stack=[];document.querySelectorAll('.page').forEach(node=>node.classList.toggle('active',node.id==='page-balance'));state.page='balance'}else{state.recordTab=state.lastSubmitKind;renderRecords();state.stack=[];document.querySelectorAll('.page').forEach(node=>node.classList.toggle('active',node.id==='page-records'));state.page='records'}}
+
+renderBalance();
+</script>
+<!-- UNIFIED MOBILE RETURN START -->
+<style>
+.unified-mobile-return{display:none;position:fixed;z-index:220;top:0;left:0;right:0;height:44px;padding:0 18px;background:#fff;border-bottom:1px solid #e2e8f0;align-items:center;color:#2563eb;text-decoration:none;font-size:14px;font-weight:750;box-shadow:0 1px 4px rgba(15,23,42,.04)}
+body.unified-mobile-entry{padding-top:44px}
+body.unified-mobile-entry .unified-mobile-return{display:flex}
+body.unified-mobile-entry .app-shell{height:calc(100vh - 44px);min-height:676px}
+</style>
+<a class="unified-mobile-return" href="../04-我的休假-PC端/index.html">← 返回 PC 端</a>
+<script>
+if(new URLSearchParams(location.search).get('from')==='unified')document.body.classList.add('unified-mobile-entry');
+</script>
+<!-- UNIFIED MOBILE RETURN END -->
+</body>
+</html>

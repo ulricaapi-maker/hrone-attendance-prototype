@@ -1,0 +1,8 @@
+.unified-nav{width:200px;min-height:100vh;background:#fff;color:#333947;border-right:1px solid #e6e6e8}
+.unified-nav__logo{height:56px;display:flex;align-items:center;padding:0 18px;border-bottom:1px solid #e6e6e8;color:#0e66fb;font-size:17px;font-weight:650}
+.unified-nav__home,.unified-nav__item{display:block;text-decoration:none;color:#333947}
+.unified-nav__home{padding:10px 18px;margin:8px 0}
+.unified-nav__group{padding:11px 18px 6px;font-weight:600}
+.unified-nav__item{padding:9px 18px 9px 36px}
+.unified-nav__item:hover,.unified-nav__item[aria-current="page"]{background:#e7f0ff;color:#0e66fb}
+.unified-nav__item[aria-current="page"]{font-weight:600}

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="../assets/unified-navigation.css">
+<title>HR One · 休假详情</title>
+<style>
+:root{--blue:#0E66FB;--blue-light:#e7f0ff;--section:#E8F0FE;--page:#FAFBFC;--border:#E6E6E8;--text:#333947;--strong:#1A2130;--sub:#667085;--muted:#999ca3;--red:#F74C4C;--green:#238456;--green-bg:#ebf8f1}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;color:var(--text);background:var(--page)}button{font-family:inherit}
+.layout{display:flex;min-height:100vh}.sidebar{width:200px;background:#fff;border-right:1px solid var(--border);flex:none}.sidebar-logo{height:56px;display:flex;align-items:center;padding:0 18px;border-bottom:1px solid var(--border);font-size:17px;font-weight:650;color:var(--blue)}.sidebar-home,.sidebar-item{display:block;text-decoration:none;color:var(--text);padding:9px 18px}.sidebar-home{margin-top:8px}.sidebar-parent{display:flex;align-items:center;justify-content:space-between;padding:11px 18px 6px;color:var(--text);font-weight:600}.sidebar-parent:after{content:"⌃";color:var(--muted);font-size:12px}.sidebar-item{padding-left:36px}.sidebar-item:hover{background:var(--blue-light)}.sidebar-item.active{background:var(--blue-light);color:var(--blue);font-weight:600}
+.main{flex:1;min-width:0}.header{height:56px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px}.breadcrumb{font-size:13px;color:var(--muted)}.breadcrumb span{color:var(--text)}.user-info{font-size:13px;color:var(--sub)}.content{padding:20px 24px 28px;min-height:calc(100vh - 56px)}
+.btn{height:32px;padding:0 15px;border:1px solid #ccced1;border-radius:4px;background:#fff;color:var(--text);font-size:13px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap}.btn:hover{border-color:var(--blue);color:var(--blue)}.btn-primary{background:var(--blue);border-color:var(--blue);color:#fff}.btn-primary:hover{background:#0759e4;color:#fff}.btn-sm{height:28px;padding:0 11px;font-size:12px}.btn-danger{color:#e23b3b;border-color:#f3aaaa}.btn-danger:hover{color:#d22b2b;border-color:#d22b2b}
+.detail-summary{background:#fff;border-radius:4px;padding:20px 24px;margin-bottom:16px;display:flex;align-items:flex-start;justify-content:space-between;gap:24px}.detail-title-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}.detail-title{font-size:18px;font-weight:600;color:var(--strong)}.status-tag{display:inline-flex;padding:2px 8px;border-radius:2px;font-size:12px}.tag-blue{background:#eaf2ff;color:var(--blue)}.tag-green{background:var(--green-bg);color:var(--green)}.tag-gray{background:#f1f2f4;color:#6f7682}.tag-red{background:#fff0f0;color:#d83b3b}.doc-meta{display:flex;align-items:center;gap:20px;color:var(--sub);font-size:13px;flex-wrap:wrap}.detail-actions{display:flex;gap:8px;align-items:center;flex:none}.archive-banner{display:none;margin:-4px 0 16px;padding:10px 12px;border:1px solid #f3dda3;border-radius:4px;background:#fff8e8;color:#7a5a13;font-size:12px;line-height:1.7}.archive-banner.show{display:block}.detail-layout{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;align-items:start}.detail-card{background:#fff;border-radius:4px;margin-bottom:16px;padding:20px 24px}.detail-section-title{display:inline-block;background:var(--section);color:var(--strong);border-radius:3px;padding:4px 10px;font-size:14px;font-weight:600;margin-bottom:16px;line-height:1.5}.detail-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px 36px}.detail-item{display:flex;flex-direction:column;min-width:0}.detail-item.full{grid-column:1/-1}.detail-field-label{font-size:12px;color:var(--muted);margin-bottom:4px;line-height:1.5}.detail-field-value{font-size:14px;color:var(--strong);line-height:1.6;min-height:22px;word-break:break-word}.detail-link{border:0;background:transparent;color:var(--blue);font:inherit;cursor:pointer;text-align:left;padding:0;width:max-content}.detail-link:hover{text-decoration:underline}.approval-card{background:#fff;border-radius:4px;padding:20px 24px}.approval-title{font-size:14px;font-weight:600;color:var(--strong);margin-bottom:18px}.timeline{position:relative;padding-left:24px}.timeline:before{content:"";position:absolute;left:6px;top:8px;bottom:8px;width:1px;background:#D8DEE8}.timeline-item{position:relative;margin-bottom:22px}.timeline-item:last-child{margin-bottom:0}.timeline-dot{position:absolute;left:-23px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--blue)}.timeline-dot.done{background:#2e9b66}.timeline-dot.gray{background:#aab0ba}.timeline-dot.red{background:#e24a4a}.timeline-title{font-weight:600;color:var(--strong);margin-bottom:5px}.timeline-meta{font-size:12px;color:var(--muted);line-height:1.7}.line-table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:4px}.line-table{width:100%;border-collapse:collapse;min-width:700px}.line-table th{background:#f5f6f7;color:var(--strong);font-size:12px;font-weight:500;text-align:left;padding:9px 11px;border-bottom:1px solid var(--border)}.line-table td{font-size:13px;padding:10px 11px;border-bottom:1px solid var(--border)}.line-table tr:last-child td{border-bottom:0}.status-note{font-size:12px;color:#6f7682}.hidden{display:none!important}
+@media(max-width:1050px){.detail-layout{grid-template-columns:1fr}.approval-card{margin-bottom:16px}}@media(max-width:780px){.sidebar{display:none}.content{padding:14px}.detail-summary{flex-direction:column}.detail-grid{grid-template-columns:1fr 1fr}.user-info{display:none}}
+</style>
+</head>
+<body data-unified-page="my-leave-detail" data-unified-root="../" data-unified-active="my-leave-pc">
+<div class="layout">
+  <aside class="sidebar">
+    <div id="unifiedAttendanceNav"><a class="unified-nav__home" href="../index.html">首页</a></div>
+  </aside>
+  <main class="main">
+    <header class="header"><div class="breadcrumb" id="breadcrumb">员工自助 / 我的休假 / <span id="breadcrumbName">休假详情</span></div><div class="user-info" id="userInfo">GMT+8:00　简体中文　当前员工</div></header>
+    <section class="content">
+      <section class="detail-summary">
+        <div>
+          <div class="detail-title-row"><h1 class="detail-title" id="pageTitle">休假申请</h1><span class="status-tag tag-blue" id="statusTag">审批中</span></div>
+          <div class="doc-meta"><span id="applyNo">申请单号：—</span><span id="initiatorMeta">发起人：示例员工</span><span id="createdMeta">创建时间：—</span></div>
+        </div>
+        <div class="detail-actions" id="detailActions"><button class="btn btn-sm" id="backBtn">返回列表</button></div>
+      </section>
+      <div class="archive-banner" id="archiveBanner"></div>
+      <section class="detail-layout">
+        <div>
+          <section class="detail-card">
+            <div class="detail-section-title" id="businessSectionTitle">休假信息</div>
+            <div class="detail-grid" id="businessGrid"></div>
+          </section>
+          <section class="detail-card" id="durationCard">
+            <div class="detail-section-title">休假时长明细</div>
+            <div class="line-table-wrap"><table class="line-table"><thead id="durationHead"></thead><tbody id="durationRows"></tbody></table></div>
+          </section>
+        </div>
+        <aside class="approval-card">
+          <div class="approval-title">审批记录</div>
+          <div class="timeline" id="approvalTimeline"></div>
+        </aside>
+      </section>
+    </section>
+  </main>
+</div>
+<script src="../assets/unified-navigation.js"></script>
+<script>
+const params=new URLSearchParams(window.location.search);const kind=params.get('kind')||'leave';const record={id:params.get('id')||'—',type:params.get('type')||'休假',start:params.get('start')||'—',end:params.get('end')||'—',duration:params.get('duration')||'—',unit:params.get('unit')||'',status:params.get('status')||'审批中',approver:params.get('approver')||'—',created:params.get('created')||'—',reason:params.get('reason')||'—',follow:params.get('follow')||'—',source:params.get('source')||'',archiveMode:params.get('archiveMode')||'none',employee:params.get('employee')||'示例员工',employeeId:params.get('employeeId')||'E10086',initiator:params.get('initiator')||params.get('employee')||'示例员工',entryMode:['team','hr'].includes(params.get('entryMode'))?params.get('entryMode'):'self'};
+const $=id=>document.getElementById(id);const isCancel=kind==='cancel';
+const unifiedReturn = record.entryMode === "self"
+  ? `index.html${isCancel ? "?tab=cancel" : ""}`
+  : `../03-休假管理/index.html?mode=${record.entryMode}${isCancel ? "&tab=cancel" : ""}`;
+const tagClass=status=>({审批中:'tag-blue',审批完成:'tag-green',已撤回:'tag-gray',已驳回:'tag-red'}[status]||'tag-gray');
+function field(label,value,full=false,raw=false){return `<div class="detail-item${full?' full':''}"><div class="detail-field-label">${label}</div><div class="detail-field-value">${raw?value:(value||'—')}</div></div>`}
+function actionButton(name,action,primary=false,danger=false){return `<button class="btn btn-sm${primary?' btn-primary':''}${danger?' btn-danger':''}" data-action="${action}">${name}</button>`}
+function routeAction(action){const query=new URLSearchParams({action,id:record.id});if(isCancel)query.set('tab','cancel');if(record.entryMode==='self'){window.location.href=`index.html?${query.toString()}`;return}query.set('mode',record.entryMode);window.location.href=`../03-休假管理/index.html?${query.toString()}`}
+function configureEntryMode(){const routeParams=new URLSearchParams(params);routeParams.set('entryMode',record.entryMode);window.UnifiedAttendanceNav.render({root:'../',active:window.UnifiedAttendanceNav.resolveActive(document.body.dataset,routeParams)});if(record.entryMode==='self')return;const isTeam=record.entryMode==='team';$('breadcrumb').innerHTML=isTeam?'我的团队 / 团队休假 / <span id="breadcrumbName">休假详情</span>':'假勤管理 / 假勤流程 / 休假 / <span id="breadcrumbName">休假详情</span>';$('userInfo').textContent=`GMT+8:00　简体中文　${isTeam?'当前主管':'当前HR'}`}
+function renderHeader(){
+  $('pageTitle').textContent=`${record.type}${isCancel?'销假申请':'申请'}`;$('breadcrumbName').textContent=isCancel?'销假详情':'休假详情';$('statusTag').textContent=record.status;$('statusTag').className=`status-tag ${tagClass(record.status)}`;$('applyNo').textContent=`申请单号：${record.id}`;$('initiatorMeta').textContent=`发起人：${record.initiator}`;$('createdMeta').textContent=`创建时间：${record.created}`;
+  let actions='<button class="btn btn-sm" id="backBtn">返回列表</button>';
+  if(record.status==='审批中')actions+=actionButton('撤回','withdraw',false,true);
+  if(!isCancel&&record.status==='审批完成'&&record.follow!=='已销假')actions+=actionButton('撤销','cancel',true);
+  if(record.status==='已撤回'||record.status==='已驳回')actions+=actionButton('重新提交','resubmit',true);
+  $('detailActions').innerHTML=actions;$('detailActions').querySelector('#backBtn').addEventListener('click',()=>window.location.href=unifiedReturn);$('detailActions').querySelectorAll('[data-action]').forEach(btn=>btn.addEventListener('click',()=>routeAction(btn.dataset.action)));
+}
+function renderArchiveBanner(){
+  if(isCancel)return;
+  if(record.archiveMode==='partial'){$('archiveBanner').textContent=record.entryMode==='self'?'本次休假包含已封存考勤日。本期仅支持整单销假，因此不可发起销假。':'本次休假包含已封存考勤日。已封存日期保持原结果，仅可变更未封存日期；本期不支持整单销假。';$('archiveBanner').classList.add('show');return}
+  if(record.archiveMode==='full'){$('archiveBanner').textContent=record.entryMode==='self'?'本次休假涉及的考勤日均已封存，不可发起销假。':'本次休假涉及的考勤日均已封存，不支持变更或销假。';$('archiveBanner').classList.add('show')}
+}
+function renderBusiness(){
+  $('businessSectionTitle').textContent=isCancel?'销假信息':'休假信息';
+  if(isCancel){$('businessGrid').innerHTML=field('姓名',record.employee)+field('工号',record.employeeId)+field('原休假申请',`<button class="detail-link" id="sourceLeaveLink">${record.source||'—'}　查看详情</button>`,false,true)+field('休假类别',record.type)+field('销假开始时间',record.start)+field('销假结束时间',record.end)+field('销假时长',record.duration)+field('销假说明',record.reason,true)+field('附件','无',true)}
+  else{$('businessGrid').innerHTML=field('姓名',record.employee)+field('工号',record.employeeId)+field('休假类别',record.type)+field('开始时间',record.start)+field('结束时间',record.end)+field('休假时长',record.duration)+field('休假说明',record.reason,true)+field('附件','无',true)}
+  const sourceLink=$('sourceLeaveLink');if(sourceLink)sourceLink.addEventListener('click',()=>window.location.href=`index.html?openDetail=${encodeURIComponent(record.source)}`);
+}
+function toDate(value){const datePart=(value||'').slice(0,10).replaceAll('/','-');const parsed=new Date(`${datePart}T00:00:00`);return isNaN(parsed)?null:parsed}
+function formatDate(date){return `${date.getFullYear()}/${String(date.getMonth()+1).padStart(2,'0')}/${String(date.getDate()).padStart(2,'0')}`}
+function timePart(value){return value&&value.length>10?value.slice(11):'—'}
+function renderDuration(){
+  if(isCancel){$('durationCard').classList.add('hidden');return}
+  const multiDay=(record.start||'').slice(0,10)!==(record.end||'').slice(0,10);
+  if(!multiDay&&record.archiveMode!=='partial'){$('durationCard').classList.add('hidden');return}
+  $('durationCard').classList.remove('hidden');
+  if(record.archiveMode==='partial'){
+    $('durationHead').innerHTML='<tr><th>考勤日</th><th>休假时间</th><th>扣减休息时长</th><th>休假时长</th><th>封存状态</th></tr>';
+    $('durationRows').innerHTML='<tr><td>2026/07/31</td><td>13:00—17:00</td><td>0小时</td><td>4小时</td><td><span class="status-note">已封存｜2026/08/05 18:00</span></td></tr><tr><td>2026/08/01</td><td>09:00—12:00</td><td>0.5小时</td><td>2.5小时</td><td><span class="status-note">未封存</span></td></tr>';return;
+  }
+  $('durationHead').innerHTML='<tr><th>日期</th><th>开始时间</th><th>结束时间</th><th>休假时长</th></tr>';
+  if(record.unit==='天'){const start=toDate(record.start),end=toDate(record.end),rows=[];if(start&&end){for(let day=new Date(start);day<=end;day.setDate(day.getDate()+1))rows.push(`<tr><td>${formatDate(day)}</td><td>—</td><td>—</td><td>1天</td></tr>`)}$('durationRows').innerHTML=rows.join('')||`<tr><td>${record.start}</td><td>—</td><td>—</td><td>${record.duration}</td></tr>`}
+  else{const date=(record.start||'').slice(0,10);$('durationRows').innerHTML=`<tr><td>${date}</td><td>${timePart(record.start)}</td><td>${timePart(record.end)}</td><td>${record.duration}</td></tr>`}
+}
+function timelineItem(title,meta,state='done'){return `<div class="timeline-item"><div class="timeline-dot ${state}"></div><div class="timeline-title">${title}</div><div class="timeline-meta">${meta}</div></div>`}
+function renderTimeline(){let content=timelineItem('提交申请',`${record.initiator}｜${record.created}`);if(record.status==='审批中')content+=timelineItem('当前审批',`${record.approver}｜处理中`,'');if(record.status==='审批完成')content+=timelineItem('审批通过','直属领导｜已完成','done');if(record.status==='已驳回')content+=timelineItem('审批驳回','直属领导｜已驳回','red');if(record.status==='已撤回')content+=timelineItem('撤回申请',`${record.initiator}｜已撤回`,'gray');$('approvalTimeline').innerHTML=content}
+configureEntryMode();renderHeader();renderArchiveBanner();renderBusiness();renderDuration();renderTimeline();
+</script>
+</body>
+</html>

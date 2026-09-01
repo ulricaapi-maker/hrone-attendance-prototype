@@ -1,0 +1,807 @@
+/* 余额明细冻结列：列宽与 sticky 偏移共用同一组固定值，避免横向滚动后重叠。 */
+#balance-detail .card > .table-wrap {
+  max-width: calc(100% - 28px);
+  margin-right: 14px;
+  margin-left: 14px;
+  padding-right: 0;
+  padding-left: 0;
+}
+
+#balance-detail .quota-table th:nth-child(1),
+#balance-detail .quota-table td:nth-child(1) {
+  width: 42px;
+  min-width: 42px;
+  max-width: 42px;
+  left: 0;
+}
+
+#balance-detail .quota-table th:nth-child(2),
+#balance-detail .quota-table td:nth-child(2) {
+  width: 92px;
+  min-width: 92px;
+  max-width: 92px;
+  left: 42px;
+}
+
+#balance-detail .quota-table th:nth-child(3),
+#balance-detail .quota-table td:nth-child(3) {
+  width: 120px;
+  min-width: 120px;
+  max-width: 120px;
+  left: 134px;
+}
+
+/* 已休明细：固定列宽和 sticky 偏移使用同一套尺寸，滚动时不穿透、不重叠。 */
+#balance-usage .card > .table-wrap {
+  max-width: calc(100% - 28px);
+  margin-right: 14px;
+  margin-left: 14px;
+  padding-right: 0;
+  padding-left: 0;
+}
+
+#balance-usage .card > .table-wrap > table {
+  width: 1678px !important;
+  min-width: 1678px !important;
+  table-layout: fixed;
+}
+
+#balance-usage th:nth-child(1),
+#balance-usage td:nth-child(1) {
+  width: 64px;
+  min-width: 64px;
+  max-width: 64px;
+  left: 0;
+}
+
+#balance-usage th:nth-child(2),
+#balance-usage td:nth-child(2) {
+  width: 84px;
+  min-width: 84px;
+  max-width: 84px;
+  left: 64px;
+}
+
+#balance-usage th:nth-child(3),
+#balance-usage td:nth-child(3) {
+  width: 108px;
+  min-width: 108px;
+  max-width: 108px;
+  left: 148px;
+}
+
+#balance-usage th:nth-child(4),
+#balance-usage td:nth-child(4) { width: 92px; }
+
+#balance-usage th:nth-child(5),
+#balance-usage td:nth-child(5) { width: 84px; }
+
+#balance-usage th:nth-child(6),
+#balance-usage td:nth-child(6) { width: 104px; }
+
+#balance-usage th:nth-child(7),
+#balance-usage td:nth-child(7) { width: 82px; }
+
+#balance-usage th:nth-child(8),
+#balance-usage td:nth-child(8) { width: 280px; }
+
+#balance-usage th:nth-child(9),
+#balance-usage td:nth-child(9) { width: 110px; }
+
+#balance-usage th:nth-child(10),
+#balance-usage td:nth-child(10) { width: 240px; }
+
+#balance-usage th:nth-child(11),
+#balance-usage td:nth-child(11) { width: 310px; }
+
+#balance-usage th:nth-child(12),
+#balance-usage td:nth-child(12) { width: 120px; }
+
+#balance-usage .split-summary {
+  min-width: 0;
+}
+
+/* 年假、调休假结算的业务操作使用内部分组，组内按钮保持与工具栏一致的间距。 */
+.settle-summary-actions {
+  display: inline-flex;
+  gap: 7px;
+}
+
+.quota-breakdown-cell {
+  display: inline-flex;
+  align-items: center;
+}
+
+.breakdown-hotspot {
+  min-width: 28px;
+  height: 28px;
+  margin: -5px -7px;
+  padding: 0 7px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--blue);
+  font-variant-numeric: tabular-nums;
+  line-height: 28px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.breakdown-hotspot:hover,
+.breakdown-hotspot:focus-visible {
+  background: var(--blue-light);
+  outline: none;
+  text-decoration: underline;
+}
+
+#commonDialog.quota-breakdown-mode .dialog.small {
+  width: 520px;
+}
+
+#commonDialog.quota-breakdown-mode .dialog-body {
+  padding: 18px 24px 24px;
+}
+
+#commonDialog.quota-breakdown-mode .dialog-foot {
+  display: none;
+}
+
+/* 结算操作弹窗：沿用 HR One 紧凑双列布局，确认类信息使用更小的单列宽度。 */
+#commonDialog.settlement-dialog-mode .dialog.small {
+  width: 760px;
+  max-width: calc(100vw - 72px);
+}
+
+#commonDialog.settlement-confirm-mode .dialog.small,
+#commonDialog.settlement-success-mode .dialog.small {
+  width: 580px;
+}
+
+#commonDialog.settlement-readonly-mode .dialog-foot {
+  min-height: 56px;
+}
+
+.settlement-form {
+  gap: 18px 32px;
+}
+
+.settlement-radio-group {
+  display: flex;
+  align-items: center;
+  min-height: 34px;
+  gap: 28px;
+}
+
+.settlement-radio-group label {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 6px;
+  margin: 0 !important;
+  color: #303133 !important;
+  cursor: pointer;
+}
+
+.settlement-radio-group input {
+  width: 15px !important;
+  min-height: 15px !important;
+  height: 15px !important;
+  padding: 0 !important;
+}
+
+.dialog-field .field-error {
+  border-color: #f56c6c !important;
+}
+
+.field-error-message {
+  display: block;
+  margin-top: 5px;
+  color: #f56c6c;
+  font-size: 12px;
+  line-height: 17px;
+}
+
+.settlement-confirm-content,
+.settlement-result {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  color: #303133;
+}
+
+.settlement-confirm-content strong,
+.settlement-result strong {
+  display: block;
+  margin: 1px 0 7px;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.settlement-confirm-content p,
+.settlement-result p,
+.settlement-confirm-note,
+.settlement-alert p {
+  margin: 0;
+  color: #606266;
+  font-size: 13px;
+  line-height: 1.75;
+}
+
+.settlement-warning-icon,
+.settlement-result-icon {
+  display: inline-flex;
+  flex: 0 0 24px;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff4e8;
+  color: #e6a23c;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.settlement-result-icon {
+  background: #eaf7ee;
+  color: #188038;
+}
+
+.settlement-verify-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.settlement-verify-grid > div {
+  padding: 10px 12px;
+  border: 1px solid #ebeef5;
+  border-radius: 4px;
+  background: #fafbfc;
+  text-align: center;
+}
+
+.settlement-verify-grid span,
+.settlement-verify-grid strong {
+  display: block;
+}
+
+.settlement-verify-grid span {
+  color: #909399;
+  font-size: 12px;
+}
+
+.settlement-verify-grid strong {
+  margin-top: 5px;
+  color: #303133;
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.settlement-alert {
+  margin-bottom: 16px;
+  padding: 11px 13px;
+  border: 1px solid #f5d6a7;
+  border-radius: 4px;
+  background: #fff9f0;
+}
+
+.settlement-alert strong {
+  display: block;
+  margin-bottom: 4px;
+  color: #a66518;
+  font-size: 13px;
+}
+
+.settlement-confirm-summary {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding: 10px 12px;
+  border: 1px solid #ebeef5;
+  border-radius: 4px;
+  background: #fafbfc;
+  font-size: 13px;
+}
+
+.settlement-confirm-summary span {
+  color: #606266;
+}
+
+.settlement-log-query {
+  display: grid;
+  grid-template-columns: 76px 1fr 64px 1fr auto auto;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.settlement-log-query label {
+  color: #606266;
+  font-size: 13px;
+  text-align: right;
+}
+
+.settlement-log-query input {
+  width: 100%;
+  height: 32px;
+  padding: 0 9px;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+}
+
+.settlement-log-table table {
+  min-width: 0;
+}
+
+.settlement-export-fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid #ebeef5;
+  border-radius: 4px;
+}
+
+.settlement-export-fields label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 8px 12px;
+  border-right: 1px solid #ebeef5;
+  border-bottom: 1px solid #ebeef5;
+  color: #303133;
+  font-size: 13px;
+}
+
+.settlement-export-fields label:nth-child(3n) {
+  border-right: 0;
+}
+
+.settlement-export-fields input {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+}
+
+.quota-detail-table {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-bottom: 0;
+}
+
+.quota-detail-table th,
+.quota-detail-table td {
+  height: 40px;
+  padding: 9px 12px;
+}
+
+.quota-detail-table th:last-child,
+.quota-detail-table td:last-child {
+  width: 128px;
+  text-align: right;
+}
+
+/* 团队/个人余额共用只读页面。 */
+.audience-parent {
+  margin-top: 12px;
+}
+
+.audience-balance-tabs {
+  margin-bottom: 12px;
+}
+
+.audience-panel .card > .table-wrap {
+  max-width: calc(100% - 28px);
+  margin-right: 14px;
+  margin-left: 14px;
+  padding-right: 0;
+  padding-left: 0;
+}
+
+.audience-panel .card-header .toolbar {
+  gap: 7px;
+}
+
+.audience-fixed-query input:disabled,
+.audience-fixed-query select:disabled {
+  border-color: #d8d8d8;
+  background: #f5f5f5;
+  color: #a8abb2;
+  cursor: not-allowed;
+  opacity: 1;
+  -webkit-text-fill-color: #a8abb2;
+}
+
+.audience-summary-quota-link,
+.audience-used-quota-link {
+  color: var(--blue);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.audience-summary-quota-link:hover,
+.audience-used-quota-link:hover {
+  text-decoration: underline;
+}
+
+.audience-panel tbody tr[hidden] {
+  display: none;
+}
+
+/* 团队汇总首屏保留员工识别信息和总可休额度。 */
+#team-balance-summary table {
+  width: 100%;
+  min-width: 1000px;
+  table-layout: fixed;
+}
+
+#team-balance-summary th:nth-child(1),
+#team-balance-summary td:nth-child(1) { width: 64px; }
+
+#team-balance-summary th:nth-child(2),
+#team-balance-summary td:nth-child(2) { width: 84px; }
+
+#team-balance-summary th:nth-child(3),
+#team-balance-summary td:nth-child(3) { width: 108px; }
+
+#team-balance-summary th:nth-child(4),
+#team-balance-summary td:nth-child(4) { width: 100px; }
+
+#team-balance-summary th:nth-child(5),
+#team-balance-summary td:nth-child(5) { width: 84px; }
+
+#team-balance-summary th:nth-child(n+6),
+#team-balance-summary td:nth-child(n+6) { width: 140px; }
+
+/* 我的假期余额：以紧凑卡片替代余额汇总页，点击卡片筛选余额明细。 */
+.my-balance-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  width: 100%;
+  margin: 0 0 14px;
+}
+
+.my-balance-card {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  min-width: 0;
+  min-height: 108px;
+  padding: 16px 18px 13px;
+  border: 1px solid #e1e6ee;
+  border-radius: 8px;
+  background: #fff;
+  color: #333947;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(27, 45, 75, .055);
+  transition: border-color .15s ease, background-color .15s ease, box-shadow .15s ease, transform .15s ease;
+}
+
+.my-balance-card:hover,
+.my-balance-card.active {
+  border-color: #0e66fb;
+  background: #f7faff;
+  box-shadow: 0 4px 12px rgba(14, 102, 251, .1);
+}
+
+.my-balance-card:hover { transform: translateY(-1px); }
+
+.my-balance-card-main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.my-balance-card-type {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 3px 9px;
+  border-radius: 4px;
+  background: #e8f0fe;
+  color: #365f98;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.my-balance-card-value {
+  color: #1a2130;
+  font-size: 24px;
+  line-height: 1.1;
+  font-weight: 650;
+  letter-spacing: -.3px;
+  white-space: nowrap;
+}
+
+.my-balance-card.active .my-balance-card-type,
+.my-balance-card.active .my-balance-card-value {
+  color: #0e66fb;
+}
+
+.my-balance-card-expiry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #edf0f4;
+  color: #8a909a;
+  font-size: 12px;
+}
+
+.my-balance-card-expiry strong {
+  color: #5f6c80;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .my-balance-cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .my-balance-cards { grid-template-columns: 1fr; }
+}
+
+/* 团队余额明细冻结姓名、工号，沿用管理员页的信息冻结习惯。 */
+#team-balance-detail .quota-table {
+  width: 1700px;
+  min-width: 1700px;
+  table-layout: fixed;
+}
+
+#team-balance-detail .quota-table th:nth-child(1),
+#team-balance-detail .quota-table td:nth-child(1) {
+  position: sticky;
+  left: 0;
+  z-index: 4;
+  width: 92px;
+  min-width: 92px;
+  max-width: 92px;
+  background: #fff;
+}
+
+#team-balance-detail .quota-table th:nth-child(2),
+#team-balance-detail .quota-table td:nth-child(2) {
+  position: sticky;
+  left: 92px;
+  z-index: 4;
+  width: 120px;
+  min-width: 120px;
+  max-width: 120px;
+  background: #fff;
+  box-shadow: 5px 0 8px rgba(35, 47, 66, .04);
+}
+
+#team-balance-detail .quota-table th:nth-child(-n+2) {
+  z-index: 6;
+  background: #f7f8fa;
+}
+
+#team-balance-detail .quota-table tbody tr:hover td:nth-child(-n+2) {
+  background: #f9fafe;
+}
+
+#team-balance-detail .quota-table th:nth-child(3),
+#team-balance-detail .quota-table td:nth-child(3) { width: 100px; }
+
+#team-balance-detail .quota-table th:nth-child(4),
+#team-balance-detail .quota-table td:nth-child(4) { width: 84px; }
+
+#team-balance-detail .quota-table th:nth-child(5),
+#team-balance-detail .quota-table td:nth-child(5) { width: 92px; }
+
+#team-balance-detail .quota-table th:nth-child(6),
+#team-balance-detail .quota-table td:nth-child(6) { width: 72px; }
+
+#team-balance-detail .quota-table th:nth-child(7),
+#team-balance-detail .quota-table td:nth-child(7),
+#team-balance-detail .quota-table th:nth-child(8),
+#team-balance-detail .quota-table td:nth-child(8),
+#team-balance-detail .quota-table th:nth-child(9),
+#team-balance-detail .quota-table td:nth-child(9),
+#team-balance-detail .quota-table th:nth-child(12),
+#team-balance-detail .quota-table td:nth-child(12),
+#team-balance-detail .quota-table th:nth-child(13),
+#team-balance-detail .quota-table td:nth-child(13),
+#team-balance-detail .quota-table th:nth-child(15),
+#team-balance-detail .quota-table td:nth-child(15) { width: 120px; }
+
+#team-balance-detail .quota-table th:nth-child(10),
+#team-balance-detail .quota-table td:nth-child(10),
+#team-balance-detail .quota-table th:nth-child(11),
+#team-balance-detail .quota-table td:nth-child(11),
+#team-balance-detail .quota-table th:nth-child(14),
+#team-balance-detail .quota-table td:nth-child(14) { width: 140px; }
+
+/* 团队已休明细冻结序号、姓名、工号。 */
+#team-balance-usage table {
+  width: 1678px;
+  min-width: 1678px;
+  table-layout: fixed;
+}
+
+#team-balance-usage th:nth-child(1),
+#team-balance-usage td:nth-child(1) {
+  position: sticky;
+  left: 0;
+  z-index: 4;
+  width: 64px;
+  min-width: 64px;
+  max-width: 64px;
+  background: #fff;
+}
+
+#team-balance-usage th:nth-child(2),
+#team-balance-usage td:nth-child(2) {
+  position: sticky;
+  left: 64px;
+  z-index: 4;
+  width: 84px;
+  min-width: 84px;
+  max-width: 84px;
+  background: #fff;
+}
+
+#team-balance-usage th:nth-child(3),
+#team-balance-usage td:nth-child(3) {
+  position: sticky;
+  left: 148px;
+  z-index: 4;
+  width: 108px;
+  min-width: 108px;
+  max-width: 108px;
+  background: #fff;
+  box-shadow: 5px 0 8px rgba(35, 47, 66, .04);
+}
+
+#team-balance-usage th:nth-child(-n+3) {
+  z-index: 6;
+  background: #f7f8fa;
+}
+
+#team-balance-usage tbody tr:hover td:nth-child(-n+3) {
+  background: #f9fafe;
+}
+
+#team-balance-usage th:nth-child(4),
+#team-balance-usage td:nth-child(4) { width: 92px; }
+
+#team-balance-usage th:nth-child(5),
+#team-balance-usage td:nth-child(5) { width: 84px; }
+
+#team-balance-usage th:nth-child(6),
+#team-balance-usage td:nth-child(6) { width: 104px; }
+
+#team-balance-usage th:nth-child(7),
+#team-balance-usage td:nth-child(7) { width: 82px; }
+
+#team-balance-usage th:nth-child(8),
+#team-balance-usage td:nth-child(8) { width: 280px; }
+
+#team-balance-usage th:nth-child(9),
+#team-balance-usage td:nth-child(9) { width: 110px; }
+
+#team-balance-usage th:nth-child(10),
+#team-balance-usage td:nth-child(10) { width: 240px; }
+
+#team-balance-usage th:nth-child(11),
+#team-balance-usage td:nth-child(11) { width: 310px; }
+
+#team-balance-usage th:nth-child(12),
+#team-balance-usage td:nth-child(12) { width: 120px; }
+
+#team-balance-usage td:nth-child(11) {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.6;
+}
+
+/* 个人余额明细隐藏本人信息后，以假期类型、年度作为冻结识别列。 */
+#my-balance-detail .quota-table {
+  width: 100%;
+  min-width: 1304px;
+  table-layout: fixed;
+}
+
+#my-balance-detail .quota-table th:nth-child(1),
+#my-balance-detail .quota-table td:nth-child(1) {
+  position: sticky;
+  left: 0;
+  z-index: 4;
+  width: 92px;
+  min-width: 92px;
+  max-width: 92px;
+  background: #fff;
+}
+
+#my-balance-detail .quota-table th:nth-child(2),
+#my-balance-detail .quota-table td:nth-child(2) {
+  position: sticky;
+  left: 92px;
+  z-index: 4;
+  width: 82px;
+  min-width: 82px;
+  max-width: 82px;
+  background: #fff;
+  box-shadow: 5px 0 8px rgba(35, 47, 66, .04);
+}
+
+#my-balance-detail .quota-table th:nth-child(-n+2) {
+  z-index: 6;
+  background: #f7f8fa;
+}
+
+#my-balance-detail .quota-table tbody tr:hover td:nth-child(-n+2) {
+  background: #f9fafe;
+}
+
+#my-balance-detail .quota-table th:nth-child(3),
+#my-balance-detail .quota-table td:nth-child(3),
+#my-balance-detail .quota-table th:nth-child(4),
+#my-balance-detail .quota-table td:nth-child(4),
+#my-balance-detail .quota-table th:nth-child(5),
+#my-balance-detail .quota-table td:nth-child(5),
+#my-balance-detail .quota-table th:nth-child(8),
+#my-balance-detail .quota-table td:nth-child(8),
+#my-balance-detail .quota-table th:nth-child(9),
+#my-balance-detail .quota-table td:nth-child(9) { width: 120px; }
+
+#my-balance-detail .quota-table th:nth-child(6),
+#my-balance-detail .quota-table td:nth-child(6),
+#my-balance-detail .quota-table th:nth-child(7),
+#my-balance-detail .quota-table td:nth-child(7),
+#my-balance-detail .quota-table th:nth-child(10),
+#my-balance-detail .quota-table td:nth-child(10) { width: 140px; }
+
+#my-balance-usage table {
+  width: 1320px;
+  min-width: 1320px;
+  table-layout: fixed;
+}
+
+#my-balance-usage th:nth-child(1),
+#my-balance-usage td:nth-child(1) { width: 64px; }
+
+#my-balance-usage th:nth-child(2),
+#my-balance-usage td:nth-child(2) { width: 104px; }
+
+#my-balance-usage th:nth-child(3),
+#my-balance-usage td:nth-child(3) { width: 82px; }
+
+#my-balance-usage th:nth-child(4),
+#my-balance-usage td:nth-child(4) { width: 280px; }
+
+#my-balance-usage th:nth-child(5),
+#my-balance-usage td:nth-child(5) { width: 110px; }
+
+#my-balance-usage th:nth-child(6),
+#my-balance-usage td:nth-child(6) { width: 240px; }
+
+#my-balance-usage th:nth-child(7),
+#my-balance-usage td:nth-child(7) { width: 310px; }
+
+#my-balance-usage th:nth-child(8),
+#my-balance-usage td:nth-child(8) { width: 120px; }
+
+#my-balance-usage td:nth-child(7) {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.6;
+}
+
+#my-balance-usage .split-summary,
+#team-balance-usage .split-summary {
+  min-width: 0;
+  white-space: normal;
+  line-height: 1.7;
+}

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="../assets/unified-navigation.css">
+<title>HR One · 我的休假</title>
+<style>
+:root{--blue:#0E66FB;--blue-light:#e7f0ff;--section:#E8F0FE;--page:#FAFBFC;--border:#E6E6E8;--text:#333947;--strong:#1A2130;--sub:#666b75;--muted:#999ca3;--red:#F74C4C;--green:#238456;--green-bg:#ebf8f1;--orange:#b76b00;--orange-bg:#fff6e5;--gray-bg:#f5f6f7}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;color:var(--text);background:var(--page)}button,input,select,textarea{font-family:inherit}
+.layout{display:flex;min-height:100vh}.sidebar{width:200px;background:#fff;border-right:1px solid var(--border);flex:none}.sidebar-logo{height:56px;display:flex;align-items:center;padding:0 18px;border-bottom:1px solid var(--border);font-size:17px;font-weight:650;color:var(--blue)}.sidebar-home,.sidebar-item{display:block;text-decoration:none;color:var(--text);padding:9px 18px}.sidebar-home{margin-top:8px}.sidebar-parent{display:flex;align-items:center;justify-content:space-between;padding:11px 18px 6px;color:var(--text);font-weight:600}.sidebar-parent:after{content:"⌃";color:var(--muted);font-size:12px}.sidebar-item{padding-left:36px}.sidebar-item:hover{background:var(--blue-light)}.sidebar-item.active{background:var(--blue-light);color:var(--blue);font-weight:600}
+.main{flex:1;min-width:0}.header{height:56px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px}.breadcrumb{font-size:13px;color:var(--muted)}.breadcrumb span{color:var(--text)}.user-info{font-size:13px;color:var(--sub)}.content{padding:20px 24px 28px;min-height:calc(100vh - 56px)}
+.page-title{font-size:18px;font-weight:650;color:var(--strong);margin-bottom:14px}.tabs{height:42px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:flex-end;padding:0 20px;border-radius:4px 4px 0 0}.tab{height:42px;padding:0 22px;border:0;background:transparent;color:var(--sub);font-size:14px;cursor:pointer;position:relative}.tab.active{color:var(--blue);font-weight:600}.tab.active:after{content:"";position:absolute;left:16px;right:16px;bottom:0;height:2px;background:var(--blue)}
+.search-bar{background:#fff;padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;border-radius:0 0 4px 4px}.search-item{display:inline-flex;align-items:center;gap:9px;white-space:nowrap}.search-item label{font-size:13px;color:var(--sub)}.search-item select,.search-item input{height:32px;border:1px solid var(--border);border-radius:4px;padding:0 10px;font-size:13px;background:#fff;color:var(--text);outline:none;width:172px}.search-item.date input{width:150px}.search-item select:focus,.search-item input:focus{border-color:var(--blue)}.search-actions{display:flex;gap:8px;margin-left:auto}
+.btn{height:32px;padding:0 15px;border:1px solid #ccced1;border-radius:4px;background:#fff;color:var(--text);font-size:13px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap}.btn:hover{border-color:var(--blue);color:var(--blue)}.btn-primary{background:var(--blue);border-color:var(--blue);color:#fff}.btn-primary:hover{background:#0759e4;color:#fff}.btn-sm{height:28px;padding:0 11px;font-size:12px}.btn svg{width:14px;height:14px;display:block}.btn-text{border:0;background:transparent;color:var(--blue);cursor:pointer;font-size:13px;white-space:nowrap}.btn-text:hover{text-decoration:underline}.btn-text:disabled{color:#b6bac2;cursor:not-allowed;text-decoration:none}.action-tip{display:inline-flex;position:relative}.action-tip:after{content:attr(data-tip);position:absolute;z-index:30;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%);width:max-content;max-width:360px;padding:8px 10px;border-radius:4px;background:#263449;color:#fff;font-size:12px;line-height:1.6;white-space:normal;box-shadow:0 4px 12px rgba(0,0,0,.16);opacity:0;visibility:hidden;pointer-events:none}.action-tip:before{content:"";position:absolute;z-index:31;left:50%;bottom:calc(100% + 3px);transform:translateX(-50%);border:5px solid transparent;border-top-color:#263449;opacity:0;visibility:hidden}.action-tip:hover:after,.action-tip:hover:before,.action-tip:focus:after,.action-tip:focus:before{opacity:1;visibility:visible}.btn-danger{color:#e23b3b;border-color:#f3aaaa}.btn-danger:hover{color:#d22b2b;border-color:#d22b2b}
+.card{background:#fff;border-radius:4px;overflow:hidden}.card-header{min-height:46px;padding:9px 18px;background:var(--section);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:16px}.card-title{font-size:15px;font-weight:600;color:var(--strong)}.toolbar{display:flex;align-items:center;gap:8px}.table-wrap{overflow-x:auto}.data-table{width:100%;border-collapse:collapse;min-width:1190px}.data-table.cancel-table{min-width:1080px}.data-table th{background:#f5f6f7;color:var(--strong);font-size:13px;font-weight:500;text-align:left;padding:10px 12px;border-bottom:1px solid var(--border);white-space:nowrap}.data-table td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle;white-space:nowrap}.data-table tr:hover td{background:#f9fafe}.category-link{color:var(--blue);cursor:pointer;font-weight:500}.reason-cell{display:block;max-width:150px;overflow:hidden;text-overflow:ellipsis}.muted{color:var(--muted)}.row-actions{display:flex;gap:14px;align-items:center;min-height:20px;white-space:nowrap}.tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:2px;font-size:12px;line-height:20px}.tag-blue{background:#eaf2ff;color:#0E66FB}.tag-green{background:var(--green-bg);color:var(--green)}.tag-orange{background:var(--orange-bg);color:var(--orange)}.tag-gray{background:#f1f2f4;color:#6f7682}.tag-red{background:#fff0f0;color:#d83b3b}.follow{font-size:12px;color:var(--sub)}.pagination{padding:12px 18px;display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:13px}.page-btns{display:flex;align-items:center;gap:6px}.page-btn{width:28px;height:28px;border:1px solid var(--border);border-radius:4px;background:#fff;color:var(--sub)}.page-btn.active{background:var(--blue);border-color:var(--blue);color:#fff}.empty{padding:54px;text-align:center;color:var(--muted)}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;align-items:flex-start;justify-content:center;padding:30px 16px;overflow:auto}.overlay.show{display:flex}.modal{width:min(900px,96vw);max-height:calc(100vh - 60px);background:#fff;border-radius:6px;box-shadow:0 10px 36px rgba(0,0,0,.18);display:flex;flex-direction:column}.modal.wide{width:min(1080px,97vw)}.modal.simple{width:min(520px,94vw)}.modal.archive-blocked{width:min(760px,96vw)}.modal-header{height:56px;padding:0 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex:none}.modal-title{font-size:16px;font-weight:650;color:var(--strong)}.close{width:30px;height:30px;border:0;background:transparent;color:#999;font-size:24px;cursor:pointer}.modal-body{padding:20px 24px;overflow:auto}.modal-footer{height:58px;padding:0 22px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:flex-end;gap:10px;flex:none}.section{margin-bottom:18px}.section:last-child{margin-bottom:0}.section-title{display:inline-block;background:var(--section);padding:4px 10px;border-radius:3px;font-size:14px;font-weight:600;color:var(--strong);margin-bottom:13px}.summary-box{border:1px solid #e3e8f1;background:#f8faff;border-radius:4px;padding:14px 16px}.summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 28px}.summary-item{min-width:0}.summary-label{font-size:12px;color:var(--muted);margin-bottom:5px}.summary-value{font-size:13px;color:var(--strong);line-height:1.5;word-break:break-word}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 28px}.form-item{display:flex;flex-direction:column;min-width:0}.form-item.full{grid-column:1/-1}.form-label{font-size:13px;color:var(--text);margin-bottom:6px}.required{color:var(--red);margin-right:3px}.form-input,.form-select,textarea{border:1px solid var(--border);border-radius:4px;font-size:13px;color:var(--text);background:#fff;outline:none}.form-input,.form-select{height:34px;padding:0 10px}.form-input:focus,.form-select:focus,textarea:focus{border-color:var(--blue)}.form-input[readonly],.form-input:disabled{background:#f5f6f7;color:#666}.readonly-box{height:34px;border:1px solid var(--border);border-radius:4px;background:#f5f6f7;color:#666;display:flex;align-items:center;padding:0 10px}.textarea{min-height:82px;padding:9px 10px;resize:vertical}.hint{font-size:12px;color:var(--muted);margin-top:5px;line-height:1.6}.notice{padding:10px 12px;background:#f3f7ff;border:1px solid #dfe9fb;border-radius:4px;color:#52657c;font-size:12px;line-height:1.7}.notice.warning{background:#fff8e8;border-color:#f3dda3;color:#7a5a13;margin-bottom:18px}.upload{height:34px;padding:0 12px;border:1px solid #ccced1;border-radius:4px;background:#fff;color:var(--text);cursor:pointer;width:max-content}.error-text{display:none;color:#e23b3b;font-size:12px;margin-top:5px}.form-item.invalid .form-input,.form-item.invalid textarea{border-color:#e23b3b}.form-item.invalid .error-text{display:block}.confirm-text{font-size:14px;line-height:1.8;color:var(--text)}.confirm-title{font-weight:600;color:var(--strong);margin-bottom:6px}.archive-detail-wrap{margin-top:14px;border:1px solid var(--border);border-radius:4px;overflow:auto}.archive-detail-table{width:100%;min-width:650px;border-collapse:collapse}.archive-detail-table th{padding:9px 12px;background:#f5f6f7;border-bottom:1px solid var(--border);font-size:12px;font-weight:500;color:var(--strong);text-align:left;white-space:nowrap}.archive-detail-table td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px;color:var(--text);white-space:nowrap}.archive-detail-table tr:last-child td{border-bottom:0}.archive-detail-table tr.is-archived td{background:#fafafa}.archive-status{display:inline-flex;padding:2px 8px;border-radius:2px;font-size:12px}.archive-status.archived{background:#f1f2f4;color:#6f7682}.archive-status.open{background:#ebf8f1;color:#238456}.archive-blocked-tip{margin-top:12px;padding:9px 12px;border:1px solid #f3dda3;border-radius:4px;background:#fff8e8;color:#7a5a13;font-size:12px;line-height:1.7}.toast{display:none;position:fixed;left:50%;top:72px;transform:translateX(-50%);background:#263449;color:#fff;padding:10px 16px;border-radius:4px;z-index:1600;font-size:13px}.toast.show{display:block}.source-link{border:0;background:transparent;color:var(--blue);font-size:13px;cursor:pointer;text-align:left;padding:0;width:max-content}.source-link:hover{text-decoration:underline}.change-table-wrap{border:1px solid var(--border);border-radius:4px;overflow-x:auto}.change-table{width:100%;border-collapse:collapse;min-width:950px}.change-table th{padding:9px 10px;background:#f5f6f7;border-bottom:1px solid var(--border);font-size:12px;font-weight:500;text-align:left;white-space:nowrap}.change-table td{padding:10px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}.change-table tr:last-child td{border-bottom:0}.change-table tr.archived td{background:#fafafa;color:#7e838c}.status-pill{display:inline-flex;padding:2px 7px;border-radius:2px;font-size:12px;white-space:nowrap}.status-archived{background:#f1f2f4;color:#6f7682}.status-open{background:#ebf8f1;color:#238456}.time-pair{display:flex;align-items:center;gap:6px;white-space:nowrap}.table-input{height:30px;border:1px solid var(--border);border-radius:4px;padding:0 7px;font-size:12px;width:90px;background:#fff}.table-input.rest{width:78px}.table-input:focus{border-color:var(--blue);outline:none}.table-error{font-size:12px;color:#e23b3b;margin-top:7px;display:none}.table-error.show{display:block}.hidden{display:none!important}
+@media(max-width:920px){.sidebar{display:none}.content{padding:14px}.search-actions{margin-left:0}.summary-grid{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr}.form-item.full{grid-column:1}.user-info{display:none}}
+</style>
+</head>
+<body data-unified-page="my-leave" data-unified-root="../" data-unified-active="my-leave-pc">
+<div class="layout">
+  <aside class="sidebar">
+    <div id="unifiedAttendanceNav"><a class="unified-nav__home" href="../index.html">首页</a></div>
+  </aside>
+  <main class="main">
+    <header class="header"><div class="breadcrumb">员工自助 / <span>我的休假</span></div><div class="user-info">GMT+8:00　简体中文　当前员工</div></header>
+    <section class="content">
+      <h1 class="page-title">我的休假</h1>
+      <nav class="tabs" aria-label="休假业务类型">
+        <button class="tab active" data-tab="leave">休假</button>
+        <button class="tab" data-tab="cancel">销假</button>
+      </nav>
+      <section class="search-bar">
+        <div class="search-item"><label>休假类别</label><select id="typeFilter"><option value="">全部</option><option>年假</option><option>调休假</option><option>病假</option><option>婚假</option></select></div>
+        <div class="search-item"><label>审批状态</label><select id="statusFilter"><option value="">全部</option><option>审批中</option><option>审批完成</option><option>已撤回</option><option>已驳回</option></select></div>
+        <div class="search-item" id="cancelStatusFilterItem"><label>销假状态</label><select id="cancelStatusFilter"><option value="">全部</option><option>已销假</option><option>未销假</option></select></div>
+        <div class="search-item date"><label id="startDateFilterLabel">休假开始日期</label><input id="startDateFilter" type="date"></div>
+        <div class="search-item date"><label id="endDateFilterLabel">休假结束日期</label><input id="endDateFilter" type="date"></div>
+        <div class="search-actions"><button class="btn btn-primary" id="queryBtn">查询</button><button class="btn" id="resetBtn">重置</button></div>
+      </section>
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title" id="listTitle">休假申请列表</div>
+          <div class="toolbar"><button class="btn btn-primary btn-sm" id="addBtn">＋ 新增</button><button class="btn btn-sm" id="exportBtn"><svg viewBox="0 0 1030 1024" xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-hidden="true"><path d="M140.8 1017.6c-38.4 0-70.4-12.8-96-38.4-25.6-25.6-38.4-57.6-38.4-96v-185.6c0-12.8 6.4-25.6 12.8-32s19.2-12.8 32-12.8 25.6 6.4 32 12.8 12.8 19.2 12.8 32v185.6c0 12.8 6.4 32 12.8 38.4 6.4 6.4 19.2 12.8 38.4 12.8h742.4c12.8 0 32-6.4 38.4-12.8 6.4-6.4 12.8-19.2 12.8-38.4v-185.6c0-12.8 6.4-25.6 12.8-32 6.4-6.4 19.2-12.8 32-12.8s25.6 6.4 32 12.8c6.4 6.4 12.8 19.2 12.8 32v185.6c0 38.4-12.8 70.4-38.4 96-25.6 25.6-57.6 38.4-96 38.4H140.8z m377.6-275.2c-12.8 0-25.6-6.4-32-12.8s-12.8-19.2-12.8-32V160s0-6.4-6.4-6.4h-6.4L313.6 313.6c-6.4 6.4-25.6 12.8-25.6 12.8-12.8 0-25.6-6.4-32-12.8-12.8-12.8-19.2-19.2-19.2-25.6 0-12.8 6.4-25.6 12.8-32L480 25.6c12.8-12.8 25.6-19.2 38.4-19.2 12.8 0 25.6 6.4 32 12.8L774.4 256c6.4 6.4 12.8 19.2 12.8 32s-6.4 25.6-12.8 32-19.2 12.8-32 12.8-19.2-12.8-25.6-19.2L563.2 153.6h-6.4s-6.4 0-6.4 6.4V704c0 12.8-6.4 25.6-12.8 32s-12.8 6.4-19.2 6.4z"/></svg>导出</button></div>
+        </div>
+        <div class="table-wrap" id="tableWrap"></div>
+        <div class="pagination"><div id="recordCount">共 0 条记录，第 1/1 页</div><div class="page-btns"><button class="page-btn">‹</button><button class="page-btn active">1</button><button class="page-btn">›</button></div></div>
+      </section>
+    </section>
+  </main>
+</div>
+
+<div class="overlay" id="cancelModal">
+  <section class="modal" role="dialog" aria-modal="true" aria-labelledby="cancelTitle">
+    <div class="modal-header"><div class="modal-title" id="cancelTitle">销假申请</div><button class="close" data-close="cancelModal" aria-label="关闭">×</button></div>
+    <div class="modal-body">
+      <section class="section">
+        <div class="section-title">销假信息</div>
+        <div class="form-grid">
+          <div class="form-item"><span class="form-label">原休假申请</span><button class="source-link" type="button" id="cancelSourceLink">—</button></div>
+          <label class="form-item"><span class="form-label">休假类别</span><input class="form-input" id="cancelType" readonly></label>
+          <label class="form-item"><span class="form-label">销假开始时间</span><input class="form-input" id="cancelStart" readonly></label>
+          <label class="form-item"><span class="form-label">销假结束时间</span><input class="form-input" id="cancelEnd" readonly></label>
+          <label class="form-item"><span class="form-label">销假时长</span><input class="form-input" id="cancelDuration" readonly></label>
+          <label class="form-item full" id="cancelReasonItem"><span class="form-label"><i class="required">*</i>销假说明</span><textarea class="textarea" id="cancelReason" placeholder="请输入销假说明"></textarea><span class="error-text">必填项不能为空</span></label>
+          <div class="form-item full"><span class="form-label">附件</span><button class="upload" type="button" id="uploadBtn">选择文件</button><span class="hint" id="fileName">最多上传5个文件</span></div>
+        </div>
+      </section>
+      <div class="notice">销假范围与原休假申请一致。</div>
+    </div>
+    <div class="modal-footer"><button class="btn" data-close="cancelModal">取消</button><button class="btn btn-primary" id="submitCancel">提交销假</button></div>
+  </section>
+</div>
+
+<div class="overlay" id="confirmModal">
+  <section class="modal simple" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <div class="modal-header"><div class="modal-title" id="confirmTitle">撤回申请</div><button class="close" data-close="confirmModal" aria-label="关闭">×</button></div>
+    <div class="modal-body"><div class="confirm-title">确认撤回当前申请？</div><div class="confirm-text">撤回后，该申请状态变为“已撤回”，可从列表重新提交。</div></div>
+    <div class="modal-footer"><button class="btn" data-close="confirmModal">取消</button><button class="btn btn-primary" id="confirmAction">确认撤回</button></div>
+  </section>
+</div>
+
+<div class="overlay" id="archiveBlockedModal">
+  <section class="modal archive-blocked" role="dialog" aria-modal="true" aria-labelledby="archiveBlockedTitle">
+    <div class="modal-header"><div class="modal-title" id="archiveBlockedTitle">无法销假</div><button class="close" data-close="archiveBlockedModal" aria-label="关闭">×</button></div>
+    <div class="modal-body">
+      <div class="confirm-title">该休假包含已封存考勤日期，不允许销假。</div>
+      <div class="archive-blocked-tip">以下为本次休假全部考勤日期的当前封存状态。</div>
+      <div class="archive-detail-wrap"><table class="archive-detail-table"><thead><tr><th>日期</th><th>开始时间</th><th>结束时间</th><th>休假时长</th><th>封存状态</th></tr></thead><tbody id="archiveBlockedRows"></tbody></table></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-primary" data-close="archiveBlockedModal">我知道了</button></div>
+  </section>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="../assets/unified-navigation.js"></script>
+<script>
+const leaveRows=[
+  {id:'L20260802001',type:'年假',period:'2026/07/31 13:00 — 2026/08/01 12:00',start:'2026-07-31T13:00',end:'2026-08-01T12:00',startText:'2026/07/31 13:00',endText:'2026/08/01 12:00',duration:'6.5小时',unit:'小时',reason:'家庭事务安排',status:'审批完成',approver:'—',follow:'—',created:'2026/08/02 10:16',archiveMode:'partial',needsRest:true,daily:[{date:'2026/07/31',original:'13:00—17:00',archived:true,archiveTime:'2026/08/05 18:00',start:'13:00',end:'17:00',rest:'0小时',duration:'4小时'},{date:'2026/08/01',original:'09:00—12:00',archived:false,archiveTime:'—',start:'09:00',end:'12:00',rest:'',duration:'2.5小时'}]},
+  {id:'L20260803009',type:'调休假',period:'2026/08/15 09:00 — 2026/08/15 12:00',start:'2026-08-15T09:00',end:'2026-08-15T12:00',startText:'2026/08/15 09:00',endText:'2026/08/15 12:00',duration:'3小时',unit:'小时',reason:'个人事务安排',status:'审批完成',approver:'—',follow:'—',created:'2026/08/03 11:12',archiveMode:'none',needsRest:true},
+  {id:'L20260801007',type:'调休假',period:'2026/08/11 09:00 — 2026/08/11 12:00',start:'2026-08-11T09:00',end:'2026-08-11T12:00',startText:'2026/08/11 09:00',endText:'2026/08/11 12:00',duration:'3小时',unit:'小时',reason:'个人事务安排',status:'审批完成',approver:'—',follow:'销假审批中',created:'2026/08/01 09:18',archiveMode:'none'},
+  {id:'L20260807003',type:'调休假',period:'2026/08/12 13:00 — 2026/08/12 17:00',start:'2026-08-12',end:'2026-08-12',startText:'2026/08/12 13:00',endText:'2026/08/12 17:00',duration:'4小时',unit:'小时',reason:'个人事务安排',status:'审批中',approver:'直属领导',follow:'—',created:'2026/08/07 14:25'},
+  {id:'L20260806002',type:'病假',period:'2026/08/10 — 2026/08/10',start:'2026-08-10',end:'2026-08-10',startText:'2026/08/10',endText:'2026/08/10',duration:'1天',unit:'天',reason:'身体不适',status:'已驳回',approver:'—',follow:'—',created:'2026/08/06 09:42'},
+  {id:'L20260805006',type:'婚假',period:'2026/08/24 — 2026/08/28',start:'2026-08-24',end:'2026-08-28',startText:'2026/08/24',endText:'2026/08/28',duration:'5天',unit:'天',reason:'办理结婚相关事项',status:'已撤回',approver:'—',follow:'—',created:'2026/08/05 17:08'},
+  {id:'L20260804004',type:'年假',period:'2026/08/04 — 2026/08/04',start:'2026-08-04',end:'2026-08-04',startText:'2026/08/04',endText:'2026/08/04',duration:'1天',unit:'天',reason:'家庭事务安排',status:'审批完成',approver:'—',follow:'已销假',created:'2026/08/03 16:31'},
+  {id:'L20260725008',type:'年假',period:'2026/07/25 — 2026/07/25',start:'2026-07-25',end:'2026-07-25',startText:'2026/07/25',endText:'2026/07/25',duration:'1天',unit:'天',reason:'家庭事务安排',status:'审批完成',approver:'—',follow:'—',created:'2026/07/20 15:42',archiveMode:'full',daily:[{date:'2026/07/25',original:'全天',archived:true,archiveTime:'2026/07/31 18:00',start:'—',end:'—',rest:'—',duration:'1天'}]}
+];
+const cancelRows=[
+  {id:'C20260808002',source:'L20260804004',type:'年假',period:'2026/08/04 — 2026/08/04',startText:'2026/08/04',endText:'2026/08/04',duration:'1天',unit:'天',reason:'休假计划取消',status:'审批完成',approver:'—',created:'2026/08/05 09:20'},
+  {id:'C20260807001',source:'L20260801007',type:'调休假',period:'2026/08/11 09:00 — 2026/08/11 12:00',startText:'2026/08/11 09:00',endText:'2026/08/11 12:00',duration:'3小时',unit:'小时',reason:'提前返岗',status:'审批中',approver:'直属领导',created:'2026/08/07 18:02'},
+  {id:'C20260801003',source:'L20260806002',type:'病假',period:'2026/08/10 — 2026/08/10',startText:'2026/08/10',endText:'2026/08/10',duration:'1天',unit:'天',reason:'无需继续休假',status:'已撤回',approver:'—',created:'2026/08/01 10:11'}
+];
+let activeTab='leave',selectedRow=null,pendingAction=null;
+const $=id=>document.getElementById(id);
+const statusClass=status=>({审批中:'tag-blue',审批完成:'tag-green',已撤回:'tag-gray',已驳回:'tag-red'}[status]||'tag-gray');
+const tag=status=>`<span class="tag ${statusClass(status)}">${status}</span>`;
+function actionButton(label,action,row,enabled){return `<button class="btn-text" data-action="${action}" data-id="${row.id}" ${enabled?'':`disabled aria-disabled="true"`}>${label}</button>`}
+function getActions(row,kind){
+  const canWithdraw=row.status==='审批中',canResubmit=row.status==='已撤回'||row.status==='已驳回';
+  if(kind==='cancel')return [actionButton('撤回','withdraw',row,canWithdraw),actionButton('重新提交','resubmit',row,canResubmit)].join('');
+  const canCancel=row.status==='审批完成'&&row.follow!=='已销假';
+  return [actionButton('撤销','cancel',row,canCancel),actionButton('撤回','withdraw',row,canWithdraw),actionButton('重新提交','resubmit',row,canResubmit)].join('');
+}
+function cancelStatus(row){return row.follow==='已销假'?'已销假':'未销假'}
+function cancelStatusCell(row){if(cancelStatus(row)==='未销假')return '未销假';const cancelRow=cancelRows.find(item=>item.source===row.id&&item.status==='审批完成');return cancelRow?`<button class="btn-text" data-action="cancel-detail" data-id="${row.id}" data-cancel-id="${cancelRow.id}">已销假</button>`:'<span title="历史销假单据待关联">已销假</span>'}
+function rowDate(value){return (value||'').replaceAll('/','-').slice(0,10)}
+function filteredRows(){const source=activeTab==='leave'?leaveRows:cancelRows;const type=$('typeFilter').value,status=$('statusFilter').value,cancelState=$('cancelStatusFilter').value,startDate=$('startDateFilter').value,endDate=$('endDateFilter').value;return source.filter(row=>(!type||row.type===type)&&(!status||row.status===status)&&(activeTab!=='leave'||!cancelState||cancelStatus(row)===cancelState)&&(!startDate||rowDate(row.end||row.endText)>=startDate)&&(!endDate||rowDate(row.start||row.startText)<=endDate));}
+function render(){
+  const rows=filteredRows();
+  $('listTitle').textContent=activeTab==='leave'?'休假申请列表':'销假申请列表';
+  const datePrefix=activeTab==='leave'?'休假':'销假';$('startDateFilterLabel').textContent=`${datePrefix}开始日期`;$('endDateFilterLabel').textContent=`${datePrefix}结束日期`;
+  $('cancelStatusFilterItem').style.display=activeTab==='leave'?'inline-flex':'none';
+  $('addBtn').style.display=activeTab==='leave'?'inline-flex':'none';
+  $('recordCount').textContent=`共 ${rows.length} 条记录，第 1/1 页`;
+  if(activeTab==='leave'){
+    $('tableWrap').innerHTML=`<table class="data-table"><thead><tr><th style="width:54px">序号</th><th style="width:95px">休假类别</th><th style="width:160px">开始时间</th><th style="width:160px">结束时间</th><th style="width:90px">休假时长</th><th style="width:180px">休假说明</th><th style="width:95px">审批状态</th><th style="width:95px">销假状态</th><th style="width:150px">申请时间</th><th style="width:230px">操作</th></tr></thead><tbody>${rows.map((r,i)=>`<tr><td>${i+1}</td><td><button class="btn-text category-link" data-action="detail" data-id="${r.id}">${r.type}</button></td><td>${r.startText}</td><td>${r.endText}</td><td>${r.duration}</td><td><span class="reason-cell" title="${r.reason}">${r.reason}</span></td><td>${tag(r.status)}</td><td>${cancelStatusCell(r)}</td><td>${r.created}</td><td><div class="row-actions">${getActions(r,'leave')}</div></td></tr>`).join('')}</tbody></table>`;
+  }else{
+    $('tableWrap').innerHTML=`<table class="data-table cancel-table"><thead><tr><th style="width:54px">序号</th><th style="width:95px">休假类别</th><th style="width:160px">开始时间</th><th style="width:160px">结束时间</th><th style="width:90px">销假时长</th><th style="width:180px">申请事由</th><th style="width:95px">审批状态</th><th style="width:150px">申请时间</th><th style="width:100px">操作</th></tr></thead><tbody>${rows.map((r,i)=>`<tr><td>${i+1}</td><td><button class="btn-text category-link" data-action="detail" data-id="${r.id}">${r.type}</button></td><td>${r.startText}</td><td>${r.endText}</td><td>${r.duration}</td><td><span class="reason-cell" title="${r.reason}">${r.reason}</span></td><td>${tag(r.status)}</td><td>${r.created}</td><td><div class="row-actions">${getActions(r,'cancel')}</div></td></tr>`).join('')}</tbody></table>`;
+  }
+  if(!rows.length)$('tableWrap').innerHTML='<div class="empty">暂无符合条件的记录</div>';
+}
+function openModal(id){$(id).classList.add('show')}
+function closeModal(id){$(id).classList.remove('show')}
+function showToast(message){$('toast').textContent=message;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),2200)}
+function openCancel(row){selectedRow=row;$('cancelSourceLink').textContent=`${row.id}　查看原休假详情`;$('cancelType').value=row.type;$('cancelStart').value=row.startText;$('cancelEnd').value=row.endText;$('cancelDuration').value=row.duration;$('cancelReason').value='';$('cancelReasonItem').classList.remove('invalid');$('fileName').textContent='最多上传5个文件';openModal('cancelModal')}
+function openArchiveBlocked(row){const daily=row.daily||[{date:(row.startText||'').slice(0,10),start:row.unit==='天'?'—':(row.startText||'').slice(11)||'—',end:row.unit==='天'?'—':(row.endText||'').slice(11)||'—',duration:row.duration,archived:true,archiveTime:'—'}];$('archiveBlockedRows').innerHTML=daily.map(item=>`<tr class="${item.archived?'is-archived':''}"><td>${item.date.replaceAll('-','/')}</td><td>${item.start||'—'}</td><td>${item.end||'—'}</td><td>${item.duration||'—'}</td><td><span class="archive-status ${item.archived?'archived':'open'}">${item.archived?'已封存':'未封存'}</span></td></tr>`).join('');openModal('archiveBlockedModal')}
+function validateCancel(row){if(!row||row.status!=='审批完成'||row.follow==='已销假'){render();showToast('休假状态已变化，请刷新后重试');return false}if(row.follow==='销假审批中'||cancelRows.some(item=>item.source===row.id&&item.status==='审批中')){showToast('该休假已有销假申请正在审批，不允许重复提交');return false}if(row.archiveMode==='partial'||row.archiveMode==='full'||(row.daily||[]).some(item=>item.archived)){openArchiveBlocked(row);return false}return true}
+function tryOpenCancel(row){if(validateCancel(row))openCancel(row)}
+function openDetail(row,kind){const params=new URLSearchParams({kind,id:row.id,type:row.type,start:row.startText,end:row.endText,duration:row.duration,unit:row.unit||'',status:row.status,approver:row.approver,created:row.created,reason:row.reason||'',follow:row.follow||'—',source:row.source||'',archiveMode:row.archiveMode||'none',entryMode:'self'});window.location.href=`detail.html?${params.toString()}`}
+document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));btn.classList.add('active');activeTab=btn.dataset.tab;$('statusFilter').value='';$('typeFilter').value='';$('cancelStatusFilter').value='';$('startDateFilter').value='';$('endDateFilter').value='';render()}));
+$('tableWrap').addEventListener('click',event=>{const btn=event.target.closest('[data-action]');if(!btn||btn.disabled)return;const source=activeTab==='leave'?leaveRows:cancelRows;const row=source.find(item=>item.id===btn.dataset.id);if(!row)return;const action=btn.dataset.action;if(action==='detail')openDetail(row,activeTab);if(action==='cancel-detail'){const cancelRow=cancelRows.find(item=>item.id===btn.dataset.cancelId);if(cancelRow)openDetail(cancelRow,'cancel')}if(action==='cancel')tryOpenCancel(row);if(action==='withdraw'){selectedRow=row;pendingAction='withdraw';openModal('confirmModal')}if(action==='resubmit'){row.status='审批中';row.approver='直属领导';if(activeTab==='cancel'){const sourceLeave=leaveRows.find(item=>item.id===row.source);if(sourceLeave)sourceLeave.follow='销假审批中'}showToast('已重新提交');render()}});
+$('queryBtn').addEventListener('click',render);$('resetBtn').addEventListener('click',()=>{$('typeFilter').value='';$('statusFilter').value='';$('cancelStatusFilter').value='';$('startDateFilter').value='';$('endDateFilter').value='';render()});
+$('exportBtn').addEventListener('click',()=>showToast(`正在导出${activeTab==='leave'?'休假':'销假'}申请列表`));
+$('addBtn').addEventListener('click',()=>{window.location.href='../05-休假申请/index.html?mode=self'});
+$('cancelSourceLink').addEventListener('click',()=>{if(selectedRow)openDetail(selectedRow,'leave')});
+document.querySelectorAll('[data-close]').forEach(btn=>btn.addEventListener('click',()=>closeModal(btn.dataset.close)));
+document.querySelectorAll('.overlay').forEach(mask=>mask.addEventListener('click',event=>{if(event.target===mask)closeModal(mask.id)}));
+$('submitCancel').addEventListener('click',()=>{if(!validateCancel(selectedRow))return;if(!$('cancelReason').value.trim()){$('cancelReasonItem').classList.add('invalid');return}selectedRow.follow='销假审批中';cancelRows.unshift({id:'C'+Date.now(),source:selectedRow.id,type:selectedRow.type,period:selectedRow.period,startText:selectedRow.startText,endText:selectedRow.endText,duration:selectedRow.duration,unit:selectedRow.unit,reason:$('cancelReason').value.trim(),status:'审批中',approver:'直属领导',created:'2026/08/08 16:30'});closeModal('cancelModal');render();showToast('销假申请已提交')});
+$('uploadBtn').addEventListener('click',()=>{$('fileName').textContent='销假说明.pdf';showToast('已选择文件')});
+$('confirmAction').addEventListener('click',()=>{if(pendingAction==='withdraw'&&selectedRow){selectedRow.status='已撤回';selectedRow.approver='—';if(activeTab==='cancel'){const sourceLeave=leaveRows.find(item=>item.id===selectedRow.source);if(sourceLeave)sourceLeave.follow='—'}closeModal('confirmModal');render();showToast('申请已撤回')}});
+const incomingParams=new URLSearchParams(window.location.search);if(incomingParams.get('tab')==='cancel'){activeTab='cancel';document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab==='cancel'))}render();
+const detailId=incomingParams.get('openDetail');if(detailId){const detailRow=leaveRows.find(item=>item.id===detailId);if(detailRow)openDetail(detailRow,'leave')}
+const incomingAction=incomingParams.get('action'),incomingId=incomingParams.get('id');if(incomingAction&&incomingId){const incomingSource=activeTab==='leave'?leaveRows:cancelRows;const incomingRow=incomingSource.find(item=>item.id===incomingId);if(incomingRow){if(incomingAction==='cancel')tryOpenCancel(incomingRow);if(incomingAction==='withdraw'){selectedRow=incomingRow;pendingAction='withdraw';openModal('confirmModal')}if(incomingAction==='resubmit'){incomingRow.status='审批中';incomingRow.approver='直属领导';render();showToast('已重新提交')}}history.replaceState({},'',activeTab==='cancel'?'index.html?tab=cancel':'index.html')}
+</script>
+</body>
+</html>
