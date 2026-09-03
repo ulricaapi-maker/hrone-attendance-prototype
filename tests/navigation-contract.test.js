@@ -11,9 +11,10 @@ assert.ok(fs.existsSync(navPath), "missing unified-navigation.js");
 assert.ok(fs.existsSync(cssPath), "missing unified-navigation.css");
 
 const navSource = fs.readFileSync(navPath, "utf8");
-const expectedGroups = ["基础配置", "额度管理", "假勤流程", "团队假期", "我的假勤"];
+const expectedGroups = ["基础配置", "成本中心配置", "额度管理", "假勤流程", "团队假期", "我的假勤"];
 const expectedItems = [
   ["leave-plan", "假期方案"],
+  ["cost-allocation-exception", "成本分摊特例管理"],
   ["quota-balance", "假期余额"],
   ["quota-comp-detail", "调休假明细"],
   ["quota-annual-settlement", "年假结算"],

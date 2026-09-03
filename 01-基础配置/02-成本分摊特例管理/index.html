@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="../../assets/unified-navigation.css">
+  <link rel="stylesheet" href="styles.css">
+  <title>HR One · 成本分摊特例管理</title>
+</head>
+<body data-unified-page="cost-allocation-exception" data-unified-root="../../">
+  <!--
+    Assumptions confirmed in the design discussion:
+    1. 一级成本中心页面保持现状，本页仅新增成本分摊特例管理。
+    2. 成本中心特例先定义分摊规则，不绑定组织。
+    3. 特例记录由组织选用后生成，本页只展示，不提供状态和操作。
+  -->
+  <div class="layout">
+    <aside class="sidebar"><div id="unifiedAttendanceNav"><a class="unified-nav__home" href="../../index.html">首页</a></div></aside>
+    <main class="main">
+      <header class="header">
+        <div class="breadcrumb">成本中心配置 / <span>成本分摊特例管理</span></div>
+        <div class="user-info">标准方案</div>
+      </header>
+
+      <section class="content">
+        <nav class="page-tabs" role="tablist" aria-label="成本分摊特例管理页签">
+          <button class="page-tab active" role="tab" aria-selected="true" type="button" data-tab="definition">成本中心特例</button>
+          <button class="page-tab" role="tab" aria-selected="false" type="button" data-tab="records">特例记录</button>
+        </nav>
+
+        <section class="tab-panel active" id="panel-definition">
+          <section class="query-card" aria-label="成本中心特例查询条件">
+            <div class="query-title">查询条件</div>
+            <div class="query-flow">
+              <label class="query-item"><span>名称</span><input id="definitionNameQuery" type="text" placeholder="请输入"></label>
+              <label class="query-item"><span>编码</span><input id="definitionCodeQuery" type="text" placeholder="请输入"></label>
+              <label class="query-item"><span>状态</span><select id="definitionStatusQuery"><option value="">全部</option><option value="启用">启用</option><option value="停用">停用</option></select></label>
+              <div class="query-actions">
+                <button class="btn" id="resetDefinition" type="button">重置</button>
+                <button class="btn btn-primary" id="searchDefinition" type="button">查询</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="list-card">
+            <div class="list-toolbar">
+              <button class="btn btn-primary" id="addException" type="button"><span aria-hidden="true">＋</span>新增</button>
+              <button class="btn" type="button"><img src="../01-假期方案/export-icon.svg" alt="">导出</button>
+              <button class="btn" type="button">导出设置</button>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table definition-table">
+                <thead><tr><th>序号</th><th>名称</th><th>编码</th><th>分摊规则</th><th>状态</th><th>创建人</th><th>创建时间</th><th>操作</th></tr></thead>
+                <tbody id="definitionRows">
+                  <tr data-name="tzl_cost-50%&amp;wx_Allen_AICenter-50%" data-code="FT20260903001" data-rule="tzl_cost: 50%; wx_Allen_AICenter: 50%" data-status="启用">
+                    <td>1</td><td><span class="name-text">tzl_cost-50%&amp;wx_Allen_AICenter-50%</span></td><td>FT20260903001</td><td class="rule-cell">tzl_cost: 50%; wx_Allen_AICenter: 50%</td><td class="status-cell"><span class="status-tag enabled">启用</span></td><td>黄东升</td><td>2026-09-03 09:30:12</td><td><div class="icon-actions"><button class="icon-action edit-exception" type="button" aria-label="编辑" title="编辑"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4Z"></path><path d="m13.5 6.5 4 4"></path></svg></button><button class="icon-action status-action" type="button" aria-label="停用" title="停用"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><path d="M6.4 6.4 17.6 17.6"></path></svg></button></div></td>
+                  </tr>
+                  <tr data-name="验收演示成本中心A-1%&amp;验收演示成本中心B-99%" data-code="FT20260903002" data-rule="验收演示成本中心A: 1%; 验收演示成本中心B: 99%" data-status="停用">
+                    <td>2</td><td><span class="name-text">验收演示成本中心A-1%&amp;验收演示成本中心B-99%</span></td><td>FT20260903002</td><td class="rule-cell">验收演示成本中心A: 1%; 验收演示成本中心B: 99%</td><td class="status-cell"><span class="status-tag disabled">停用</span></td><td>--</td><td>2026-09-02 16:18:26</td><td><div class="icon-actions"><button class="icon-action edit-exception" type="button" aria-label="编辑" title="编辑"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4Z"></path><path d="m13.5 6.5 4 4"></path></svg></button><button class="icon-action status-action" type="button" aria-label="启用" title="启用"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><path d="m8.5 12 2.2 2.2 4.8-5"></path></svg></button></div></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="pagination"><span>共 2 条</span><div class="page-buttons"><button type="button">‹</button><button class="active" type="button">1</button><button type="button">›</button></div></div>
+          </section>
+        </section>
+
+        <section class="tab-panel" id="panel-records">
+          <section class="query-card" aria-label="特例记录查询条件">
+            <div class="query-title">查询条件</div>
+            <div class="query-flow">
+              <label class="query-item"><span>组织</span><input id="recordOrgQuery" type="text" placeholder="请选择部门"></label>
+              <div class="query-actions">
+                <button class="btn" id="resetRecords" type="button">重置</button>
+                <button class="btn btn-primary" id="searchRecords" type="button">查询</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="list-card">
+            <div class="list-toolbar">
+              <button class="btn" type="button"><img src="../01-假期方案/export-icon.svg" alt="">导出</button>
+              <button class="btn" type="button">导出设置</button>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table record-table" id="exceptionRecordTable">
+                <thead><tr><th>序号</th><th>组织</th><th>组织编码</th><th>分摊规则</th></tr></thead>
+                <tbody id="recordRows">
+                  <tr><td>1</td><td>WX/test2</td><td>000311</td><td class="rule-cell">hailey测试1-70%&amp;验收演示成本中心B3-30%</td></tr>
+                  <tr><td>2</td><td>WX/验收演示组织A/验收演示组织B</td><td>000325</td><td class="rule-cell">验收演示成本中心A-1%&amp;验收演示成本中心B-99%</td></tr>
+                  <tr><td>3</td><td>WX/API测试组织</td><td>000331</td><td class="rule-cell">验收演示成本中心A-1%&amp;验收演示成本中心B-99%</td></tr>
+                  <tr><td>4</td><td>WX/肖雷霆验收组织</td><td>000327</td><td class="rule-cell">AI_center1-50%&amp;AI_center2-50%</td></tr>
+                  <tr><td>5</td><td>WX/test2/hailey部门测试1</td><td>000302</td><td class="rule-cell">hailey测试1-10%&amp;hailey测试2-90%</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="pagination"><span>共 5 条</span><div class="page-buttons"><button type="button">‹</button><button class="active" type="button">1</button><button type="button">›</button></div></div>
+          </section>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <div class="mask" id="exceptionModal" hidden>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <header class="modal-header"><h2 id="modalTitle">新增成本中心特例</h2><button class="close-button" type="button" data-close aria-label="关闭">×</button></header>
+      <div class="modal-body">
+        <section class="form-section">
+          <h3>基本信息</h3>
+          <div class="form-grid">
+            <label class="form-item"><span><b>*</b>名称</span><input id="exceptionName" type="text" disabled></label>
+            <label class="form-item"><span><b>*</b>编码</span><input id="exceptionCode" type="text" disabled></label>
+            <label class="form-item full"><span>备注</span><textarea id="exceptionRemark" maxlength="20000" placeholder="请输入"></textarea><small><span id="remarkCount">0</span> / 20000</small></label>
+          </div>
+        </section>
+
+        <section class="form-section allocation-section">
+          <div class="section-heading"><h3>分摊规则</h3><div><button class="text-button" id="addAllocationRow" type="button">新增</button><button class="text-button muted" id="deleteAllocationRows" type="button" disabled>删除</button></div></div>
+          <div class="table-wrap allocation-wrap">
+            <table class="allocation-table"><thead><tr><th class="check-column"><input id="selectAllAllocations" type="checkbox" aria-label="全选"></th><th class="sequence-column">序号</th><th>一级成本中心</th><th>分摊比例</th></tr></thead><tbody id="allocationRows"></tbody></table>
+          </div>
+        </section>
+      </div>
+      <footer class="modal-footer"><button class="btn" type="button" data-close>取消</button><button class="btn btn-primary" id="saveException" type="button" disabled>确定</button></footer>
+    </section>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="../../assets/unified-navigation.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

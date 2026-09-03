@@ -5,6 +5,9 @@
     { label: "基础配置", items: [
       { key: "leave-plan", label: "假期方案", href: "01-基础配置/01-假期方案/index.html" }
     ] },
+    { label: "成本中心配置", items: [
+      { key: "cost-allocation-exception", label: "成本分摊特例管理", href: "01-基础配置/02-成本分摊特例管理/index.html" }
+    ] },
     { label: "额度管理", items: [
       { key: "quota-balance", label: "假期余额", href: "02-额度管理/index.html?page=balance" },
       { key: "quota-comp-detail", label: "调休假明细", href: "02-额度管理/index.html?page=comp-detail" },

@@ -6,6 +6,7 @@ const base = "http://127.0.0.1:4173";
 const canonicalMobileUrl = "https://ulricaapi-maker.github.io/hrone-leave-plan-prototype/leave-prototype/07-%E7%A7%BB%E5%8A%A8%E7%AB%AF%E4%BC%91%E5%81%87%E5%8E%9F%E5%9E%8B/";
 const routes = [
   ["leave-plan", "/01-基础配置/01-假期方案/index.html", ""],
+  ["cost-allocation-exception", "/01-基础配置/02-成本分摊特例管理/index.html", ""],
   ["quota-balance", "/02-额度管理/index.html", "page=balance"],
   ["quota-comp-detail", "/02-额度管理/index.html", "page=comp-detail"],
   ["quota-annual-settlement", "/02-额度管理/index.html", "page=annual-settlement"],
