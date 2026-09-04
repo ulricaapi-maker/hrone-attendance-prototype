@@ -53,6 +53,23 @@
     return data.map(function (item) { return item.center + ": " + item.ratio + "%"; }).join("; ");
   }
 
+  function selectedCostObjects() {
+    return Array.from(document.querySelectorAll('input[name="costObject"]:checked')).map(function (input) {
+      return input.value;
+    });
+  }
+
+  function setSelectedCostObjects(values) {
+    const selected = new Set(values || []);
+    document.querySelectorAll('input[name="costObject"]').forEach(function (input) {
+      input.checked = selected.has(input.value);
+    });
+  }
+
+  function costObjectText(values) {
+    return values.length ? values.join("、") : "--";
+  }
+
   function escapeHtml(value) {
     return String(value).replace(/[&<>"']/g, function (character) {
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[character];
@@ -77,8 +94,8 @@
 
   function setRowStatus(row, status) {
     row.dataset.status = status;
-    row.cells[4].innerHTML = '<span class="status-tag ' + (status === "启用" ? "enabled" : "disabled") + '">' + status + "</span>";
-    row.cells[7].innerHTML = operationMarkup(status);
+    row.cells[5].innerHTML = '<span class="status-tag ' + (status === "启用" ? "enabled" : "disabled") + '">' + status + "</span>";
+    row.cells[8].innerHTML = operationMarkup(status);
   }
 
   function validateAllocation() {
@@ -118,6 +135,7 @@
     remarkInput.value = (data && data.remark) || "";
     remarkCount.textContent = String(remarkInput.value.length);
     nameInput.value = "";
+    setSelectedCostObjects((data && data.costObjects) || []);
     selectAll.checked = false;
     selectAll.indeterminate = false;
     (data && data.allocations ? data.allocations : [{ center: "tzl_cost", ratio: "" }, { center: "wx_Allen_AICenter", ratio: "" }]).forEach(addRow);
@@ -127,7 +145,7 @@
 
   function openModal(data, row) {
     editingRow = row || null;
-    document.getElementById("modalTitle").textContent = row ? "编辑成本中心特例" : "新增成本中心特例";
+    document.getElementById("modalTitle").textContent = row ? "编辑成本分摊规则" : "新增成本分摊规则";
     resetForm(data);
     modal.hidden = false;
     codeInput.focus();
@@ -200,13 +218,18 @@
       const statusRow = statusTrigger.closest("tr");
       const nextStatus = statusRow.dataset.status === "启用" ? "停用" : "启用";
       setRowStatus(statusRow, nextStatus);
-      showToast("成本中心特例已" + nextStatus);
+      showToast("成本分摊规则已" + nextStatus);
       return;
     }
     const editTrigger = event.target.closest(".edit-exception");
     if (!editTrigger) return;
     const row = editTrigger.closest("tr");
-    openModal({ code: row.dataset.code, remark: row.dataset.remark || "", allocations: parseRule(row.dataset.rule) }, row);
+    openModal({
+      code: row.dataset.code,
+      remark: row.dataset.remark || "",
+      costObjects: (row.dataset.costObjects || "").split(",").filter(Boolean),
+      allocations: parseRule(row.dataset.rule)
+    }, row);
   });
 
   saveButton.addEventListener("click", function () {
@@ -216,15 +239,18 @@
     const code = codeInput.value.trim();
     const rule = formattedRule(allocationData());
     const remark = remarkInput.value;
+    const costObjects = selectedCostObjects();
     const isEditing = Boolean(editingRow);
     if (isEditing) {
       editingRow.dataset.name = name;
       editingRow.dataset.code = code;
       editingRow.dataset.rule = rule;
       editingRow.dataset.remark = remark;
+      editingRow.dataset.costObjects = costObjects.join(",");
       editingRow.cells[1].querySelector(".name-text").textContent = name;
       editingRow.cells[2].textContent = code;
       editingRow.cells[3].textContent = rule;
+      editingRow.cells[4].textContent = costObjectText(costObjects);
     } else {
       const host = document.getElementById("definitionRows");
       const row = document.createElement("tr");
@@ -232,13 +258,14 @@
       row.dataset.code = code;
       row.dataset.rule = rule;
       row.dataset.remark = remark;
+      row.dataset.costObjects = costObjects.join(",");
       row.dataset.status = "启用";
-      row.innerHTML = '<td>' + (host.rows.length + 1) + '</td><td><span class="name-text">' + escapeHtml(name) + '</span></td><td>' + escapeHtml(code) + '</td><td class="rule-cell">' + escapeHtml(rule) + '</td><td class="status-cell"><span class="status-tag enabled">启用</span></td><td>黄东升</td><td>2026-09-03 10:20:00</td><td>' + operationMarkup("启用") + "</td>";
+      row.innerHTML = '<td>' + (host.rows.length + 1) + '</td><td><span class="name-text">' + escapeHtml(name) + '</span></td><td>' + escapeHtml(code) + '</td><td class="rule-cell">' + escapeHtml(rule) + '</td><td>' + escapeHtml(costObjectText(costObjects)) + '</td><td class="status-cell"><span class="status-tag enabled">启用</span></td><td>黄东升</td><td>2026-09-03 10:20:00</td><td>' + operationMarkup("启用") + "</td>";
       host.appendChild(row);
       document.querySelector("#panel-definition .pagination span").textContent = "共 " + host.rows.length + " 条";
     }
     closeModal();
-    showToast(isEditing ? "成本中心特例已更新" : "成本中心特例已新增");
+    showToast(isEditing ? "成本分摊规则已更新" : "成本分摊规则已新增");
   });
 
   function filterRows(host, query) {

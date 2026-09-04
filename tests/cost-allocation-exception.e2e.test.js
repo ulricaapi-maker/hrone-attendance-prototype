@@ -15,18 +15,20 @@ const chromePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome
     await page.goto(`${base}/01-%E5%9F%BA%E7%A1%80%E9%85%8D%E7%BD%AE/02-%E6%88%90%E6%9C%AC%E5%88%86%E6%91%8A%E7%89%B9%E4%BE%8B%E7%AE%A1%E7%90%86/index.html`);
     assert.equal(await page.locator('[data-unified-key="cost-allocation-exception"][aria-current="page"]').count(), 1);
 
-    await page.getByRole("tab", { name: "特例记录" }).click();
+    await page.getByRole("tab", { name: "组织特例" }).click();
     const recordHeaders = await page.locator("#exceptionRecordTable th").allInnerTexts();
     assert.deepEqual(recordHeaders, ["序号", "组织", "组织编码", "分摊规则"]);
     assert.equal(await page.locator("#recordRows tr").first().locator(".rule-cell").innerText(), "hailey测试1-70%&验收演示成本中心B3-30%");
     assert.equal(await page.locator("#panel-records #addException").count(), 0);
 
-    await page.getByRole("tab", { name: "成本中心特例" }).click();
+    await page.getByRole("tab", { name: "成本分摊规则" }).click();
     const definitionHeaders = await page.locator(".definition-table th").allInnerTexts();
-    assert.deepEqual(definitionHeaders, ["序号", "名称", "编码", "分摊规则", "状态", "创建人", "创建时间", "操作"]);
+    assert.deepEqual(definitionHeaders, ["序号", "名称", "编码", "分摊规则", "成本对象", "状态", "创建人", "创建时间", "操作"]);
     assert.equal(await page.locator("#definitionStatusQuery").count(), 1);
     const firstDefinitionRow = page.locator("#definitionRows tr").first();
     const secondDefinitionRow = page.locator("#definitionRows tr").nth(1);
+    assert.equal(await firstDefinitionRow.locator("td").nth(4).innerText(), "组织");
+    assert.equal(await secondDefinitionRow.locator("td").nth(4).innerText(), "组织、员工");
     assert.equal(await firstDefinitionRow.getByRole("button", { name: "编辑" }).count(), 1);
     assert.equal(await firstDefinitionRow.getByRole("button", { name: "停用" }).count(), 1);
     assert.equal(await firstDefinitionRow.getByRole("button", { name: "启用" }).count(), 0);
@@ -44,12 +46,21 @@ const chromePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome
     const originalCount = await page.locator("#definitionRows tr").count();
     await page.locator("#addException").click();
     assert.equal(await page.locator("#exceptionModal").isVisible(), true);
+    assert.equal(await page.locator("#modalTitle").innerText(), "新增成本分摊规则");
     assert.equal(await page.locator("#exceptionName").isDisabled(), true);
     assert.equal(await page.locator("#exceptionName").getAttribute("placeholder"), null);
     assert.equal(await page.locator("#allocationMessage").count(), 0);
     assert.equal(await page.locator(".allocation-summary").count(), 0);
     assert.equal(await page.locator("#exceptionCode").isDisabled(), true);
     assert.equal(await page.locator("#exceptionCode").inputValue(), "FT20260903003");
+    assert.equal(await page.locator('input[name="costObject"]').count(), 2);
+    const costObjectStyle = await page.locator("#costObjectOptions").evaluate(element => {
+      const style = window.getComputedStyle(element);
+      return { borderTopWidth: style.borderTopWidth, backgroundColor: style.backgroundColor, paddingLeft: style.paddingLeft };
+    });
+    assert.deepEqual(costObjectStyle, { borderTopWidth: "0px", backgroundColor: "rgba(0, 0, 0, 0)", paddingLeft: "0px" });
+    await page.locator('input[name="costObject"][value="组织"]').check();
+    await page.locator('input[name="costObject"][value="员工"]').check();
     const selects = page.locator("#allocationRows .center-select");
     const ratios = page.locator("#allocationRows .ratio-input");
     await selects.nth(0).selectOption("tzl_cost");
@@ -68,14 +79,18 @@ const chromePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome
     assert.equal(await page.locator("#definitionRows tr").count(), originalCount + 1);
     assert.equal(await page.locator("#definitionRows tr").last().locator("td").nth(1).innerText(), "tzl_cost-60%&wx_Allen_AICenter-40%");
     assert.equal(await page.locator("#definitionRows tr").last().locator("td").nth(3).innerText(), "tzl_cost: 60%; wx_Allen_AICenter: 40%");
+    assert.equal(await page.locator("#definitionRows tr").last().locator("td").nth(4).innerText(), "组织、员工");
     assert.equal(await page.locator("#definitionRows tr").last().locator(".status-tag").innerText(), "启用");
     assert.equal(await page.locator("#definitionRows tr").last().getByRole("button", { name: "停用" }).count(), 1);
-    assert.equal(await page.locator("#toast").innerText(), "成本中心特例已新增");
+    assert.equal(await page.locator("#toast").innerText(), "成本分摊规则已新增");
 
     await page.locator("#definitionRows tr").last().getByRole("button", { name: "编辑" }).click();
+    assert.equal(await page.locator("#modalTitle").innerText(), "编辑成本分摊规则");
+    assert.equal(await page.locator('input[name="costObject"][value="组织"]').isChecked(), true);
+    assert.equal(await page.locator('input[name="costObject"][value="员工"]').isChecked(), true);
     assert.equal(await page.locator("#saveException").isEnabled(), true);
     await page.locator("#saveException").click();
-    assert.equal(await page.locator("#toast").innerText(), "成本中心特例已更新");
+    assert.equal(await page.locator("#toast").innerText(), "成本分摊规则已更新");
 
     assert.deepEqual(errors, []);
     console.log("cost allocation exception e2e: passed");

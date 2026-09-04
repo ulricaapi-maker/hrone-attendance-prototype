@@ -13,12 +13,17 @@ const nav = fs.readFileSync(navPath, "utf8");
 
 assert.match(page, /data-unified-page="cost-allocation-exception"/);
 assert.match(page, /data-unified-root="\.\.\/\.\.\/"/);
-assert.match(page, />成本中心特例</);
-assert.match(page, />特例记录</);
+assert.match(page, />成本分摊规则</);
+assert.match(page, />组织特例</);
+assert.doesNotMatch(page, />成本中心特例</);
+assert.doesNotMatch(page, />特例记录</);
 
 assert.match(page, /id="exceptionName"[^>]*disabled/);
 assert.match(page, /id="exceptionCode"[^>]*disabled/);
 assert.match(page, /id="exceptionRemark"/);
+assert.match(page, /id="costObjectOptions"/);
+assert.match(page, /name="costObject" value="组织"/);
+assert.match(page, /name="costObject" value="员工"/);
 assert.match(page, /id="allocationRows"/);
 assert.match(page, /id="saveException"/);
 assert.doesNotMatch(page, /维护完分摊规则后自动写入/);
@@ -30,9 +35,11 @@ assert.match(page, /id="definitionStatusQuery"/);
 
 const definitionTable = page.match(/<table[^>]*class="[^"]*definition-table[^"]*"[\s\S]*?<\/table>/);
 assert.ok(definitionTable, "missing cost center exception table");
-for (const field of ["序号", "名称", "编码", "分摊规则", "状态", "创建人", "创建时间", "操作"]) {
+for (const field of ["序号", "名称", "编码", "分摊规则", "成本对象", "状态", "创建人", "创建时间", "操作"]) {
   assert.ok(definitionTable[0].includes(field), `definition table missing field: ${field}`);
 }
+assert.match(definitionTable[0], /data-cost-objects="组织"/);
+assert.match(definitionTable[0], /data-cost-objects="组织,员工"/);
 assert.match(definitionTable[0], /aria-label="编辑"/);
 assert.match(definitionTable[0], /aria-label="启用"/);
 assert.match(definitionTable[0], /aria-label="停用"/);

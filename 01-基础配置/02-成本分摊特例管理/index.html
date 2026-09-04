@@ -12,8 +12,8 @@
   <!--
     Assumptions confirmed in the design discussion:
     1. 一级成本中心页面保持现状，本页仅新增成本分摊特例管理。
-    2. 成本中心特例先定义分摊规则，不绑定组织。
-    3. 特例记录由组织选用后生成，本页只展示，不提供状态和操作。
+    2. 成本分摊规则先定义规则及适用的成本对象，不直接绑定具体组织或员工。
+    3. 组织特例由组织选用规则后生成，本页只展示，不提供状态和操作。
   -->
   <div class="layout">
     <aside class="sidebar"><div id="unifiedAttendanceNav"><a class="unified-nav__home" href="../../index.html">首页</a></div></aside>
@@ -25,12 +25,12 @@
 
       <section class="content">
         <nav class="page-tabs" role="tablist" aria-label="成本分摊特例管理页签">
-          <button class="page-tab active" role="tab" aria-selected="true" type="button" data-tab="definition">成本中心特例</button>
-          <button class="page-tab" role="tab" aria-selected="false" type="button" data-tab="records">特例记录</button>
+          <button class="page-tab active" role="tab" aria-selected="true" type="button" data-tab="definition">成本分摊规则</button>
+          <button class="page-tab" role="tab" aria-selected="false" type="button" data-tab="records">组织特例</button>
         </nav>
 
         <section class="tab-panel active" id="panel-definition">
-          <section class="query-card" aria-label="成本中心特例查询条件">
+          <section class="query-card" aria-label="成本分摊规则查询条件">
             <div class="query-title">查询条件</div>
             <div class="query-flow">
               <label class="query-item"><span>名称</span><input id="definitionNameQuery" type="text" placeholder="请输入"></label>
@@ -51,13 +51,13 @@
             </div>
             <div class="table-wrap">
               <table class="data-table definition-table">
-                <thead><tr><th>序号</th><th>名称</th><th>编码</th><th>分摊规则</th><th>状态</th><th>创建人</th><th>创建时间</th><th>操作</th></tr></thead>
+                <thead><tr><th>序号</th><th>名称</th><th>编码</th><th>分摊规则</th><th>成本对象</th><th>状态</th><th>创建人</th><th>创建时间</th><th>操作</th></tr></thead>
                 <tbody id="definitionRows">
-                  <tr data-name="tzl_cost-50%&amp;wx_Allen_AICenter-50%" data-code="FT20260903001" data-rule="tzl_cost: 50%; wx_Allen_AICenter: 50%" data-status="启用">
-                    <td>1</td><td><span class="name-text">tzl_cost-50%&amp;wx_Allen_AICenter-50%</span></td><td>FT20260903001</td><td class="rule-cell">tzl_cost: 50%; wx_Allen_AICenter: 50%</td><td class="status-cell"><span class="status-tag enabled">启用</span></td><td>黄东升</td><td>2026-09-03 09:30:12</td><td><div class="icon-actions"><button class="icon-action edit-exception" type="button" aria-label="编辑" title="编辑"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4Z"></path><path d="m13.5 6.5 4 4"></path></svg></button><button class="icon-action status-action" type="button" aria-label="停用" title="停用"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><path d="M6.4 6.4 17.6 17.6"></path></svg></button></div></td>
+                  <tr data-name="tzl_cost-50%&amp;wx_Allen_AICenter-50%" data-code="FT20260903001" data-rule="tzl_cost: 50%; wx_Allen_AICenter: 50%" data-cost-objects="组织" data-status="启用">
+                    <td>1</td><td><span class="name-text">tzl_cost-50%&amp;wx_Allen_AICenter-50%</span></td><td>FT20260903001</td><td class="rule-cell">tzl_cost: 50%; wx_Allen_AICenter: 50%</td><td>组织</td><td class="status-cell"><span class="status-tag enabled">启用</span></td><td>黄东升</td><td>2026-09-03 09:30:12</td><td><div class="icon-actions"><button class="icon-action edit-exception" type="button" aria-label="编辑" title="编辑"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4Z"></path><path d="m13.5 6.5 4 4"></path></svg></button><button class="icon-action status-action" type="button" aria-label="停用" title="停用"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><path d="M6.4 6.4 17.6 17.6"></path></svg></button></div></td>
                   </tr>
-                  <tr data-name="验收演示成本中心A-1%&amp;验收演示成本中心B-99%" data-code="FT20260903002" data-rule="验收演示成本中心A: 1%; 验收演示成本中心B: 99%" data-status="停用">
-                    <td>2</td><td><span class="name-text">验收演示成本中心A-1%&amp;验收演示成本中心B-99%</span></td><td>FT20260903002</td><td class="rule-cell">验收演示成本中心A: 1%; 验收演示成本中心B: 99%</td><td class="status-cell"><span class="status-tag disabled">停用</span></td><td>--</td><td>2026-09-02 16:18:26</td><td><div class="icon-actions"><button class="icon-action edit-exception" type="button" aria-label="编辑" title="编辑"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4Z"></path><path d="m13.5 6.5 4 4"></path></svg></button><button class="icon-action status-action" type="button" aria-label="启用" title="启用"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><path d="m8.5 12 2.2 2.2 4.8-5"></path></svg></button></div></td>
+                  <tr data-name="验收演示成本中心A-1%&amp;验收演示成本中心B-99%" data-code="FT20260903002" data-rule="验收演示成本中心A: 1%; 验收演示成本中心B: 99%" data-cost-objects="组织,员工" data-status="停用">
+                    <td>2</td><td><span class="name-text">验收演示成本中心A-1%&amp;验收演示成本中心B-99%</span></td><td>FT20260903002</td><td class="rule-cell">验收演示成本中心A: 1%; 验收演示成本中心B: 99%</td><td>组织、员工</td><td class="status-cell"><span class="status-tag disabled">停用</span></td><td>--</td><td>2026-09-02 16:18:26</td><td><div class="icon-actions"><button class="icon-action edit-exception" type="button" aria-label="编辑" title="编辑"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4Z"></path><path d="m13.5 6.5 4 4"></path></svg></button><button class="icon-action status-action" type="button" aria-label="启用" title="启用"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><path d="m8.5 12 2.2 2.2 4.8-5"></path></svg></button></div></td>
                   </tr>
                 </tbody>
               </table>
@@ -67,7 +67,7 @@
         </section>
 
         <section class="tab-panel" id="panel-records">
-          <section class="query-card" aria-label="特例记录查询条件">
+          <section class="query-card" aria-label="组织特例查询条件">
             <div class="query-title">查询条件</div>
             <div class="query-flow">
               <label class="query-item"><span>组织</span><input id="recordOrgQuery" type="text" placeholder="请选择部门"></label>
@@ -104,13 +104,14 @@
 
   <div class="mask" id="exceptionModal" hidden>
     <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <header class="modal-header"><h2 id="modalTitle">新增成本中心特例</h2><button class="close-button" type="button" data-close aria-label="关闭">×</button></header>
+      <header class="modal-header"><h2 id="modalTitle">新增成本分摊规则</h2><button class="close-button" type="button" data-close aria-label="关闭">×</button></header>
       <div class="modal-body">
         <section class="form-section">
           <h3>基本信息</h3>
           <div class="form-grid">
             <label class="form-item"><span><b>*</b>名称</span><input id="exceptionName" type="text" disabled></label>
             <label class="form-item"><span><b>*</b>编码</span><input id="exceptionCode" type="text" disabled></label>
+            <div class="form-item full"><span>成本对象</span><div class="check-options" id="costObjectOptions" role="group" aria-label="成本对象"><label><input type="checkbox" name="costObject" value="组织">组织</label><label><input type="checkbox" name="costObject" value="员工">员工</label></div></div>
             <label class="form-item full"><span>备注</span><textarea id="exceptionRemark" maxlength="20000" placeholder="请输入"></textarea><small><span id="remarkCount">0</span> / 20000</small></label>
           </div>
         </section>
