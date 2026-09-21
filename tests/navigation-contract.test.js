@@ -5,15 +5,17 @@ const path = require("node:path");
 const root = path.resolve(__dirname, "..");
 const navPath = path.join(root, "assets/unified-navigation.js");
 const cssPath = path.join(root, "assets/unified-navigation.css");
-const canonicalMobileUrl = "https://ulricaapi-maker.github.io/hrone-leave-plan-prototype/leave-prototype/07-%E7%A7%BB%E5%8A%A8%E7%AB%AF%E4%BC%91%E5%81%87%E5%8E%9F%E5%9E%8B/";
+const mobileHomeRoute = "07-移动端首页/index.html";
 
 assert.ok(fs.existsSync(navPath), "missing unified-navigation.js");
 assert.ok(fs.existsSync(cssPath), "missing unified-navigation.css");
 
 const navSource = fs.readFileSync(navPath, "utf8");
-const expectedGroups = ["基础配置", "成本中心配置", "额度管理", "假勤流程", "团队假期", "我的假勤"];
+const expectedGroups = ["基础配置", "成本中心配置", "额度管理", "假勤流程", "团队考勤", "我的考勤"];
 const expectedItems = [
+  ["holiday-config", "节假日配置"],
   ["leave-plan", "假期方案"],
+  ["overtime-plan", "加班方案配置"],
   ["cost-allocation-exception", "成本分摊特例管理"],
   ["quota-balance", "假期余额"],
   ["quota-comp-detail", "调休假明细"],
@@ -21,11 +23,14 @@ const expectedItems = [
   ["quota-sick-settlement", "病假结算"],
   ["quota-comp-settlement", "调休假结算"],
   ["leave-hr", "休假"],
+  ["overtime-hr", "加班"],
   ["team-balance", "团队假期余额"],
   ["team-leave", "团队休假"],
+  ["team-overtime", "团队加班"],
   ["my-balance", "我的假期余额"],
+  ["my-overtime-pc", "我的加班-PC端"],
   ["my-leave-pc", "我的休假-PC端"],
-  ["my-leave-mobile", "我的休假-移动端"],
+  ["mobile-home", "移动端首页"],
 ];
 
 function assertOrdered(source, values, label) {
@@ -39,9 +44,10 @@ function assertOrdered(source, values, label) {
 
 assertOrdered(navSource, expectedGroups, "group");
 assertOrdered(navSource, expectedItems.flat(), "menu item");
+assert.ok(!navSource.includes('label: "HR申请"'), "legacy HR申请 group must be renamed");
 assert.ok(!navSource.includes("附件类型"), "unified navigation must not expose 附件类型");
 assert.match(navSource, /target:\s*"_blank"/);
-assert.ok(navSource.includes(canonicalMobileUrl), "mobile navigation must use the canonical published prototype");
+assert.ok(navSource.includes(mobileHomeRoute), "mobile entry must open the integrated home with leave and overtime");
 assert.ok(!navSource.includes("06-我的休假-移动端/index.html"), "mobile navigation must not use a stale local copy");
 
 const leavePlan = fs.readFileSync(path.join(root, "01-基础配置/01-假期方案/index.html"), "utf8");
@@ -84,5 +90,12 @@ assert.match(myLeaveDetail, /const unifiedReturn = record\.entryMode === "self"/
 assert.match(myLeaveDetail, /\.\.\/03-休假管理\/index\.html\?mode=\$\{record\.entryMode\}/);
 assert.ok(!fs.existsSync(path.join(root, "06-我的休假-移动端")), "stale local mobile directory must not be published");
 assert.match(navSource, /target="' \+ item\.target \+ '"', 'rel="noopener"'/);
+
+for (const page of [
+  "01-基础配置/00-节假日配置/index.html",
+  "01-基础配置/03-加班方案配置/index.html"
+]) {
+  assert.ok(fs.existsSync(path.join(root, page)), `missing navigation destination: ${page}`);
+}
 
 console.log("navigation contract: passed");

@@ -1,0 +1,1454 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>HR One · 移动端首页</title>
+  <style>
+    :root{--blue:#2764ea;--blue-soft:#edf4ff;--ink:#182235;--muted:#718198;--line:#e7ebf2;--bg:#f1f5f8;--green:#35b97f;--orange:#ff9d42;--red:#f04462;--shadow:0 4px 16px rgba(27,48,78,.08);--radius:20px}
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{margin:0;min-height:100%;background:#dfe6ed;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
+    button,input,textarea{font:inherit;color:inherit}
+    button{border:0;background:none;padding:0;cursor:pointer}
+    .app{position:relative;width:100%;max-width:750px;min-height:100vh;margin:0 auto;background:var(--bg);overflow:hidden}
+    .page{display:none;min-height:100vh;background:var(--bg)}
+    .page.active{display:block}
+    .status-bar{height:64px;padding:22px 28px 0;display:flex;align-items:center;justify-content:space-between;font-size:20px;font-weight:700;background:linear-gradient(180deg,#eef4f9,#f1f5f8)}
+    .status-icons{display:flex;gap:9px;align-items:center}.status-icons i{display:block;width:18px;height:10px;border:3px solid #182235;border-top:0;border-radius:0 0 8px 8px}.status-icons .battery{width:26px;height:13px;border:2px solid #182235;border-radius:3px;position:relative}.status-icons .battery:after{content:"";position:absolute;right:-5px;top:3px;width:3px;height:5px;background:#182235;border-radius:0 2px 2px 0}
+    .home-scroll{height:calc(100vh - 64px);overflow:auto;padding:16px 24px 54px;scroll-behavior:smooth}
+    .home-card{background:#fff;border-radius:24px;box-shadow:var(--shadow);margin-bottom:22px}
+    .home-profile{padding:24px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,#fff,#f3f8ff)}
+    .home-profile h1{font-size:25px;line-height:1.35;margin:0 0 5px}.home-profile p{margin:0;color:#6d7f97;font-size:16px;font-weight:600}
+    .profile-right{display:flex;gap:14px;align-items:center}.bell{position:relative;width:52px;height:52px;border-radius:50%;background:#fff;box-shadow:0 4px 14px rgba(33,57,87,.1);display:grid;place-items:center;font-size:24px}.bell b{position:absolute;right:-1px;top:-3px;background:var(--red);color:#fff;border:2px solid #fff;border-radius:14px;min-width:23px;height:23px;font-size:13px;display:grid;place-items:center}.avatar{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:#3f7de6;color:#fff;font-size:24px;font-weight:700}
+    .home-section{padding:20px 18px}.section-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}.section-title h2{font-size:20px;margin:0}.section-title a{font-size:16px;color:#718198;font-weight:600}.count{display:inline-grid;place-items:center;margin-left:6px;min-width:27px;height:27px;border-radius:50%;background:var(--red);color:#fff;font-size:14px}
+    .workflow-card{border:1px solid var(--line);border-radius:20px;padding:18px;background:#fff;box-shadow:0 2px 8px rgba(31,50,76,.04)}.workflow-top,.workflow-bottom{display:flex;align-items:center;justify-content:space-between}.workflow-top{color:#6b7d94;font-size:15px}.business{color:#2764ea}.status-tag{padding:6px 12px;border-radius:18px;color:var(--blue);background:var(--blue-soft);font-weight:600}.workflow-card h3{font-size:17px;margin:14px 0 8px}.handler{font-size:15px;color:#6f8198}.handler b{color:#2764ea;background:#edf4ff;padding:4px 8px;border-radius:12px}.workflow-bottom{margin-top:17px;color:#9aabc0}.small-btn{background:var(--blue);color:#fff;border-radius:12px;padding:10px 16px;font-weight:600}.ghost-actions{display:flex;gap:10px}.ghost-actions button{padding:8px 13px;border-radius:12px;background:#edf4ff;color:var(--blue);font-weight:600}.ghost-actions .danger{color:var(--red);background:#fff0f3}
+    .quick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px 12px;padding:12px 4px 6px}.quick-app{min-height:112px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:10px;color:#394a61;font-size:16px}.quick-icon{width:62px;height:62px;border-radius:20px;display:grid;place-items:center;background:#f5f1ff;color:#8357ef;box-shadow:0 3px 10px rgba(45,46,70,.08);font-size:29px}.quick-app.leave .quick-icon{background:#eaf9f2;color:#25ad76}.quick-app.leave .quick-icon svg{width:31px;height:31px}.quick-app:active .quick-icon{transform:scale(.96)}
+    .nav-header{height:58px;background:#fff;border-bottom:1px solid var(--line);display:grid;grid-template-columns:64px 1fr 86px;align-items:center;position:sticky;top:0;z-index:20}.nav-header h1{margin:0;text-align:center;font-size:19px}.nav-header button{height:58px;padding:0 18px;font-size:16px}.nav-header .back{font-size:28px;text-align:left}.nav-header .right{color:var(--blue);font-size:14px;font-weight:600;text-align:right}
+    .leave-scroll{height:calc(100vh - 58px);overflow:auto;padding:14px 16px 104px}.variant-note{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:12px;background:#eaf2ff;color:#315dba;font-size:13px;margin-bottom:12px}.variant-note b{background:var(--blue);color:#fff;padding:3px 8px;border-radius:12px}.leave-section{background:#fff;border-radius:18px;box-shadow:0 2px 12px rgba(27,48,78,.05);margin-bottom:12px;overflow:hidden}.leave-section-head{padding:16px 16px 10px;display:flex;align-items:end;justify-content:space-between}.leave-section-head h2{font-size:17px;margin:0}.leave-section-head span{font-size:12px;color:#8796a9}.quota-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;padding:0 14px 15px}.quota-card{position:relative;min-height:92px;border:1px solid #e4eaf2;border-radius:16px;padding:13px 10px;text-align:left;background:linear-gradient(160deg,#fff,#f8fbff);transition:.15s}.quota-card strong{display:block;font-size:14px;margin-bottom:9px}.quota-card b{display:block;color:var(--blue);font-size:20px}.quota-card small{color:#8a98aa;font-size:11px}.quota-card.selected{border:2px solid var(--blue);background:#edf4ff;padding:12px 9px}.quota-card.selected:after{content:"✓";position:absolute;right:8px;top:7px;width:19px;height:19px;border-radius:50%;display:grid;place-items:center;background:var(--blue);color:#fff;font-size:12px}.quota-card.readonly{cursor:default}.quota-card.readonly:after{content:"仅展示";position:absolute;top:8px;right:8px;color:#9aa7b7;font-size:9px}.quota-hint{text-align:center;color:#8796a9;font-size:12px;padding:0 12px 14px;margin-top:-3px}
+    .policy-button{width:100%;padding:15px 16px;display:flex;align-items:center;justify-content:space-between;text-align:left}.policy-button div{display:flex;gap:10px;align-items:center}.policy-icon{width:32px;height:32px;border-radius:10px;background:#fff4e8;color:var(--orange);display:grid;place-items:center}.policy-button b{font-size:15px}.policy-button small{display:block;color:#8a98aa;margin-top:3px}.chevron{color:#a3afbd;transition:.2s}.policy-panel{display:none;padding:0 16px 15px;color:#687a91;font-size:13px;line-height:1.7}.policy-panel.open{display:block}.policy-panel ul{padding-left:18px;margin:2px 0}.policy-button.expanded .chevron{transform:rotate(90deg)}
+    .empty-form{padding:27px 18px 30px;text-align:center}.empty-form .empty-icon{width:58px;height:58px;border-radius:20px;background:#edf4ff;margin:0 auto 13px;display:grid;place-items:center;color:var(--blue);font-size:26px}.empty-form h3{font-size:16px;margin:0 0 7px}.empty-form p{font-size:13px;color:#8a98aa;margin:0 0 17px}.primary-mini{border-radius:13px;background:var(--blue);color:#fff;padding:11px 18px;font-weight:600}
+    .form-body{display:none}.form-body.visible{display:block}.form-title{padding:16px;border-bottom:1px solid #f0f2f6;display:flex;align-items:center;justify-content:space-between}.form-title b{font-size:17px}.type-chip{font-size:12px;padding:5px 9px;color:var(--blue);background:var(--blue-soft);border-radius:11px}.field-row{min-height:56px;padding:13px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #f0f2f6}.field-row:last-child{border-bottom:0}.field-label{width:96px;flex:none;font-size:15px}.required:before{content:"*";color:var(--red);margin-right:3px}.field-value{flex:1;min-width:0;text-align:right;color:#303d50;font-size:14px}.field-value.placeholder{color:#a5b0be}.field-value .sub{display:block;color:#8c9bae;font-size:11px;margin-top:4px}.field-arrow{color:#a6b1be;font-size:20px}.segmented{margin-left:auto;display:flex;padding:3px;background:#f0f3f7;border-radius:11px}.segmented button{min-width:52px;height:31px;border-radius:9px;color:#708095;font-size:13px}.segmented button.active{background:#fff;color:var(--blue);box-shadow:0 2px 7px rgba(31,51,78,.12);font-weight:600}.inline-input{width:100%;border:0;outline:0;text-align:right;background:transparent}.field-textarea{display:block;padding:14px 16px}.field-textarea label{font-size:15px}.field-textarea textarea{width:100%;height:78px;margin-top:10px;border:1px solid #e3e8ef;border-radius:13px;padding:11px;resize:none;outline:0;background:#fafbfc}.field-textarea textarea:focus{border-color:#8eaff6}.field-count{text-align:right;color:#a0acba;font-size:11px;margin-top:4px}
+    .duration-summary{margin:12px 14px 14px;border-radius:15px;padding:14px;background:linear-gradient(135deg,#f2f7ff,#eaf3ff);border:1px solid #dbe8ff}.duration-top{display:flex;align-items:flex-end;justify-content:space-between}.duration-top span{font-size:13px;color:#6e7f96}.duration-top strong{font-size:24px;color:var(--blue)}.duration-info{margin-top:9px;padding-top:9px;border-top:1px solid #d7e5fb;display:flex;gap:9px;justify-content:space-between;color:#6d7e93;font-size:11px}.duration-warning{display:none;color:#e66e26;margin-top:8px;font-size:12px}.daily-entry{display:none;margin:0 14px 14px;border:1px solid #dae5f5;border-radius:14px;padding:13px;background:#fff}.daily-entry.show{display:flex;align-items:center;justify-content:space-between}.daily-entry b{font-size:14px}.daily-entry p{margin:5px 0 0;color:#8493a6;font-size:12px}.daily-entry .field-arrow{margin-left:12px}
+    .special-fields{display:none}.special-fields.visible{display:block}.tip{margin:10px 14px 0;padding:10px 12px;border-radius:12px;background:#fff8ec;color:#9b6a25;font-size:12px;line-height:1.5}.upload-zone{margin:12px 14px 14px;border:1px dashed #b8c5d5;border-radius:14px;min-height:76px;display:flex;align-items:center;justify-content:center;gap:9px;color:#6e8198;font-size:13px}.upload-plus{width:30px;height:30px;border-radius:10px;background:#edf4ff;color:var(--blue);display:grid;place-items:center;font-size:22px}.attachment-list{padding:0 14px 14px;display:none}.attachment-list.show{display:block}.file-item{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:12px;background:#f6f8fb;font-size:12px}.file-item button{color:var(--red);padding:5px}
+    .bottom-action{position:absolute;left:0;right:0;bottom:0;z-index:25;background:rgba(255,255,255,.96);border-top:1px solid #e5e9ef;padding:11px 16px calc(11px + env(safe-area-inset-bottom));display:none;gap:10px;box-shadow:0 -5px 18px rgba(21,40,66,.07)}.bottom-action.show{display:flex}.bottom-action button{height:48px;border-radius:14px;font-weight:600}.bottom-action .save{width:92px;background:#edf4ff;color:var(--blue)}.bottom-action .submit{flex:1;background:var(--blue);color:#fff}.bottom-action .submit:active{background:#1955da}
+    .full-page{background:#f5f7fa;min-height:100vh}.picker-search{padding:13px 16px;background:#fff}.picker-search input{width:100%;height:42px;border:0;border-radius:13px;background:#f2f4f7;padding:0 14px;outline:0}.type-list{padding:12px 16px 35px}.type-option{width:100%;min-height:72px;background:#fff;border-radius:15px;margin-bottom:10px;padding:14px;display:flex;align-items:center;gap:13px;text-align:left;box-shadow:0 2px 8px rgba(31,51,78,.04)}.type-mark{width:42px;height:42px;flex:none;border-radius:14px;display:grid;place-items:center;background:#edf4ff;color:var(--blue);font-weight:700}.type-option:nth-child(2n) .type-mark{background:#eaf9f2;color:#25ad76}.type-copy{flex:1}.type-copy b{font-size:15px}.type-copy small{display:block;color:#8998aa;margin-top:5px}.type-option.selected{outline:2px solid var(--blue)}
+    .daily-scroll{height:calc(100vh - 58px);overflow:auto;padding:14px 15px 105px}.daily-summary{background:#eaf2ff;color:#3860aa;border-radius:14px;padding:12px 14px;font-size:13px;line-height:1.5;margin-bottom:12px}.daily-card{background:#fff;border-radius:16px;padding:15px;margin-bottom:11px;box-shadow:0 2px 9px rgba(31,51,78,.05)}.daily-card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.daily-card-head b{font-size:15px}.work-tag{font-size:11px;border-radius:10px;padding:4px 7px;color:#2a9c6d;background:#eaf9f2}.daily-fields{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.daily-field label{display:block;color:#8493a6;font-size:11px;margin-bottom:6px}.daily-field input{width:100%;height:38px;border:1px solid #e0e6ed;border-radius:10px;padding:0 7px;background:#fafbfc;font-size:12px}.daily-total{margin-top:10px;text-align:right;color:#6e8198;font-size:12px}.apply-other{margin-top:12px;color:var(--blue);font-size:13px;font-weight:600}.daily-bottom{position:absolute;left:0;right:0;bottom:0;padding:11px 16px calc(11px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid var(--line);display:flex;gap:10px}.daily-bottom button{height:47px;border-radius:14px}.daily-bottom .cancel{width:96px;background:#edf1f6;color:#65778e}.daily-bottom .done{flex:1;background:var(--blue);color:#fff;font-weight:600}
+    .mask{display:none;position:absolute;inset:0;background:rgba(19,31,49,.48);z-index:60}.mask.show{display:block}.sheet{visibility:hidden;pointer-events:none;position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:22px 22px 0 0;padding-bottom:calc(14px + env(safe-area-inset-bottom));transform:translateY(102%);transition:.24s;z-index:61;max-height:82%;overflow:auto}.sheet.show{visibility:visible;pointer-events:auto;transform:translateY(0)}.sheet-grip{width:40px;height:4px;background:#d7dde5;border-radius:3px;margin:9px auto}.sheet-head{display:flex;align-items:center;justify-content:space-between;padding:10px 18px 15px;border-bottom:1px solid #edf0f4}.sheet-head b{font-size:17px}.sheet-head button{color:#718198;font-size:14px;padding:7px}.sheet-content{padding:15px 18px}.quota-total{padding:14px;border-radius:14px;background:#edf4ff;margin-bottom:12px}.quota-total small{color:#7688a0}.quota-total strong{display:block;color:var(--blue);font-size:23px;margin-top:6px}.batch{padding:13px 0;border-bottom:1px solid #edf0f4}.batch:last-child{border:0}.batch-top{display:flex;justify-content:space-between}.batch b{font-size:14px}.batch strong{color:#33445b}.batch p{margin:6px 0 0;color:#8796a9;font-size:12px}.sheet-action{padding:8px 18px}.sheet-action button{width:100%;height:48px;background:var(--blue);color:#fff;border-radius:14px;font-weight:600}.date-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.date-input label{display:block;color:#74859b;font-size:12px;margin-bottom:7px}.date-input input{width:100%;height:44px;border:1px solid #dfe5ed;border-radius:12px;padding:0 9px;background:#fafbfc}.date-tips{margin-top:12px;color:#8190a3;font-size:12px;line-height:1.6}
+    .toast{position:absolute;left:50%;bottom:105px;transform:translate(-50%,14px);opacity:0;pointer-events:none;z-index:80;background:rgba(25,35,50,.9);color:#fff;border-radius:10px;padding:10px 14px;font-size:13px;transition:.2s;white-space:nowrap}.toast.show{opacity:1;transform:translate(-50%,0)}
+    .success{display:none;position:absolute;inset:0;z-index:90;background:#fff;text-align:center;padding:150px 28px 40px}.success.show{display:block}.success-icon{width:76px;height:76px;border-radius:50%;background:#e5f8ef;color:#2bb478;font-size:38px;display:grid;place-items:center;margin:0 auto 23px}.success h2{font-size:23px;margin:0 0 10px}.success p{color:#7b8b9e;font-size:14px;line-height:1.7}.success button{margin-top:26px;width:100%;max-width:340px;height:48px;border-radius:14px;background:var(--blue);color:#fff;font-weight:600}
+    [hidden]{display:none!important}.compact-c-content{display:block}.compact-quota{background:#fff;border-radius:14px;margin-bottom:10px;overflow:hidden}.compact-quota-head{min-height:42px;padding:10px 14px 5px;display:flex;align-items:center;justify-content:space-between}.compact-quota-title{font-size:14px;font-weight:650}.compact-quota-more{color:var(--blue);font-size:12px;font-weight:650;padding:7px 0 7px 10px}.compact-quota-grid{display:grid;grid-template-columns:repeat(3,1fr);padding:0 6px 10px}.compact-quota-item{min-width:0;padding:5px 9px 7px;border-right:1px solid #edf0f4}.compact-quota-item:last-child{border-right:0}.compact-quota-item span{display:block;color:#6f7f94;font-size:11px;margin-bottom:4px}.compact-quota-item strong{display:block;font-size:16px;color:#1d2a3c;white-space:nowrap}.compact-quota-item small{display:block;margin-top:5px;color:#8796a9;font-size:9px;white-space:nowrap;letter-spacing:-.2px}.compact-policy-entry{margin-bottom:10px;border-radius:14px}.compact-policy-entry .field-row{min-height:48px;padding:10px 14px}.compact-policy-entry .field-value{color:var(--blue)}.compact-form{border-radius:14px}.compact-form .field-row{min-height:52px;padding:11px 14px}.compact-form .field-label{width:94px;font-size:14px}.compact-form .field-textarea{padding:13px 14px}.compact-form .field-textarea textarea{height:64px;margin-top:8px}.compact-dynamic{border-top:1px solid #edf0f4}.compact-duration-row strong{font-size:17px;color:var(--blue)}.compact-duration-row.invalid strong{color:var(--red)}.compact-daily-row{width:100%}.compact-daily-row .field-value{color:#52657d;font-size:12px}.compact-field-error{display:none;padding:0 14px 9px;color:var(--red);font-size:12px}.compact-field-error.show{display:block}.compact-special .tip{margin:8px 14px}.gestation-inline{display:inline-grid;grid-template-columns:44px auto 44px auto;align-items:center;gap:4px}.gestation-inline .inline-input{width:44px}.compact-attachment{border-top:1px solid #edf0f4;padding:13px 14px}.compact-attachment-title{font-size:14px;margin-bottom:9px}.compact-upload{width:100%;height:44px;border:1px dashed #b8c5d5;border-radius:12px;color:#637890;background:#fafbfc}.compact-file{display:flex;align-items:center;justify-content:space-between;height:44px;padding:0 11px;border-radius:11px;background:#f5f7fa;font-size:12px}.compact-file button{color:var(--red);padding:8px}.compact-type-search{padding:4px 18px 10px}.compact-type-search label{height:44px;border:1px solid #dfe6ee;border-radius:12px;background:#f6f8fb;display:flex;align-items:center;padding:0 12px;color:#92a1b4}.compact-type-search input{flex:1;min-width:0;height:40px;border:0;outline:0;background:transparent;padding:0 8px}.compact-type-list{display:block;padding:0 18px;max-height:360px;overflow:auto}.compact-type-option{width:100%;min-height:50px;border:0;border-bottom:1px solid #edf0f4;background:#fff;font-size:14px;text-align:left;display:flex;align-items:center;justify-content:space-between}.compact-type-option:last-child{border-bottom:0}.compact-type-option:after{content:"";width:19px;height:19px;border:1px solid #c9d2dd;border-radius:50%}.compact-type-option.selected{color:var(--blue);font-weight:650}.compact-type-option.selected:after{content:"✓";display:grid;place-items:center;border-color:var(--blue);background:var(--blue);color:#fff;font-size:12px}.compact-sheet-actions{display:flex;gap:10px;padding:12px 18px 0;border-top:1px solid #edf0f4}.compact-sheet-actions button{height:46px;border-radius:13px;font-weight:650}.compact-sheet-actions .clear{width:42%;border:1px solid #dce3eb;background:#f7f9fb;color:#65778e}.compact-sheet-actions .confirm{flex:1;background:var(--blue);color:#fff}.compact-policy-list{margin:0;padding:2px 0 2px 19px;color:#53667d;font-size:13px;line-height:1.8}.compact-quota-detail{padding:2px 0}.compact-quota-group{padding:12px 0;border-bottom:1px solid #edf0f4}.compact-quota-group:last-child{border-bottom:0}.compact-quota-group-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:7px}.compact-quota-group-head b{font-size:14px}.compact-quota-group-head strong{font-size:14px;color:var(--blue)}.compact-batch-row{min-height:36px;display:flex;align-items:center;justify-content:space-between;gap:12px;color:#6e7e92;font-size:12px}.compact-batch-row span:last-child{color:#34445a;white-space:nowrap}.compact-date-wheel{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;height:245px;padding:2px 18px 10px;overflow:hidden}.compact-date-wheel.date-only{grid-template-columns:repeat(3,1fr)}.compact-wheel-col{height:235px;overflow-y:auto;text-align:center;scrollbar-width:none}.compact-wheel-col::-webkit-scrollbar{display:none}.compact-wheel-label{height:34px;display:grid;place-items:center;color:#90a0b5;font-size:12px;font-weight:650;position:sticky;top:0;background:#fff;z-index:2}.compact-wheel-option{width:100%;height:46px;border-radius:10px;color:#65778e;font-size:14px}.compact-wheel-option.selected{background:#edf4ff;color:var(--blue);font-size:17px;font-weight:750}.compact-rest-input{width:62px;height:34px;border:1px solid #dfe5ed;border-radius:9px;text-align:center;background:#fafbfc;outline:0}.rest-rule-trigger{width:20px;height:20px;border:1px solid #9eb0c4;border-radius:50%;color:#6f829a;font-size:12px;margin-left:4px}.compact-blocked{margin:10px 14px;padding:10px 12px;border-radius:11px;background:#fff5f1;color:#c75a39;font-size:12px;line-height:1.5}.compact-daily-card .daily-fields{display:block}.compact-daily-row-field{min-height:44px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid #edf0f4}.compact-daily-row-field label{color:#718198;font-size:13px}.compact-daily-row-field input{width:116px;height:34px;border:1px solid #dfe5ed;border-radius:9px;padding:0 8px;text-align:right;background:#fafbfc}.compact-daily-row-field input:disabled{background:#f0f2f5;color:#a1adba}.daily-lock-note{margin-top:8px;color:#8b98a8;font-size:11px;line-height:1.45}.daily-total-line{min-height:42px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid #edf0f4;color:#6e8198;font-size:13px}.daily-total-line b{color:var(--blue)}.legacy-variant-content{display:block}
+    .compact-policy-entry{padding:13px 14px}.compact-policy-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}.compact-policy-head b{font-size:14px}.compact-policy-copy{margin:0;color:#586b82;font-size:12px;line-height:1.7;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}.compact-policy-copy.expanded{display:block}.compact-policy-toggle{display:none;margin-top:7px;color:var(--blue);font-size:12px;font-weight:650}.compact-policy-toggle.show{display:block}.compact-quota-sheet{max-height:92%}.compact-quota-detail{padding:0 16px 12px}.compact-quota-group{padding:0;border:0;margin:10px 0;border-radius:14px;background:#f8fafc;overflow:hidden}.compact-quota-group-head{width:100%;min-height:62px;margin:0;padding:11px 13px;display:grid;grid-template-columns:1fr auto;gap:3px 12px;text-align:left}.compact-quota-group-head b{font-size:14px}.compact-quota-group-head strong{color:var(--blue);font-size:14px}.compact-quota-group-head small{grid-column:1/3;color:#8291a4;font-size:11px}.compact-quota-fields{display:none;padding:2px 13px 11px;border-top:1px solid #e8edf3;background:#fff}.compact-quota-group.open .compact-quota-fields{display:block}.compact-quota-field{min-height:36px;display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:1px solid #f0f2f5;font-size:12px}.compact-quota-field:last-child{border-bottom:0}.compact-quota-field span{color:#77889d}.compact-quota-field b{font-weight:500;text-align:right;color:#32445b}.compact-expiry-list{margin-top:8px;padding-top:5px;border-top:1px dashed #dce3eb}.compact-expiry-list b{display:block;margin-bottom:4px;font-size:12px}.compact-expiry-row{min-height:30px;display:flex;align-items:center;justify-content:space-between;color:#65788f;font-size:12px}.compact-date-wheel{position:relative;height:264px;padding:0 18px 0;overflow:hidden}.compact-wheel-selection{position:absolute;z-index:0;left:18px;right:18px;top:126px;height:46px;border-radius:10px;background:#edf4ff;pointer-events:none}.compact-wheel-col{position:relative;z-index:1;height:264px;overflow:hidden}.compact-wheel-label{height:34px;position:static;background:transparent}.compact-wheel-scroll{height:230px;overflow-y:auto;text-align:center;scroll-snap-type:y mandatory;scrollbar-width:none}.compact-wheel-scroll::-webkit-scrollbar{display:none}.compact-wheel-spacer{height:92px}.compact-wheel-option{display:block;height:46px;border-radius:0;scroll-snap-align:center;background:transparent}.compact-wheel-option.selected{background:transparent}.compact-daily-row .field-label{width:126px;line-height:1.35}.compact-duration-row{width:100%;text-align:left}.compact-duration-row .field-value{color:var(--blue)}.duration-detail-scroll{height:calc(100vh - 58px);overflow:auto;padding:14px 14px 96px}.duration-hero{padding:18px;border-radius:16px;background:linear-gradient(135deg,#2764ea,#4d83ee);color:#fff;margin-bottom:12px}.duration-hero small{opacity:.8}.duration-hero strong{display:block;margin-top:5px;font-size:28px}.duration-detail-card{background:#fff;border-radius:16px;margin-bottom:12px;padding:4px 14px;box-shadow:0 2px 9px rgba(31,51,78,.05)}.duration-detail-row{min-height:46px;display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid #edf0f4;font-size:13px}.duration-detail-row:last-child{border-bottom:0}.duration-detail-row span{color:#718198}.duration-detail-row b{font-weight:550;text-align:right}.duration-daily-card{padding:14px}.duration-daily-card h3{font-size:14px;margin:0 0 9px}.duration-daily-line{display:flex;justify-content:space-between;gap:12px;margin-top:7px;color:#728398;font-size:12px}.duration-daily-line b{color:#33465d;font-weight:550;text-align:right}.duration-edit-action{position:absolute;left:0;right:0;bottom:0;padding:11px 16px calc(11px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:#fff}.duration-edit-action button{width:100%;height:47px;border-radius:14px;background:var(--blue);color:#fff;font-weight:650}.daily-range-hint{margin:-2px 0 10px;padding:9px 11px;border-radius:10px;background:#f5f8fc;color:#70839a;font-size:11px}.daily-range-error{margin-top:6px;color:var(--red);font-size:11px}.daily-summary strong{color:#244f9f}.daily-progress-copy{display:block;margin-top:3px}.daily-shift-time{margin:-3px 0 10px;color:#718198;font-size:12px}.daily-shift-time b{color:#405269}.compact-daily-card input.error{border-color:var(--red);background:#fff6f7}.compact-duration-row.invalid strong{color:#a5b0be}
+    /* C 方案：平铺额度、统一设置、逐日例外 */
+    .compact-quota-item>div{display:flex;align-items:baseline;justify-content:space-between;gap:3px}.compact-quota-item>div span{display:inline;margin:0}.compact-quota-item>div strong{display:inline;font-size:14px}.compact-quota-item small{white-space:normal;line-height:1.35;min-height:24px}.daily-setting-field{min-width:0}.daily-setting-field input{min-width:0}
+    .compact-quota-sheet{height:92%;max-height:92%}.compact-quota-detail{padding:0 16px 24px}.compact-quota-group{padding:0;border:1px solid #e8edf3;margin:12px 0;border-radius:14px;background:#fff;overflow:hidden}.compact-quota-group-head{min-height:54px;margin:0;padding:11px 13px;display:flex;align-items:center;justify-content:space-between;background:#f8fafc}.compact-quota-group-head b{font-size:14px}.compact-quota-group-head strong{color:var(--blue);font-size:14px}.compact-quota-group-body{padding:3px 13px 8px}.compact-quota-year{padding:10px 0 6px;border-bottom:1px solid #edf0f4}.compact-quota-year:last-child{border-bottom:0}.compact-quota-year-title{font-size:12px;color:#7b8ba0;margin-bottom:5px}.compact-quota-line{min-height:34px;display:grid;grid-template-columns:1fr auto;align-items:center;gap:3px 10px;font-size:12px}.compact-quota-line span{color:#6f8095}.compact-quota-line b{font-weight:550;color:#33465d;text-align:right}.compact-quota-line small{grid-column:1/3;color:#8a98aa}.compact-comp-head,.compact-comp-row{display:grid;grid-template-columns:1.1fr .75fr 1fr;gap:7px;align-items:center}.compact-comp-head{height:34px;color:#8b99aa;font-size:11px;border-bottom:1px solid #edf0f4}.compact-comp-row{min-height:43px;font-size:12px;border-bottom:1px solid #f0f2f5}.compact-comp-row:last-child{border-bottom:0}.compact-comp-row span:nth-child(2){color:#245fdb;font-weight:650}.compact-simple-row{min-height:40px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f0f2f5;font-size:12px}.compact-simple-row:last-child{border-bottom:0}.compact-simple-row span{color:#6f8095}.compact-simple-row b{font-weight:550}.daily-setting-card{background:#fff;border-radius:15px;padding:13px 14px;margin-bottom:10px;box-shadow:0 2px 9px rgba(31,51,78,.05)}.daily-setting-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}.daily-setting-head b{font-size:14px}.daily-setting-head small{color:#8a99ab;font-size:11px}.daily-setting-fields{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.daily-setting-fields.fixed{grid-template-columns:1fr}.daily-setting-field label{display:block;color:#8493a6;font-size:11px;margin-bottom:5px}.daily-setting-field input{width:100%;height:38px;border:1px solid #dfe5ed;border-radius:9px;background:#fafbfc;padding:0 8px}.daily-apply-button{width:100%;height:40px;margin-top:10px;border-radius:10px;background:#edf4ff;color:var(--blue);font-size:13px;font-weight:650}.daily-compact-list{background:#fff;border-radius:15px;overflow:hidden;box-shadow:0 2px 9px rgba(31,51,78,.05)}.daily-compact-item{width:100%;padding:12px 13px;border-bottom:1px solid #edf0f4;text-align:left}.daily-compact-item:last-child{border-bottom:0}.daily-compact-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}.daily-compact-top b{font-size:13px}.daily-compact-top span{font-size:12px;color:var(--blue);font-weight:650}.daily-compact-meta{display:grid;grid-template-columns:1.2fr 1fr;gap:8px;color:#718198;font-size:11px}.daily-compact-meta span:last-child{text-align:right;color:#44566d}.daily-locked{display:block;color:#8a98aa;font-size:10px;margin-top:5px}.day-edit-sheet{max-height:76%}.day-edit-fields{padding:4px 18px 8px}.day-edit-row{min-height:52px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #edf0f4;font-size:13px}.day-edit-row input{width:128px;height:38px;border:1px solid #dfe5ed;border-radius:9px;padding:0 8px;text-align:right;background:#fafbfc}.day-edit-row input:disabled{background:#f0f2f5;color:#8996a6}.duration-summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#e9edf3;border-radius:14px;overflow:hidden;margin-bottom:12px}.duration-summary-cell{min-height:72px;background:#fff;padding:12px 9px;text-align:center}.duration-summary-cell span{display:block;color:#7b8b9e;font-size:10px}.duration-summary-cell b{display:block;margin-top:7px;color:#234f9f;font-size:16px}.duration-daily-compact{padding:12px 14px}.duration-daily-compact h3{font-size:13px;margin:0 0 7px}.duration-daily-compact .duration-daily-line{margin-top:4px}.calculation-note{background:#fff;border-radius:14px;margin-bottom:12px;overflow:hidden}.calculation-note button{width:100%;min-height:46px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;text-align:left;font-size:13px;font-weight:650}.calculation-note p{margin:0;padding:0 14px 13px;color:#73849a;font-size:11px;line-height:1.65}.duration-hero{display:none}
+    @media(max-width:480px){.status-bar{height:52px;padding:16px 20px 0;font-size:17px}.home-scroll{height:calc(100vh - 52px);padding:12px 14px 45px}.home-card{border-radius:20px;margin-bottom:14px}.home-profile{padding:18px}.home-profile h1{font-size:21px}.home-profile p{font-size:13px}.avatar{width:49px;height:49px;font-size:20px}.bell{width:45px;height:45px}.home-section{padding:17px 14px}.workflow-card{padding:15px}.quick-icon{width:57px;height:57px}.quick-app{min-height:103px}.leave-scroll{padding:12px 12px 100px}.quota-grid{gap:7px;padding-left:12px;padding-right:12px}.quota-card{min-height:88px;padding:12px 8px}.quota-card b{font-size:18px}.field-label{width:88px}.daily-fields{gap:6px}.daily-field input{padding:0 5px}.compact-quota-item{padding-left:6px;padding-right:6px}.compact-quota-item small{font-size:8px}.daily-setting-fields{gap:6px}.daily-compact-meta{grid-template-columns:1fr 1fr}}
+    /* C 方案最终评审：恢复余额层级，拆分每日设置与只读结果 */
+    .compact-quota-head{padding:11px 14px 7px}.compact-quota-grid{padding:0 8px 12px}.compact-quota-item{padding:6px 10px 8px}.compact-quota-item>div{min-height:24px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:baseline}.compact-quota-item>div span{font-size:12px;text-align:left}.compact-quota-item>div strong{font-size:15px;text-align:right;font-variant-numeric:tabular-nums}.compact-quota-item small{min-height:0;margin-top:4px;display:grid;grid-template-columns:auto 1fr;align-items:baseline;gap:4px;font-size:11px;line-height:1.45;letter-spacing:0;color:#8090a4;font-variant-numeric:tabular-nums}.compact-quota-item small span{display:inline;margin:0;color:inherit;font-size:inherit;text-align:left}.compact-quota-item small time{font:inherit;color:inherit;text-align:right;white-space:nowrap}
+    .compact-quota-detail{padding:0 18px 28px}.compact-quota-group{margin:0;border:0;border-radius:0;border-bottom:1px solid #e8edf3}.compact-quota-group:last-child{border-bottom:0}.compact-quota-group-head{min-height:52px;padding:13px 0;background:#fff}.compact-quota-group-head b,.compact-quota-group-head strong{font-size:15px}.compact-quota-group-body{padding:0 0 14px}.compact-quota-year{padding:0;border:0}.compact-quota-year-title{margin:0;padding:8px 0;color:#52657d;font-size:13px;font-weight:650}.compact-annual-head,.compact-annual-row{display:grid;grid-template-columns:.7fr .8fr 1.2fr;gap:8px;align-items:center}.compact-annual-head{height:32px;color:#8998aa;font-size:11px;border-bottom:1px solid #edf0f4}.compact-annual-row{min-height:42px;font-size:12px;border-bottom:1px solid #f1f3f6}.compact-annual-row:last-child{border-bottom:0}.compact-annual-row span:nth-child(2){color:#245fdb;font-weight:650}.compact-comp-head,.compact-comp-row{grid-template-columns:1.05fr .75fr 1.15fr}.compact-comp-head{font-size:11px}.compact-comp-row{font-size:12px}.compact-simple-row{font-size:12px}
+    .rest-value-button{display:flex;align-items:center;justify-content:flex-end;gap:6px;color:var(--blue);font-weight:650}.rest-value-button.placeholder{color:#a5b0be;font-weight:400}.rest-value-button .field-arrow{font-weight:400}.rest-option-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;padding:4px 18px 16px}.rest-option{height:42px;border:1px solid #dfe5ed;border-radius:11px;background:#f8fafc;color:#566a82;font-size:13px}.rest-option.selected{border-color:var(--blue);background:#edf4ff;color:var(--blue);font-weight:700}.rest-picker-tip{padding:0 18px 12px;color:#8190a3;font-size:11px}.batch-settings-content{padding:4px 18px 8px}.batch-time-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}.batch-time-field label{display:block;margin-bottom:6px;color:#7e8da0;font-size:12px}.batch-time-field input{width:100%;height:42px;border:1px solid #dfe5ed;border-radius:11px;background:#f8fafc;padding:0 10px}.batch-rest-title{margin:6px 0 9px;font-size:13px;font-weight:650}.batch-settings-content .rest-option-grid{padding:0 0 8px}.batch-error{min-height:18px;margin-top:3px;color:var(--red);font-size:11px}
+    .daily-batch-entry{width:100%;min-height:58px;margin-bottom:10px;padding:0 14px;border-radius:14px;background:#fff;box-shadow:0 2px 9px rgba(31,51,78,.05);display:flex;align-items:center;justify-content:space-between;text-align:left}.daily-batch-entry b{display:block;font-size:14px}.daily-batch-entry small{display:block;margin-top:4px;color:#8291a4;font-size:11px}.daily-batch-entry>span:last-child{color:var(--blue);font-size:12px;font-weight:650}.daily-compact-item{min-height:64px}.daily-compact-top b{font-size:13px}.daily-compact-meta{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:11px}.daily-compact-meta span:first-child{color:#62748b}.daily-compact-meta span:last-child{color:#7b8b9e;text-align:right}
+    .compact-default-rest{min-height:52px;padding:9px 14px;display:flex;align-items:center;justify-content:space-between;gap:14px;border-top:1px solid #edf0f4}.compact-default-rest label{font-size:14px}.compact-default-rest-value{display:flex;align-items:center;gap:6px}.compact-default-rest-value input{width:72px;height:36px;border:1px solid #dfe5ed;border-radius:9px;background:#fafbfc;padding:0 9px;text-align:right;outline:0}.compact-default-rest-value input:focus{border-color:#8eaff6}.compact-default-rest-value span{color:#65778e;font-size:12px}.compact-inline-error{min-height:0;padding:0 14px;color:var(--red);font-size:11px}.compact-inline-daily{margin:10px 12px 0;border-radius:13px;background:#f5f7fb;overflow:hidden}.inline-daily-head{min-height:50px;padding:0 12px;display:flex;align-items:center;justify-content:space-between}.inline-daily-title{font-size:14px}.inline-daily-head-right{display:flex;align-items:center;gap:9px}.inline-daily-batch{min-width:38px;height:34px;color:var(--blue);font-size:12px;font-weight:650}.compact-inline-daily .daily-compact-list{border-radius:0;box-shadow:none;border-top:1px solid #e7ebf2}.inline-daily-item{background:transparent}.inline-daily-item:active{background:#edf3fc}.inline-daily-totals{padding:0 14px}.inline-daily-total{min-height:45px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid #edf0f4;font-size:14px}.inline-daily-total span{color:#34445a}.inline-daily-total b{font-weight:600;color:#1f2d40}.inline-daily-total.primary b{color:var(--blue);font-size:16px}
+    .daily-edit-icon{width:28px;height:28px;display:inline-grid;place-items:center;color:var(--blue);flex:none}.daily-edit-icon svg{width:18px;height:18px;display:block}.inline-daily-item{position:relative;padding-right:48px}.inline-daily-item .daily-edit-icon{position:absolute;right:11px;top:13px}.inline-daily-copy{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#718198;font-size:11px;line-height:1.5;padding-right:4px}.inline-daily-copy b{color:var(--blue);font-size:12px;font-weight:650;white-space:nowrap}.daily-form-scroll{height:calc(100vh - 58px);overflow:auto;padding:14px 14px 96px}.daily-form-card{background:#fff;border-radius:15px;overflow:hidden}.daily-form-row{min-height:56px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid #edf0f4;font-size:14px}.daily-form-row:last-child{border-bottom:0}.daily-form-row label,.daily-form-row>span:first-child{color:#34445a}.daily-form-value{color:#23334a;text-align:right}.daily-form-value.muted{color:#7c8b9e}.daily-form-time-button,.daily-form-date-button{min-width:112px;height:38px;padding:0 9px;border:1px solid #dfe5ed;border-radius:9px;background:#fafbfc;text-align:right}.daily-form-time-button.placeholder,.daily-form-date-button.placeholder{color:#9aa7b6}.daily-form-rest-value{display:flex;align-items:center;gap:7px}.daily-form-rest-value input{width:88px;height:38px;border:1px solid #dfe5ed;border-radius:9px;background:#fafbfc;padding:0 9px;text-align:right;outline:0}.daily-form-rest-value input:focus{border-color:#8eaff6}.daily-form-rest-value span{color:#718198;font-size:12px}.daily-form-error{min-height:18px;padding:7px 14px 0;color:var(--red);font-size:11px}.daily-form-actions{position:absolute;left:0;right:0;bottom:0;padding:11px 16px calc(11px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid var(--line);display:flex;gap:10px}.daily-form-actions button{height:47px;border-radius:14px;font-weight:650}.daily-form-actions .cancel{width:96px;background:#edf1f6;color:#65778e}.daily-form-actions .save{flex:1;background:var(--blue);color:#fff}.daily-form-tip{margin:0 0 10px;padding:10px 12px;border-radius:11px;background:#f4f7fb;color:#6f8197;font-size:11px;line-height:1.5}
+    .day-rest-block{padding:12px 0 6px}.day-rest-block b{display:block;margin-bottom:9px;font-size:13px}.day-rest-block .rest-option-grid{padding:0}.day-edit-row input:disabled{border:0;background:transparent;text-align:right}.daily-lock-note{padding:9px 11px;border-radius:10px;background:#f5f7fa}
+    .duration-detail-scroll{padding:12px 12px 96px}.duration-result-summary{margin-bottom:10px;padding:15px 16px;border-radius:14px;background:#fff;box-shadow:0 2px 9px rgba(31,51,78,.05);display:flex;align-items:flex-end;justify-content:space-between}.duration-result-summary span{display:block;color:#75869b;font-size:12px}.duration-result-summary strong{display:block;margin-top:3px;color:#1d2a3c;font-size:23px}.duration-result-summary small{padding-bottom:3px;color:#6f8198;font-size:12px}.duration-result-list{overflow:hidden;border-radius:14px;background:#fff;box-shadow:0 2px 9px rgba(31,51,78,.05)}.duration-result-item{width:100%;padding:12px 14px;border-bottom:1px solid #edf0f4;text-align:left}.duration-result-item:last-child{border-bottom:0}.duration-result-top{display:flex;align-items:center;justify-content:space-between;gap:12px}.duration-result-top b{font-size:13px}.duration-result-top strong{color:var(--blue);font-size:14px}.duration-result-meta{display:block;margin-top:5px;color:#718198;font-size:11px}.duration-result-extra{display:block;margin-top:8px;padding-top:8px;border-top:1px dashed #dfe5ed;color:#687a91;font-size:11px;line-height:1.55}.calculation-note{margin-top:10px;margin-bottom:10px}.duration-summary-grid{display:block;background:transparent;margin:0}
+    /* C 方案：统一额度列、输入休息时长、滚轮选择每日时间 */
+    .compact-annual-head,.compact-annual-row,.compact-comp-head,.compact-comp-row,.compact-sick-head,.compact-sick-row{display:grid;grid-template-columns:1fr .72fr 1.15fr;gap:8px;align-items:center;font-variant-numeric:tabular-nums}.compact-sick-head{height:32px;color:#8998aa;font-size:11px;border-bottom:1px solid #edf0f4}.compact-sick-row{min-height:42px;font-size:12px;border-bottom:1px solid #f1f3f6}.compact-sick-row:last-child{border-bottom:0}.compact-annual-row span:nth-child(2),.compact-comp-row span:nth-child(2),.compact-sick-row span:nth-child(2){color:#245fdb;font-weight:650}.compact-annual-head span:nth-child(2),.compact-annual-row span:nth-child(2),.compact-comp-head span:nth-child(2),.compact-comp-row span:nth-child(2),.compact-sick-head span:nth-child(2),.compact-sick-row span:nth-child(2){padding-left:2px}
+    .compact-form .field-row{text-align:left}.compact-form .required{position:relative}.compact-form .required:before{position:absolute;left:-11px;margin:0;width:8px;text-align:right}.compact-form .field-arrow{width:12px;flex:0 0 12px;text-align:right}.rest-number-field{min-height:56px;margin:0 18px 4px;padding:0 12px;border:1px solid #dfe5ed;border-radius:12px;background:#f8fafc;display:flex;align-items:center;justify-content:space-between;gap:12px}.rest-number-field>span:first-child{color:#64768d;font-size:13px}.rest-number-field>span:last-child{display:flex;align-items:center;gap:7px}.rest-number-field input,.inline-rest-input{width:92px;height:38px;border:0;outline:0;background:transparent;text-align:right;color:#26374d;font-weight:650}.rest-number-field b,.inline-rest-unit{font-size:13px;font-weight:500;color:#53667d}.rest-input-error{min-height:22px;padding:2px 18px 4px;color:var(--red);font-size:11px}
+    .time-value-button{width:128px;height:38px;border:1px solid #dfe5ed;border-radius:9px;padding:0 10px;background:#fafbfc;text-align:right;color:#26374d}.time-value-button.placeholder{color:#a5b0be}.batch-time-field .time-value-button{width:100%;height:42px;border-radius:11px;background:#f8fafc}.batch-rest-input{min-height:48px;padding:0 11px;border:1px solid #dfe5ed;border-radius:11px;background:#f8fafc;display:flex;align-items:center;justify-content:space-between}.batch-rest-input input{width:96px;height:38px;border:0;outline:0;background:transparent;text-align:right;font-weight:650}.compact-time-wheel.compact-date-wheel{grid-template-columns:repeat(2,1fr);padding-left:46px;padding-right:46px}.compact-time-wheel .compact-wheel-selection{left:46px;right:46px}.day-rest-input{min-height:48px;padding:0 11px;border:1px solid #dfe5ed;border-radius:11px;background:#f8fafc;display:flex;align-items:center;justify-content:space-between}.day-rest-input input{width:96px;height:38px;border:0;outline:0;background:transparent;text-align:right;font-weight:650}
+    @media(max-width:480px){.compact-quota-item{padding-left:5px;padding-right:5px}.compact-quota-item small{font-size:9px;line-height:1.4;white-space:nowrap;letter-spacing:-.15px}.rest-option-grid{grid-template-columns:repeat(4,1fr)}.duration-result-summary strong{font-size:21px}}
+    /* 员工本人休假记录：沿用现网的三筛选与紧凑记录卡 */
+    .record-scroll{height:calc(100vh - 58px);overflow:auto;padding:12px 12px 94px}.record-filters{position:sticky;top:0;z-index:8;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));background:#fff;border-radius:13px;margin-bottom:12px;box-shadow:0 2px 9px rgba(31,51,78,.04)}.record-filter-button{position:relative;height:48px;padding:0 22px 0 8px;color:#4f6075;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.record-filter-button:after{content:"";position:absolute;right:11px;top:20px;width:6px;height:6px;border-right:1.5px solid #8a98aa;border-bottom:1.5px solid #8a98aa;transform:rotate(45deg)}.record-filter-button+.record-filter-button{border-left:1px solid #edf0f4}.record-filter-button.selected{color:var(--blue);font-weight:650}.record-list{display:block}.record-item{padding:14px;margin-bottom:10px;border-radius:15px;background:#fff;box-shadow:0 2px 9px rgba(31,51,78,.05)}.record-item-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:11px}.record-item-head b{font-size:15px}.record-status{flex:none;padding:4px 9px;border:1px solid #76a0f3;border-radius:12px;color:var(--blue);font-size:11px}.record-status.approved{border-color:#84cdb0;color:#269c69}.record-status.rejected{border-color:#f0a1af;color:#d94961}.record-status.withdrawn{border-color:#b9c2cf;color:#7b899b}.record-info{padding:9px 11px;border-radius:10px;background:#f6f8fb}.record-info-line{min-height:25px;display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:8px;font-size:12px}.record-info-line span{color:#78889c}.record-info-line b{font-weight:500;text-align:right;color:#34455b;white-space:nowrap;font-variant-numeric:tabular-nums}.record-empty{padding:92px 20px;text-align:center;color:#909daf;font-size:13px}.record-bottom{position:absolute;left:0;right:0;bottom:0;z-index:25;padding:11px 16px calc(11px + env(safe-area-inset-bottom));background:rgba(255,255,255,.97);border-top:1px solid var(--line);box-shadow:0 -5px 18px rgba(21,40,66,.06)}.record-bottom button{width:100%;height:48px;border-radius:14px;background:var(--blue);color:#fff;font-weight:650}.record-filter-list{max-height:390px;overflow:auto;padding:0 18px}.record-filter-option{width:100%;min-height:50px;border-bottom:1px solid #edf0f4;display:flex;align-items:center;justify-content:space-between;text-align:left;font-size:14px}.record-filter-option:after{content:"";width:19px;height:19px;border:1px solid #c9d2dd;border-radius:50%}.record-filter-option.selected{color:var(--blue);font-weight:650}.record-filter-option.selected:after{content:"✓";display:grid;place-items:center;border-color:var(--blue);background:var(--blue);color:#fff;font-size:12px}.record-time-filter-head{height:58px;padding:0 18px;display:grid;grid-template-columns:64px 1fr 64px;align-items:center;border-bottom:1px solid #edf0f4}.record-time-filter-head b{text-align:center;font-size:17px}.record-time-filter-head button{height:48px;font-size:14px}.record-time-filter-head .clear{text-align:left;color:#8794a6}.record-time-filter-head .confirm{text-align:right;color:var(--blue);font-weight:650}.record-time-tabs{display:grid;grid-template-columns:repeat(4,1fr);padding:0 14px;border-bottom:1px solid #edf0f4}.record-time-tab{position:relative;height:54px;color:#666f7c;font-size:13px}.record-time-tab.active{color:#173f97;font-weight:700}.record-time-tab.active:after{content:"";position:absolute;left:25%;right:25%;bottom:0;height:3px;border-radius:3px 3px 0 0;background:#173f97}.record-time-wheel.compact-date-wheel{height:250px;padding:10px 34px}.record-time-wheel.compact-time-wheel{padding-left:68px;padding-right:68px}.record-time-wheel .compact-wheel-selection{top:102px;left:34px;right:34px}.record-time-wheel.compact-time-wheel .compact-wheel-selection{left:68px;right:68px}.record-time-wheel .compact-wheel-col{height:230px}.record-time-wheel .compact-wheel-label{display:none}.record-time-wheel .compact-wheel-scroll{height:230px}
+    .scenario-entry{margin-bottom:10px;border-radius:14px;background:#fff;overflow:hidden;box-shadow:0 2px 9px rgba(31,51,78,.04)}.scenario-trigger{width:100%;min-height:50px;padding:0 14px;display:flex;align-items:center;gap:12px;text-align:left}.scenario-trigger .field-label{width:76px;font-size:14px}.scenario-trigger .field-value{font-size:13px;color:#2e5fc5;font-weight:650}.scenario-option-list{max-height:360px;overflow:auto;padding:0 18px}.scenario-option{width:100%;min-height:50px;border-bottom:1px solid #edf0f4;display:flex;align-items:center;justify-content:space-between;text-align:left;font-size:14px}.scenario-option:last-child{border-bottom:0}.scenario-option:after{content:"";width:19px;height:19px;border:1px solid #c9d2dd;border-radius:50%}.scenario-option.selected{color:var(--blue);font-weight:650}.scenario-option.selected:after{content:"✓";display:grid;place-items:center;border-color:var(--blue);background:var(--blue);color:#fff;font-size:12px}
+  </style>
+</head>
+<body>
+<main class="app" id="app">
+  <section class="page active" id="page-home" aria-label="移动端首页">
+    <div class="status-bar"><span>9:41</span><span class="status-icons"><i></i><i></i><span class="battery"></span></span></div>
+    <div class="home-scroll" id="home-scroll">
+      <section class="home-card home-profile">
+        <div><h1>早上好，陈思远</h1><p>产品设计部 · 高级设计师</p></div>
+        <div class="profile-right"><button class="bell" aria-label="消息">♧<b>5</b></button><span class="avatar">陈</span></div>
+      </section>
+      <section class="home-card home-section">
+        <div class="section-title"><h2>待办 <span class="count">1</span></h2><a>更多 ›</a></div>
+        <article class="workflow-card">
+          <div class="workflow-top"><span class="business">♙ 人事</span><span class="status-tag">审批中</span></div>
+          <h3>请审批：陈思远的休假流程</h3><div class="handler">当前处理人　<b>黄东升（WX21197）</b></div>
+          <div class="workflow-bottom"><span>8分钟前</span><button class="small-btn">去处理</button></div>
+        </article>
+      </section>
+      <section class="home-card home-section">
+        <div class="section-title"><h2>我的申请</h2><a>更多 ›</a></div>
+        <article class="workflow-card">
+          <div class="workflow-top"><span class="business">♙ 人事</span><span class="status-tag">审批中</span></div>
+          <h3>陈思远的休假流程</h3><div class="handler">当前处理人　<b>黄东升（WX21197）</b></div>
+          <div class="workflow-bottom"><span>2026-06-24 09:36:12</span><span class="ghost-actions"><button>催办</button><button class="danger">撤回</button></span></div>
+        </article>
+      </section>
+      <section class="home-card home-section" id="common-apps">
+        <div class="section-title"><h2>常用应用</h2><a>更多 ›</a></div>
+        <div class="quick-grid">
+          <button class="quick-app overtime" onclick="location.href='../06-HR加班申请/mobile/application.html?mode=self'"><span class="quick-icon" style="background:#edf4ff;color:#2764ea"><svg viewBox="0 0 32 32" width="31" height="31" fill="none" aria-hidden="true"><circle cx="15" cy="15" r="10.5" stroke="currentColor" stroke-width="2.2"/><path d="M15 8.5v7l4.5 2.5M24 21v8m-4-4h8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M22 21h8v9h-8z" fill="#edf4ff"/><path d="M26 22v7m-3.5-3.5h7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></span><span>加班</span></button>
+          <button class="quick-app"><span class="quick-icon">ϟ</span><span>晋升见习转正</span></button>
+          <button class="quick-app"><span class="quick-icon">⌖</span><span>公出</span></button>
+          <button class="quick-app leave" onclick="openLeave()"><span class="quick-icon"><svg data-icon="leave-calendar" viewBox="0 0 32 32" fill="none" aria-hidden="true"><rect x="5.5" y="7.5" width="21" height="19" rx="4" stroke="currentColor" stroke-width="2.4"/><path d="M10 4.5v6M22 4.5v6M5.5 13h21" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><circle cx="16" cy="19.5" r="2.7" stroke="currentColor" stroke-width="2"/><path d="M16 15.2v1M16 22.8v1M11.7 19.5h1M19.3 19.5h1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span><span>休假</span></button>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <section class="page" id="page-leave" aria-label="休假申请">
+    <header class="nav-header"><button class="back" onclick="goHome()" aria-label="返回">‹</button><h1>休假申请</h1><button class="right" onclick="openRecords()">休假记录</button></header>
+    <div class="leave-scroll" id="leave-scroll">
+      <section class="scenario-entry" id="scenario-entry">
+        <button class="scenario-trigger" id="scenario-trigger" type="button" onclick="openScenarioSheet()"><span class="field-label">排班场景</span><span class="field-value" id="scenario-value">固定班次·按休息时长休</span><span class="field-arrow">›</span></button>
+      </section>
+      <div class="compact-c-content" id="compact-c-content" hidden>
+        <section class="compact-quota">
+          <div class="compact-quota-head"><div class="compact-quota-title">假期余额</div><button class="compact-quota-more" type="button" onclick="openCompactQuotaSheet()">查看全部 ›</button></div>
+          <div class="compact-quota-grid" id="compact-quota-grid">
+            <div class="compact-quota-item"><div><span>年假</span><strong>40h</strong></div><small><span>最近到期</span><time>2026-09-30</time></small></div>
+            <div class="compact-quota-item"><div><span>调休假</span><strong>32h</strong></div><small><span>最近到期</span><time>2026-08-31</time></small></div>
+            <div class="compact-quota-item"><div><span>病假</span><strong>40h</strong></div><small><span>最近到期</span><time>2026-12-31</time></small></div>
+          </div>
+        </section>
+        <section class="leave-section compact-policy-entry" id="compact-policy-entry" hidden>
+          <div class="compact-policy-head"><b>休假政策</b></div>
+          <p class="compact-policy-copy" id="compact-policy-list-inline"></p>
+          <button class="compact-policy-toggle" id="compact-policy-toggle" type="button" onclick="toggleCompactPolicy()">查看全部</button>
+        </section>
+        <section class="leave-section compact-form">
+          <button class="field-row" id="compact-type-trigger" style="width:100%" onclick="openCompactTypeSheet()"><span class="field-label required">假期类型</span><span class="field-value placeholder" id="compact-type-value">请选择</span><span class="field-arrow">›</span></button>
+          <div class="compact-field-error" id="compact-type-error">请选择假期类型</div>
+          <div class="compact-dynamic" id="compact-dynamic-fields" hidden></div>
+          <div class="field-textarea" id="compact-reason"><label class="required">休假说明</label><textarea id="compact-reason-input" maxlength="200" placeholder="请输入休假说明" oninput="clearCompactError('compact-reason-error')"></textarea></div>
+          <div class="compact-field-error" id="compact-reason-error">请输入休假说明</div>
+        </section>
+      </div>
+      <div class="legacy-variant-content" id="legacy-variant-content">
+      <div class="variant-note"><b id="variant-badge">方案 C</b><span id="variant-description">当前已选移动端方案</span></div>
+      <section class="leave-section">
+        <div class="leave-section-head"><h2>我的假期额度</h2><span>截至 2026-08-28</span></div>
+        <div class="quota-grid">
+          <button class="quota-card" data-type="年假" onclick="handleQuotaClick('年假')"><strong>年假</strong><b>40小时</b><small>最近到期 12-31</small></button>
+          <button class="quota-card" data-type="调休假" onclick="handleQuotaClick('调休假')"><strong>调休假</strong><b>32小时</b><small>最近到期 09-30</small></button>
+          <button class="quota-card" data-type="婚假" onclick="handleQuotaClick('婚假')"><strong>婚假</strong><b>5天</b><small>有效期至 12-31</small></button>
+        </div>
+        <div class="quota-hint" id="quota-hint">点选额度，即可开始申请</div>
+      </section>
+      <section class="leave-section">
+        <button class="policy-button" id="policy-button" onclick="togglePolicy()"><div><span class="policy-icon">⌁</span><span><b>休假政策</b><small id="policy-summary">选定假别后查看适用规则</small></span></div><span class="chevron">›</span></button>
+        <div class="policy-panel" id="policy-panel"><ul id="policy-list"><li>请先选择假期类型。</li></ul></div>
+      </section>
+      <section class="leave-section" id="application-section">
+        <div class="empty-form" id="empty-form"><div class="empty-icon">✓</div><h3>先选择假期类型</h3><p id="empty-copy">可从上方额度卡开始，也可浏览全部 8 个假别</p><button class="primary-mini" onclick="openTypePicker()">选择假期类型</button></div>
+        <div class="form-body" id="form-body">
+          <div class="form-title"><b>申请信息</b><span class="type-chip" id="selected-type-chip">年假</span></div>
+          <button class="field-row" style="width:100%" onclick="openTypePicker()"><span class="field-label required">假期类型</span><span class="field-value" id="selected-type-value">年假</span><span class="field-arrow">›</span></button>
+          <div class="field-row"><span class="field-label required">休假方式</span><span class="segmented"><button id="unit-day" onclick="setUnit('day')">按天</button><button id="unit-hour" onclick="setUnit('hour')">按小时</button></span></div>
+          <button class="field-row" style="width:100%" onclick="openDateSheet()"><span class="field-label required">开始时间</span><span class="field-value" id="start-display">请选择</span><span class="field-arrow">›</span></button>
+          <button class="field-row" style="width:100%" onclick="openDateSheet()"><span class="field-label required">结束时间</span><span class="field-value" id="end-display">请选择<span class="sub" id="auto-end-tip"></span></span><span class="field-arrow">›</span></button>
+          <div class="special-fields" id="special-fields"></div>
+          <div class="duration-summary">
+            <div class="duration-top"><span>预计休假时长</span><strong id="duration-value">0天</strong></div>
+            <div class="duration-info"><span id="attendance-days">有效考勤日 0 天</span><span id="quota-deduction">预计扣减 0 天</span></div>
+            <div class="duration-warning" id="duration-warning">结束时间需晚于开始时间</div>
+          </div>
+          <button class="daily-entry" id="daily-entry" onclick="openDailyEditor()"><span><b>每日明细</b><p id="daily-summary-copy">2 个有效考勤日 · 合计 16 小时</p></span><span class="field-arrow">›</span></button>
+          <div class="field-textarea"><label class="required">休假说明</label><textarea id="reason" maxlength="200" placeholder="请说明休假原因" oninput="updateReasonCount()"></textarea><div class="field-count"><span id="reason-count">0</span>/200</div></div>
+          <div class="field-textarea"><label id="attachment-label">附件</label><button class="upload-zone" style="width:100%" onclick="addAttachment()"><span class="upload-plus">＋</span><span>上传图片或文件（单个不超过 20MB）</span></button></div>
+          <div class="attachment-list" id="attachment-list"><div class="file-item"><span>📎 证明材料.jpg　1.2MB</span><button onclick="removeAttachment(event)">删除</button></div></div>
+        </div>
+      </section>
+      </div>
+    </div>
+    <footer class="bottom-action" id="bottom-action"><button class="save" id="save-button" onclick="showToast('草稿已暂存于当前页面')">存草稿</button><button class="submit" onclick="validateAndSubmit()">提交申请</button></footer>
+  </section>
+
+  <section class="page full-page" id="page-records" aria-label="休假记录">
+    <header class="nav-header"><button class="back" onclick="closeRecords()" aria-label="返回">‹</button><h1>休假记录</h1><span></span></header>
+    <div class="record-scroll" id="record-scroll">
+      <div class="record-filters">
+        <button class="record-filter-button" id="record-filter-type" type="button" onclick="openRecordFilter('type')">假期类型</button>
+        <button class="record-filter-button" id="record-filter-status" type="button" onclick="openRecordFilter('status')">审批状态</button>
+        <button class="record-filter-button" id="record-filter-time" type="button" onclick="openRecordFilter('time')">休假时间</button>
+      </div>
+      <div class="record-list" id="record-list"></div>
+    </div>
+    <footer class="record-bottom"><button id="record-apply-button" type="button" onclick="closeRecords()">休假</button></footer>
+  </section>
+
+  <section class="page full-page" id="page-type-picker" aria-label="选择假期类型">
+    <header class="nav-header"><button class="back" onclick="closeTypePicker()">‹</button><h1>选择假期类型</h1><span></span></header>
+    <div class="picker-search"><input id="type-search" placeholder="搜索假别" oninput="filterTypes()"></div>
+    <div class="type-list" id="type-list"></div>
+  </section>
+
+  <section class="page full-page" id="page-daily-editor" aria-label="每日休假设置">
+    <header class="nav-header"><button class="back" onclick="closeDailyEditor()">‹</button><h1 id="daily-editor-title">每日休假设置</h1><span></span></header>
+    <div class="daily-scroll"><div class="daily-summary" id="daily-editor-summary">仅填写有效考勤日。修改时间后自动计算当日时长，休息时长可按实际情况扣减。</div><div id="daily-list"></div></div>
+    <footer class="daily-bottom"><button class="cancel" onclick="closeDailyEditor()">取消</button><button class="done" onclick="saveDailyEditor()">完成</button></footer>
+  </section>
+
+  <section class="page full-page" id="page-daily-form-editor" aria-label="编辑每日休假">
+    <header class="nav-header"><button class="back" onclick="closeDailyFormEditor()">‹</button><h1 id="daily-form-editor-title">编辑每日休假</h1><span></span></header>
+    <div class="daily-form-scroll"><div id="daily-form-editor-body"></div></div>
+    <footer class="daily-form-actions"><button class="cancel" type="button" onclick="closeDailyFormEditor()">取消</button><button class="save" id="daily-form-save" type="button" onclick="saveDailyFormEditor()">保存</button></footer>
+  </section>
+
+  <div class="mask" id="mask" onclick="closeSheet()"></div>
+  <section class="sheet" id="quota-sheet" aria-label="额度明细">
+    <div class="sheet-grip"></div><div class="sheet-head"><b id="quota-sheet-title">年假额度明细</b><button onclick="closeSheet()">关闭</button></div>
+    <div class="sheet-content"><div class="quota-total"><small>当前可用</small><strong id="quota-sheet-total">40小时</strong></div><div id="batch-list"></div></div>
+    <div class="sheet-action"><button onclick="confirmQuotaType()">使用该假别申请</button></div>
+  </section>
+  <section class="sheet" id="date-sheet" aria-label="选择休假时间">
+    <div class="sheet-grip"></div><div class="sheet-head"><b>选择休假时间</b><button onclick="closeSheet()">取消</button></div>
+    <div class="sheet-content"><div class="date-grid"><div class="date-input"><label>开始</label><input id="start-input" type="date"></div><div class="date-input"><label>结束</label><input id="end-input" type="date"></div></div><div class="date-tips" id="date-tips">按天休假将按有效考勤日计算。</div></div>
+    <div class="sheet-action"><button onclick="confirmDates()">确定</button></div>
+  </section>
+  <section class="sheet" id="compact-type-sheet" aria-label="选择假期类型">
+    <div class="sheet-grip"></div><div class="sheet-head"><b>选择假期类型</b><button onclick="closeSheet()" aria-label="关闭">✕</button></div>
+    <div class="compact-type-search"><label><span>⌕</span><input id="compact-type-search" placeholder="搜索假期类型" oninput="renderCompactTypeList(this.value)"></label></div>
+    <div class="compact-type-list" id="compact-type-list"></div>
+    <div class="compact-sheet-actions"><button class="clear" id="compact-type-clear" onclick="clearCompactLeaveType()">清空</button><button class="confirm" id="compact-type-confirm" onclick="confirmCompactLeaveType()">确认</button></div>
+  </section>
+  <section class="sheet compact-quota-sheet" id="compact-quota-sheet" aria-label="假期余额明细">
+    <div class="sheet-grip"></div><div class="sheet-head"><b>假期余额明细</b><button onclick="closeSheet()" aria-label="关闭">✕</button></div>
+    <div class="sheet-content compact-quota-detail" id="compact-quota-detail"></div>
+  </section>
+  <section class="sheet" id="compact-date-sheet" aria-label="选择休假时间">
+    <div class="sheet-grip"></div><div class="sheet-head"><b id="compact-date-title">选择开始时间</b><button onclick="closeSheet()" aria-label="关闭">✕</button></div>
+    <div class="compact-date-wheel" id="compact-date-wheel"></div>
+    <div class="compact-sheet-actions"><button class="clear" onclick="clearCompactDatePicker()">清空</button><button class="confirm" onclick="confirmCompactDatePicker()">确认</button></div>
+  </section>
+  <section class="sheet" id="compact-time-sheet" aria-label="选择每日时间">
+    <div class="sheet-grip"></div><div class="sheet-head"><b id="compact-time-title">选择开始时间</b><button onclick="cancelDailyTimePicker()" aria-label="关闭">✕</button></div>
+    <div class="compact-time-wheel compact-date-wheel" id="compact-time-wheel"></div>
+    <div class="compact-sheet-actions"><button class="clear" onclick="clearDailyTimePicker()">清空</button><button class="confirm" onclick="confirmDailyTimePicker()">确认</button></div>
+  </section>
+  <section class="sheet" id="compact-rest-rule-sheet" aria-label="扣减休息时长规则">
+    <div class="sheet-grip"></div><div class="sheet-head"><b>扣减休息时长规则</b><button onclick="closeSheet()">关闭</button></div>
+    <div class="sheet-content"><ul class="compact-policy-list"><li>按天申请、班次采用“按时间段休”，或当日休息已由其他有效考勤业务处理时，员工无需填写。</li><li>按小时申请且当日班次采用“按休息时长休”时，员工填写本次休假时段内需扣减的休息时长。</li><li>多日申请按有效考勤日生成每日明细。</li></ul></div>
+  </section>
+  <section class="sheet" id="compact-rest-picker-sheet" aria-label="选择扣减休息时长">
+    <div class="sheet-grip"></div><div class="sheet-head"><b>扣减休息时长</b><button onclick="closeSheet()" aria-label="关闭">✕</button></div>
+    <div class="rest-picker-tip">填写本次休假时段内需要扣减的休息时长</div>
+    <label class="rest-number-field"><span>扣减时长</span><span><input id="compact-rest-input" inputmode="decimal" type="number" min="0" step="0.5" placeholder="请输入" oninput="syncPendingRest(this.value)"><b>小时</b></span></label>
+    <div class="rest-input-error" id="compact-rest-error"></div>
+    <div class="compact-sheet-actions"><button class="clear" onclick="clearPendingRest()">清空</button><button class="confirm" onclick="confirmRestPicker()">确认</button></div>
+  </section>
+  <section class="sheet" id="compact-batch-sheet" aria-label="批量编辑休假明细">
+    <div class="sheet-grip"></div><div class="sheet-head"><b id="batch-sheet-title">批量设置</b><button onclick="closeSheet()" aria-label="关闭">✕</button></div>
+    <div class="batch-settings-content" id="batch-settings-content"></div>
+    <div class="compact-sheet-actions"><button class="clear" onclick="closeSheet()">取消</button><button class="confirm" onclick="confirmBatchSettings()">应用</button></div>
+  </section>
+  <section class="sheet day-edit-sheet" id="compact-day-edit-sheet" aria-label="修改当日设置">
+    <div class="sheet-grip"></div><div class="sheet-head"><b id="day-edit-title">修改当日设置</b><button onclick="closeSheet()" aria-label="关闭">✕</button></div>
+    <div class="day-edit-fields" id="day-edit-fields"></div>
+    <div class="compact-sheet-actions"><button class="clear" onclick="closeSheet()">取消</button><button class="confirm" onclick="confirmDailyException()">确认</button></div>
+  </section>
+  <section class="sheet" id="record-filter-sheet" aria-label="筛选休假记录">
+    <div class="sheet-grip"></div><div class="sheet-head" id="record-filter-standard-head"><b id="record-filter-title">假期类型</b><button onclick="closeSheet()" aria-label="关闭">✕</button></div>
+    <div class="record-time-filter-head" id="record-time-filter-head" hidden><button class="clear" type="button" onclick="clearRecordFilter()">清空</button><b id="record-time-filter-title">选择休假时间</b><button class="confirm" type="button" onclick="confirmRecordFilter()">确认</button></div>
+    <div class="record-filter-list" id="record-filter-options"></div>
+    <div id="record-time-picker" hidden><div class="record-time-tabs"><button class="record-time-tab" data-record-time-part="startDate" type="button" onclick="switchRecordTimePart('startDate')">开始日期</button><button class="record-time-tab" data-record-time-part="startTime" type="button" onclick="switchRecordTimePart('startTime')">开始时间</button><button class="record-time-tab" data-record-time-part="endDate" type="button" onclick="switchRecordTimePart('endDate')">结束日期</button><button class="record-time-tab" data-record-time-part="endTime" type="button" onclick="switchRecordTimePart('endTime')">结束时间</button></div><div class="record-time-wheel compact-date-wheel date-only" id="record-time-wheel"></div></div>
+    <div class="compact-sheet-actions" id="record-filter-actions"><button class="clear" type="button" onclick="clearRecordFilter()">清空</button><button class="confirm" id="record-filter-confirm" type="button" onclick="confirmRecordFilter()">确认</button></div>
+  </section>
+  <section class="sheet" id="scenario-sheet" aria-label="选择排班场景">
+    <div class="sheet-grip"></div><div class="sheet-head"><b>选择排班场景</b><button id="scenario-close" type="button" onclick="cancelScenarioSelection()" aria-label="关闭">✕</button></div>
+    <div class="scenario-option-list" id="scenario-option-list"></div>
+    <div class="compact-sheet-actions"><button class="clear" id="scenario-cancel" type="button" onclick="cancelScenarioSelection()">取消</button><button class="confirm" id="scenario-confirm" type="button" onclick="confirmScenarioSelection()">确认</button></div>
+  </section>
+  <div class="toast" id="toast">提示</div>
+  <section class="success" id="success"><div class="success-icon">✓</div><h2>休假申请已提交</h2><p>单号 XJ20260828001<br>可在“休假记录”中查看审批进度</p><button onclick="finishSuccess()">返回首页</button></section>
+</main>
+
+<script>
+/* REVIEW_MODEL_START */
+const ReviewModel = (() => {
+  const pad = n => String(n).padStart(2, '0');
+  const format = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  function resolveVariant() { return 'C'; }
+  function quotaAction() { return 'display'; }
+  function initialFields() { return ['假期类型','休假说明']; }
+  function typePickerMode() { return 'sheet'; }
+  function fieldMode(type) {
+    if (['年假','调休假','病假','产检假'].includes(type)) return 'datetime';
+    if (type === '哺乳假') return 'date-range';
+    return 'date';
+  }
+  function dateColumns(type) {
+    return fieldMode(type) === 'datetime' ? ['y','m','d','h','min'] : ['y','m','d'];
+  }
+  function formatPickerValue(value, type) {
+    if (!value) return '';
+    const text = String(value).replace('T', ' ');
+    return fieldMode(type) === 'datetime' ? text.slice(0, 16) : text.slice(0, 10);
+  }
+  function restPresentation(context = {}) {
+    if (context.mixed) return 'blocked';
+    if (context.unit !== 'hour' || context.leaveType === '哺乳假') return 'hidden';
+    if (context.restMethod !== 'duration' || context.otherAttendanceProcessed) return 'hidden';
+    return Number(context.validDays || 0) <= 1 ? 'single' : 'daily';
+  }
+  function requiresAttachment(type, durationDays) {
+    if (['婚假','丧假','产假','产检假'].includes(type)) return true;
+    return type === '病假' && Number(durationDays) > 1;
+  }
+  function autoEnd(start, count, natural) {
+    if (!start || count < 1) return '';
+    const date = new Date(`${start}T12:00:00`);
+    let remaining = count - 1;
+    while (remaining > 0) {
+      date.setDate(date.getDate() + 1);
+      if (natural || (date.getDay() !== 0 && date.getDay() !== 6)) remaining--;
+    }
+    return format(date);
+  }
+  function hourDuration(start, end, rest) {
+    if (!start || !end || rest === '' || rest === null || rest === undefined) return -1;
+    const [sh, sm] = start.split(':').map(Number), [eh, em] = end.split(':').map(Number);
+    const value = ((eh * 60 + em) - (sh * 60 + sm)) / 60 - Number(rest || 0);
+    return value > 0 ? Math.round(value * 10) / 10 : -1;
+  }
+  function dateList(start, end) {
+    if (!start || !end) return [];
+    const current = new Date(`${start}T12:00:00`), last = new Date(`${end}T12:00:00`), list = [];
+    while (current <= last && list.length < 31) {
+      if (current.getDay() !== 0 && current.getDay() !== 6) list.push(format(current));
+      current.setDate(current.getDate() + 1);
+    }
+    return list;
+  }
+  function sortCompQuotaRows(rows = []) {
+    return rows.slice().sort((a,b)=>String(a.expiry).localeCompare(String(b.expiry)) || String(a.overtimeDate).localeCompare(String(b.overtimeDate)));
+  }
+  function quotaRowsTotal(rows = []) {
+    return Math.round(rows.reduce((sum,row)=>sum+Number(row.remaining||0),0)*10)/10;
+  }
+  function compactQuotaSummary(title, amount, nearestAmount, nearestDate) {
+    return {title,amount:String(amount).replace(/小时$/,'h'),expiryLabel:'最近到期',expiryDate:nearestDate};
+  }
+  function quotaDetailColumns(kind) {
+    if (kind === 'annual') return ['额度组成','剩余','有效期'];
+    if (kind === 'comp') return ['加班日期','剩余','有效期'];
+    return ['年度','剩余','有效期'];
+  }
+  function parseRestHours(raw, maxHours=Infinity) {
+    const text=String(raw ?? '').trim(), max=Number(maxHours);
+    if (!text) return {valid:false,value:'',error:'请输入扣减休息时长'};
+    const value=Number(text);
+    if (!Number.isFinite(value) || value < 0) return {valid:false,value:'',error:'扣减休息时长不能小于0'};
+    if (Math.abs(value*2-Math.round(value*2)) > 1e-8) return {valid:false,value:'',error:'请输入0.5小时的倍数'};
+    if (Number.isFinite(max) && value >= max) return {valid:false,value:'',error:'扣减休息时长需小于休假时段'};
+    return {valid:true,value:Math.round(value*10)/10,error:''};
+  }
+  function restOptions(max=8) {
+    const limit=Math.max(0,Number(max)||0),values=[];
+    for(let value=0;value<=limit;value+=0.5) values.push(value);
+    return values;
+  }
+  function durationDestination(context = {}) {
+    if (!context.hasInterval) return 'dates';
+    if (context.restMode === 'blocked') return 'blocked';
+    if (context.restMode === 'daily' && !context.complete) return 'daily';
+    if (context.restMode === 'single' && !context.complete) return 'rest';
+    return 'detail';
+  }
+  function dailyProgress(rows = []) {
+    const durations = rows.map(row => hourDuration(row.start,row.end,row.rest));
+    return {complete:durations.filter(value=>value>0).length,total:rows.length,hours:Math.round(durations.filter(value=>value>0).reduce((sum,value)=>sum+value,0)*10)/10};
+  }
+  function inlineDailySummary(rows = []) {
+    const progress=dailyProgress(rows);
+    const totalRest=Math.round(rows.reduce((sum,row)=>sum+(row.rest===''||row.rest===null||row.rest===undefined?0:Number(row.rest)||0),0)*10)/10;
+    const text=progress.total>0&&progress.complete===progress.total?`${progress.hours}h`:'0h';
+    return {...progress,totalRest,text};
+  }
+  function freeShiftRows(dates,start,end,lockFirst=false) {
+    return dates.map((date,index)=>({
+      date,
+      start:index===0 ? String(start||'').slice(11,16) : '',
+      end:index===dates.length-1 ? String(end||'').slice(11,16) : '',
+      rest:lockFirst && index===0 ? 0 : '',
+      locked:!!(lockFirst && index===0)
+    }));
+  }
+  function fixedShiftRows(dates,start,end,shiftStart='09:00',shiftEnd='18:00',lockFirst=false) {
+    const startDate=String(start||'').slice(0,10), endDate=String(end||'').slice(0,10);
+    const startTime=String(start||'').slice(11,16), endTime=String(end||'').slice(11,16);
+    return dates.map(date=>{
+      const locked=!!(lockFirst && date===dates[0]);
+      return {
+        date,
+        start:date===startDate && startTime ? (startTime>shiftStart?startTime:shiftStart) : shiftStart,
+        end:date===endDate && endTime ? (endTime<shiftEnd?endTime:shiftEnd) : shiftEnd,
+        rest:locked?0:'',
+        locked,
+        shiftStart,
+        shiftEnd
+      };
+    });
+  }
+  function applyDailyDefaults(rows=[],defaults={},shiftType='free') {
+    let changed=0;
+    const nextRows=rows.map(row=>{
+      const next={...row};
+      if (next.exception) return next;
+      if (shiftType==='free' && !next.start && defaults.start) { next.start=defaults.start; changed++; }
+      if (shiftType==='free' && !next.end && defaults.end) { next.end=defaults.end; changed++; }
+      if (!next.locked && next.rest==='' && defaults.rest!=='' && defaults.rest!==undefined) { next.rest=Number(defaults.rest); changed++; }
+      return next;
+    });
+    return {rows:nextRows,changed};
+  }
+  function dailyResultSummary(row={},mode='datetime',shiftType='free') {
+    if (mode === 'date') return {date:row.date||'',duration:'1天',meta:'全天',detail:''};
+    const value=hourDuration(row.start,row.end,row.rest);
+    const rest=row.locked?'本日不重复扣减':`扣减休息${row.rest}小时`;
+    const detail=shiftType==='fixed' && row.shiftStart && row.shiftEnd ? `班次${row.shiftStart}—${row.shiftEnd}` : '';
+    return {date:row.date||'',duration:value>0?`${value}小时`:'待计算',meta:`${row.start||'—'}—${row.end||'—'} · ${rest}`,detail};
+  }
+  function compactDailyRowSummary(row={},rangeError='') {
+    const value=hourDuration(row.start,row.end,row.rest);
+    const complete=value>0&&!rangeError;
+    return {
+      period:`${row.start||'--:--'}—${row.end||'--:--'}`,
+      hours:complete?`${value}h`:'',
+      complete
+    };
+  }
+  function recordOverlapsRange(itemStart,itemEnd,rangeStart='',rangeEnd='') {
+    return (!rangeStart || itemEnd >= rangeStart) && (!rangeEnd || itemStart <= rangeEnd);
+  }
+  function inTimeRange(value,start,end) { return !!value && value >= start && value <= end; }
+  function centeredScrollTop(offsetTop,clientHeight,itemHeight) { return Math.max(0,offsetTop-(clientHeight-itemHeight)/2); }
+  function applyDailyTemplate(rows=[],sourceIndex=0) {
+    const source=rows[sourceIndex]; let changed=0;
+    const nextRows=rows.map((row,index)=>{
+      if (index===sourceIndex) return {...row};
+      const next={...row};
+      if (!next.start && source?.start) { next.start=source.start; changed++; }
+      if (!next.end && source?.end) { next.end=source.end; changed++; }
+      if (!next.locked && next.rest==='' && source?.rest!=='' && source?.rest!==undefined) { next.rest=source.rest; changed++; }
+      return next;
+    });
+    return {rows:nextRows,changed};
+  }
+  const reviewPresets = {
+    'day':{route:'day',leaveType:'年假',unit:'day',shiftType:'fixed',restMethod:'none',start:'2026-08-28',end:'2026-09-01'},
+    'fixed-period':{route:'fixed-period',leaveType:'调休假',unit:'hour',shiftType:'fixed',restMethod:'period',start:'2026-08-28T10:00',end:'2026-09-01T16:00'},
+    'fixed-duration':{route:'fixed-duration',leaveType:'调休假',unit:'hour',shiftType:'fixed',restMethod:'duration',start:'2026-08-28T10:00',end:'2026-09-01T16:00'},
+    'free-duration':{route:'free-duration',leaveType:'调休假',unit:'hour',shiftType:'free',restMethod:'duration',start:'2026-08-28T10:00',end:'2026-09-01T16:00',freeRangeStart:'06:00',freeRangeEnd:'22:00'},
+    'elastic-period':{route:'elastic-period',leaveType:'调休假',unit:'hour',shiftType:'elastic',restMethod:'period',start:'2026-08-28T10:00',end:'2026-09-01T16:00'}
+  };
+  function reviewScenarioPreset(route) { return {...(reviewPresets[route]||{route:''})}; }
+  function durationRowState(context={}) {
+    const progress=context.progress||{complete:0,total:0};
+    if (!context.hasInterval) return {text:'0h',action:'none',clickable:false};
+    if (context.restMode==='blocked') return {text:'无法计算',action:'none',clickable:false};
+    if (context.restMode==='daily') {
+      if (!context.complete) return {text:'0h',action:'daily',clickable:true};
+      return {text:`${context.value}${context.unit==='小时'?'h':context.unit}`,action:'daily',clickable:true};
+    }
+    if (!context.complete) return {text:'0h',action:'none',clickable:false};
+    return {text:`${context.value}${context.unit==='小时'?'h':context.unit}`,action:'none',clickable:false};
+  }
+  function dailyEditCapabilities(shiftType) { return shiftType==='free'?{timeEditable:true,restEditable:true,batchMode:'time-rest'}:{timeEditable:false,restEditable:true,batchMode:'rest'}; }
+  return { resolveVariant, quotaAction, initialFields, typePickerMode, fieldMode, dateColumns, formatPickerValue, restPresentation, requiresAttachment, autoEnd, hourDuration, dateList, sortCompQuotaRows, quotaRowsTotal, compactQuotaSummary, quotaDetailColumns, parseRestHours, restOptions, durationDestination, dailyProgress, inlineDailySummary, freeShiftRows, fixedShiftRows, applyDailyDefaults, dailyResultSummary, compactDailyRowSummary, recordOverlapsRange, inTimeRange, centeredScrollTop, applyDailyTemplate, reviewScenarioPreset, durationRowState, dailyEditCapabilities };
+})();
+if (typeof module !== 'undefined') module.exports = ReviewModel;
+/* REVIEW_MODEL_END */
+
+const params = new URLSearchParams(location.search);
+const variant = ReviewModel.resolveVariant(params.get('variant'));
+const demoEnabled = params.get('demo') !== '0';
+const reviewHash = location.hash.replace(/^#/,'');
+const freeShiftDirect = reviewHash === 'free-shift';
+const reviewRoute = freeShiftDirect ? 'free-duration' : reviewHash;
+const reviewPreset = ReviewModel.reviewScenarioPreset(reviewRoute);
+const requestedScenarioRoute = reviewPreset.route || 'fixed-duration';
+const scenarioRoutes = ['day','fixed-period','fixed-duration','free-duration','elastic-period'];
+const scenarioLabels = {
+  day:'按天申请',
+  'fixed-period':'固定班次·按时间段休',
+  'fixed-duration':'固定班次·按休息时长休',
+  'free-duration':'自由班次·按休息时长休',
+  'elastic-period':'弹性班次·按时间段休'
+};
+const leaveTypes = [
+  {name:'年假',icon:'年',desc:'按工作日或小时使用',units:['day','hour'],policy:['按有效考勤日计算，可按天或按小时申请。','优先扣减最早到期的可用额度。']},
+  {name:'调休假',icon:'调',desc:'支持多日按小时填写',units:['day','hour'],policy:['按有效考勤日计算，支持按小时申请。','额度存在多个批次时，优先使用最早到期批次。']},
+  {name:'婚假',icon:'婚',desc:'5天 · 按自然日',units:['day'],natural:true,autoDays:5,attachment:true,policy:['自登记结婚之日起一年内使用。','按自然日连续计算，需上传结婚证明。']},
+  {name:'病假',icon:'病',desc:'需上传诊断证明',units:['day','hour'],attachment:true,policy:['请上传医院出具的有效诊断或休假证明。','实际扣减以审批及考勤核算结果为准。']},
+  {name:'丧假',icon:'丧',desc:'按自然日 · 需选择亲属关系',units:['day'],natural:true,policy:['按自然日连续计算。','可休天数由亲属关系及公司政策确定。']},
+  {name:'产假',icon:'产',desc:'按自然日 · 自动计算结束日',units:['day'],natural:true,autoDays:98,attachment:true,policy:['基础产假按自然日连续计算。','多胞胎等情形将在审批后按政策调整。']},
+  {name:'哺乳假',icon:'乳',desc:'按周期设置每日时段',units:['hour'],policy:['按周期申请，并在每个有效考勤日生成休假时段。','每日时长以公司哺乳假政策为准。']},
+  {name:'产检假',icon:'检',desc:'按小时 · 需填写孕周',units:['hour'],attachment:true,policy:['按小时申请，需填写当前孕周。','请上传产检预约或就诊材料。']}
+];
+const quotaData = {
+  '年假':{
+    total:'40小时',nearestAmount:'16小时',nearestDate:'2026-09-30',
+    annualRows:[{year:'2026',currentRemaining:'24小时',currentExpiry:'2026-12-31',carryRemaining:'16小时',carryExpiry:'2026-09-30'}],
+    validities:[['16小时','2026-09-30'],['24小时','2026-12-31']]
+  },
+  '调休假':{
+    total:'32小时',nearestAmount:'2小时',nearestDate:'2026-08-31',
+    overtimeRows:[
+      {overtimeDate:'2026-07-20',remaining:20,expiry:'2026-12-31'},
+      {overtimeDate:'2026-07-03',remaining:10,expiry:'2026-10-31'},
+      {overtimeDate:'2026-06-15',remaining:2,expiry:'2026-08-31'}
+    ],
+    validities:[['2小时','2026-08-31'],['10小时','2026-10-31'],['20小时','2026-12-31']]
+  },
+  '病假':{
+    total:'40小时',nearestAmount:'40小时',nearestDate:'2026-12-31',
+    annualRows:[{year:'2026',remaining:'40小时',expiry:'2026-12-31'}],
+    validities:[['40小时','2026-12-31']]
+  },
+  '婚假':{total:'5天',nearestAmount:'5天',nearestDate:'2027-02-28',validities:[['5天','2027-02-28']]}
+};
+const compactPolicies = {
+  '年假':['年假按可用额度的失效顺序扣减。','申请时间需落在员工可申请的班次范围内。','最终扣减时长以审批完成后的考勤核算结果为准。'],
+  '调休假':['调休假优先使用即将到期的可用额度。','申请时长由排班、申请时段及休息方式共同计算。','多日按小时申请需完成每个有效考勤日的休息扣减明细。'],
+  '婚假':['婚假按员工工作城市命中的规则返回。','选择开始日期后，系统按5个考勤日自动带出结束日期。'],
+  '病假':['病假材料要求由当前假别规则返回。','申请超过1天时需上传诊断证明、病历及医疗费用单据。'],
+  '丧假':['丧假可休范围根据去世亲属身份确定。','申请时选择开始日期和结束日期。'],
+  '产假':['产假按自然日连续计算，当前示例规则为158天。','选择开始日期后自动带出结束日期。'],
+  '哺乳假':['哺乳假按日期区间一次申请。','系统按有效考勤日生成每日休假。'],
+  '产检假':['产检假按“周数＋余天”填写孕周。','系统根据孕周命中当前自然月的可休规则。']
+};
+const compactMeta = {
+  '年假':{mode:'datetime'},'调休假':{mode:'datetime'},'婚假':{mode:'date',autoDays:5},'病假':{mode:'datetime'},
+  '丧假':{mode:'date'},'产假':{mode:'date',autoDays:158,natural:true},'哺乳假':{mode:'date-range'},'产检假':{mode:'datetime'}
+};
+function scenarioConfig(name) {
+  if (name === 'period') return {restMethod:'period',shiftType:'fixed',otherAttendanceProcessed:false,mixed:false,lockFirst:false};
+  if (name === 'processed') return {restMethod:'duration',shiftType:'fixed',otherAttendanceProcessed:true,mixed:false,lockFirst:false};
+  if (name === 'rest-free') return {restMethod:'duration',shiftType:'free',otherAttendanceProcessed:false,mixed:false,lockFirst:false,freeRangeStart:'06:00',freeRangeEnd:'22:00'};
+  if (name === 'rest-free-open') return {restMethod:'duration',shiftType:'free',otherAttendanceProcessed:false,mixed:false,lockFirst:false,freeRangeStart:'',freeRangeEnd:''};
+  if (name === 'rest-locked') return {restMethod:'duration',shiftType:'fixed',otherAttendanceProcessed:false,mixed:false,lockFirst:true};
+  if (name === 'mixed') return {restMethod:'duration',shiftType:'fixed',otherAttendanceProcessed:false,mixed:true,lockFirst:false};
+  return {restMethod:'duration',shiftType:'fixed',otherAttendanceProcessed:false,mixed:false,lockFirst:false};
+}
+let selectedScenarioRoute = '';
+let pendingScenarioRoute = '';
+let state = {selectedType:'',pendingType:'',pendingQuota:'',unit:'day',start:'',end:'',attachment:false,homeScroll:0,dailyRows:[],dailyDefaults:{start:'',end:'',rest:''},batchDraft:{startDate:'',endDate:'',start:'',end:'',rest:''},dayEditDraft:{start:'',end:'',rest:''},editingDailyIndex:-1,dailyFormMode:'',special:{},pickerTarget:'',pickerDraft:{},timePickerTarget:'',timePickerDraft:{h:'09',min:'00'},pendingRest:'',policyExpanded:false,dailyReturn:'leave',...scenarioConfig('rest-single')};
+const leaveRecords = [
+  {type:'调休假',status:'审批中',start:'2026/08/28 10:00:00',end:'2026/09/01 16:00:00',hours:'21',created:'2026-08-28'},
+  {type:'年假',status:'已通过',start:'2026/08/18 09:00:00',end:'2026/08/18 18:00:00',hours:'8',created:'2026-08-15'},
+  {type:'病假',status:'已驳回',start:'2026/08/11 14:00:00',end:'2026/08/11 18:00:00',hours:'4',created:'2026-08-10'},
+  {type:'调休假',status:'已撤回',start:'2026/07/31 09:00:00',end:'2026/07/31 12:00:00',hours:'3',created:'2026-07-29'}
+];
+const recordFilterOptions = {
+  type:['年假','调休假','婚假','病假','丧假','产假','哺乳假','产检假'],
+  status:['审批中','已通过','不通过','已撤回','已驳回']
+};
+let recordFilters = {type:'',status:'',start:'',end:''};
+let recordFilterDraft = {kind:'',value:'',start:'',end:'',activePart:'startDate'};
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(page => page.classList.toggle('active', page.id === id));
+}
+function init() {
+  document.getElementById('compact-c-content').hidden = false;
+  document.getElementById('legacy-variant-content').hidden = true;
+  document.getElementById('save-button').hidden = true;
+  if (!demoEnabled) document.getElementById('scenario-entry')?.remove();
+  renderCompactQuotaSummary(); renderCompactTypeList(); renderCompactPolicyEntry(); renderRecords();
+  renderTypeList();
+}
+function scenarioLabel(route) { return scenarioLabels[route] || scenarioLabels['fixed-duration']; }
+function applyReviewScenario(route) {
+  const preset = ReviewModel.reviewScenarioPreset(route);
+  if (!preset.route) return;
+  selectedScenarioRoute = route;
+  Object.assign(state, scenarioConfig(
+    preset.shiftType === 'free' ? 'rest-free' : preset.restMethod === 'period' ? 'period' : 'rest-single'
+  ), {
+    selectedType:preset.leaveType,
+    pendingType:'',pendingQuota:'',unit:preset.unit,start:preset.start,end:preset.end,
+    attachment:false,dailyRows:[],dailyDefaults:{start:'',end:'',rest:''},
+    batchDraft:{startDate:'',endDate:'',start:'',end:'',rest:''},dayEditDraft:{start:'',end:'',rest:''},
+    editingDailyIndex:-1,dailyFormMode:'',special:{},pickerTarget:'',pickerDraft:{},
+    timePickerTarget:'',timePickerDraft:{h:'09',min:'00'},pendingRest:'',
+    policyExpanded:false,dailyReturn:'leave',shiftType:preset.shiftType,restMethod:preset.restMethod,
+    freeRangeStart:preset.freeRangeStart || '',freeRangeEnd:preset.freeRangeEnd || ''
+  });
+  document.getElementById('compact-reason-input').value = '';
+  const typeValue = document.getElementById('compact-type-value');
+  typeValue.textContent = state.selectedType;
+  typeValue.classList.remove('placeholder');
+  const scenarioValue = document.getElementById('scenario-value');
+  if (scenarioValue) scenarioValue.textContent = scenarioLabel(route);
+  buildCompactDailyRows();
+  renderCompactPolicyEntry();
+  renderCompactDynamicFields();
+}
+function renderScenarioOptions() {
+  const list = document.getElementById('scenario-option-list');
+  if (!list) return;
+  list.innerHTML = scenarioRoutes.map(route => `<button class="scenario-option ${pendingScenarioRoute===route?'selected':''}" type="button" data-scenario-route="${route}" onclick="stageScenarioSelection('${route}')">${scenarioLabel(route)}</button>`).join('');
+}
+function openScenarioSheet() {
+  pendingScenarioRoute = selectedScenarioRoute || requestedScenarioRoute;
+  renderScenarioOptions();
+  openSheet('scenario-sheet');
+}
+function stageScenarioSelection(route) {
+  pendingScenarioRoute = route;
+  renderScenarioOptions();
+}
+function cancelScenarioSelection() {
+  pendingScenarioRoute = selectedScenarioRoute;
+  closeSheet();
+}
+function confirmScenarioSelection() {
+  if (pendingScenarioRoute) applyReviewScenario(pendingScenarioRoute);
+  closeSheet();
+  document.getElementById('leave-scroll').scrollTop = 0;
+}
+function openLeave() {
+  state.homeScroll = document.getElementById('home-scroll').scrollTop;
+  if (demoEnabled && !selectedScenarioRoute) applyReviewScenario(requestedScenarioRoute);
+  showPage('page-leave');
+  document.getElementById('bottom-action').classList.add('show');
+  document.getElementById('leave-scroll').scrollTop = 0;
+}
+function goHome() {
+  showPage('page-home');
+  document.getElementById('bottom-action').classList.remove('show');
+  requestAnimationFrame(() => document.getElementById('home-scroll').scrollTop = state.homeScroll);
+}
+function openRecords() {
+  closeSheet();
+  renderRecords();
+  showPage('page-records');
+  document.getElementById('bottom-action').classList.remove('show');
+  document.getElementById('record-scroll').scrollTop = 0;
+}
+function closeRecords() {
+  closeSheet();
+  showPage('page-leave');
+  document.getElementById('bottom-action').classList.add('show');
+}
+function recordStatusClass(status) {
+  if (status === '已通过') return 'approved';
+  if (status === '不通过' || status === '已驳回') return 'rejected';
+  if (status === '已撤回') return 'withdrawn';
+  return '';
+}
+function recordDateTimeValue(value) {
+  return String(value || '').replaceAll('/','-').replace(' ','T').slice(0,16);
+}
+function renderRecords() {
+  const filtered = leaveRecords.filter(item => {
+    if (recordFilters.type && item.type !== recordFilters.type) return false;
+    if (recordFilters.status && item.status !== recordFilters.status) return false;
+    if (!ReviewModel.recordOverlapsRange(recordDateTimeValue(item.start),recordDateTimeValue(item.end),recordFilters.start,recordFilters.end)) return false;
+    return true;
+  });
+  const labels = {
+    type:recordFilters.type || '假期类型',
+    status:recordFilters.status || '审批状态',
+    time:'休假时间'
+  };
+  ['type','status','time'].forEach(kind => {
+    const button = document.getElementById(`record-filter-${kind}`);
+    button.textContent = labels[kind];
+    button.classList.toggle('selected', kind === 'time' ? Boolean(recordFilters.start || recordFilters.end) : Boolean(recordFilters[kind]));
+  });
+  document.getElementById('record-list').innerHTML = filtered.length ? filtered.map(item => `
+    <article class="record-item">
+      <div class="record-item-head"><b>${item.type}</b><span class="record-status ${recordStatusClass(item.status)}">${item.status}</span></div>
+      <div class="record-info">
+        <div class="record-info-line"><span>开始时间：</span><b>${item.start}</b></div>
+        <div class="record-info-line"><span>结束时间：</span><b>${item.end}</b></div>
+        <div class="record-info-line"><span>休假时长(小时)：</span><b>${item.hours}</b></div>
+      </div>
+    </article>`).join('') : '<div class="record-empty">暂无符合条件的休假记录</div>';
+}
+function openRecordFilter(kind) {
+  const today='2026-09-01';
+  recordFilterDraft = {
+    kind,
+    value:kind === 'time' ? '' : recordFilters[kind],
+    start:recordFilters.start || `${today}T00:00`,
+    end:recordFilters.end || `${today}T23:45`,
+    activePart:'startDate'
+  };
+  document.getElementById('record-filter-title').textContent = kind === 'type' ? '假期类型' : '审批状态';
+  const options = document.getElementById('record-filter-options');
+  const isTime = kind === 'time';
+  document.getElementById('record-filter-standard-head').hidden=isTime;
+  document.getElementById('record-time-filter-head').hidden=!isTime;
+  document.getElementById('record-time-picker').hidden=!isTime;
+  document.getElementById('record-filter-actions').hidden=isTime;
+  options.hidden = isTime;
+  if (isTime) {
+    options.innerHTML = '';
+    renderRecordTimePicker();
+  } else {
+    options.innerHTML = recordFilterOptions[kind].map(option => `<button class="record-filter-option ${recordFilterDraft.value===option?'selected':''}" type="button" onclick="stageRecordFilter('${option}')">${option}</button>`).join('');
+  }
+  openSheet('record-filter-sheet');
+}
+function stageRecordFilter(value) {
+  recordFilterDraft.value = value;
+  document.querySelectorAll('.record-filter-option').forEach(option => option.classList.toggle('selected', option.textContent.trim() === value));
+}
+function clearRecordFilter() {
+  if (recordFilterDraft.kind === 'time') {
+    recordFilterDraft.start = ''; recordFilterDraft.end = '';
+    recordFilterDraft.activePart='startDate';
+    renderRecordTimePicker();
+  } else {
+    recordFilterDraft.value = '';
+    document.querySelectorAll('.record-filter-option').forEach(option => option.classList.remove('selected'));
+  }
+}
+function confirmRecordFilter() {
+  if (recordFilterDraft.kind === 'time') {
+    if (recordFilterDraft.start && recordFilterDraft.end && recordFilterDraft.end < recordFilterDraft.start) { showToast('结束时间不能早于开始时间'); return; }
+    recordFilters.start = recordFilterDraft.start; recordFilters.end = recordFilterDraft.end;
+  } else if (recordFilterDraft.kind) {
+    recordFilters[recordFilterDraft.kind] = recordFilterDraft.value;
+  }
+  closeSheet(); renderRecords();
+}
+function recordTimeParts(scope) {
+  const fallback=scope==='start'?'2026-09-01T00:00':'2026-09-01T23:45';
+  const [date,time]=(recordFilterDraft[scope]||fallback).split('T');
+  const [y,m,d]=date.split('-'),[h,min]=time.split(':');
+  return {y,m,d,h,min};
+}
+function writeRecordTimeParts(scope,parts) {
+  recordFilterDraft[scope]=`${parts.y}-${parts.m}-${parts.d}T${parts.h}:${parts.min}`;
+}
+function switchRecordTimePart(part) {
+  recordFilterDraft.activePart=part;
+  renderRecordTimePicker();
+}
+function renderRecordTimePicker() {
+  const part=recordFilterDraft.activePart||'startDate';
+  const scope=part.startsWith('start')?'start':'end';
+  const dateMode=part.endsWith('Date');
+  const draft=recordTimeParts(scope);
+  const maxDay=compactDaysInMonth(draft.y,draft.m);
+  if(Number(draft.d)>maxDay){draft.d=String(maxDay).padStart(2,'0');writeRecordTimeParts(scope,draft)}
+  const columns=(dateMode?[
+    {key:'y',items:['2023','2024','2025','2026','2027','2028','2029']},
+    {key:'m',items:compactRange(1,12)},
+    {key:'d',items:compactRange(1,maxDay)}
+  ]:[
+    {key:'h',items:compactRange(0,23)},
+    {key:'min',items:['00','15','30','45']}
+  ]);
+  document.querySelectorAll('.record-time-tab').forEach(tab=>tab.classList.toggle('active',tab.dataset.recordTimePart===part));
+  const wheel=document.getElementById('record-time-wheel');
+  wheel.classList.toggle('date-only',dateMode);
+  wheel.classList.toggle('compact-time-wheel',!dateMode);
+  wheel.innerHTML=`<div class="compact-wheel-selection" aria-hidden="true"></div>${columns.map(column=>`<div class="compact-wheel-col"><div class="compact-wheel-label"></div><div class="compact-wheel-scroll" data-key="${column.key}" onscroll="handleRecordTimeWheelScroll(this,'${column.key}')"><div class="compact-wheel-spacer"></div>${column.items.map(item=>`<button class="compact-wheel-option ${draft[column.key]===item?'selected':''}" data-value="${item}" onclick="selectRecordTimeWheel('${column.key}','${item}')">${item}</button>`).join('')}<div class="compact-wheel-spacer"></div></div></div>`).join('')}`;
+  requestAnimationFrame(()=>wheel.querySelectorAll('.compact-wheel-scroll').forEach(scroll=>{const selected=scroll.querySelector('.selected');if(selected)scroll.scrollTop=ReviewModel.centeredScrollTop(selected.offsetTop,scroll.clientHeight,selected.offsetHeight);requestAnimationFrame(()=>scroll.dataset.ready='1')}));
+}
+function selectRecordTimeWheel(key,value) {
+  const scope=recordFilterDraft.activePart.startsWith('start')?'start':'end';
+  const draft=recordTimeParts(scope);
+  draft[key]=value;
+  writeRecordTimeParts(scope,draft);
+  renderRecordTimePicker();
+}
+function handleRecordTimeWheelScroll(scroll,key) {
+  if(!scroll.dataset.ready)return;
+  clearTimeout(scroll._wheelTimer);
+  scroll._wheelTimer=setTimeout(()=>{
+    const center=scroll.scrollTop+scroll.clientHeight/2,options=[...scroll.querySelectorAll('.compact-wheel-option')];
+    const nearest=options.reduce((best,item)=>Math.abs(item.offsetTop+item.offsetHeight/2-center)<Math.abs(best.offsetTop+best.offsetHeight/2-center)?item:best,options[0]);
+    if(nearest)selectRecordTimeWheel(key,nearest.dataset.value);
+  },90);
+}
+function renderCompactTypeList(keyword='') {
+  const term = String(keyword || '').trim();
+  const items = leaveTypes.filter(item => !term || item.name.includes(term));
+  document.getElementById('compact-type-list').innerHTML = items.map(item => `<button class="compact-type-option ${state.pendingType===item.name?'selected':''}" onclick="stageCompactLeaveType('${item.name}')">${item.name}</button>`).join('') || '<div class="empty-form"><p>没有匹配的假期类型</p></div>';
+}
+function openCompactTypeSheet() {
+  state.pendingType = state.selectedType;
+  const input = document.getElementById('compact-type-search');
+  input.value = '';
+  renderCompactTypeList();
+  openSheet('compact-type-sheet');
+}
+function stageCompactLeaveType(type) { state.pendingType = type; renderCompactTypeList(document.getElementById('compact-type-search').value); }
+function clearCompactLeaveType() { state.pendingType = ''; renderCompactTypeList(document.getElementById('compact-type-search').value); }
+function confirmCompactLeaveType() {
+  const next = state.pendingType;
+  if (next !== state.selectedType) {
+    state.selectedType = next;
+    state.unit = next && ReviewModel.fieldMode(next) === 'datetime' ? 'hour' : 'day';
+    state.start = ''; state.end = ''; state.dailyRows = []; state.dailyDefaults={start:'',end:'',rest:''}; state.attachment = false; state.special = {}; state.policyExpanded = false;
+  }
+  const value = document.getElementById('compact-type-value');
+  value.textContent = next || '请选择';
+  value.classList.toggle('placeholder', !next);
+  clearCompactError('compact-type-error');
+  closeSheet();
+  renderCompactPolicyEntry();
+  renderCompactDynamicFields();
+}
+function renderCompactPolicyEntry() {
+  const entry = document.getElementById('compact-policy-entry');
+  entry.hidden = !state.selectedType;
+  if (!state.selectedType) return;
+  const items = compactPolicies[state.selectedType] || [];
+  const copy = document.getElementById('compact-policy-list-inline');
+  copy.textContent = items.join('；');
+  copy.classList.toggle('expanded',state.policyExpanded);
+  const toggle = document.getElementById('compact-policy-toggle');
+  toggle.textContent = state.policyExpanded ? '收起' : '查看全部';
+  requestAnimationFrame(()=>toggle.classList.toggle('show',state.policyExpanded || copy.scrollHeight > copy.clientHeight + 1));
+}
+function toggleCompactPolicy() { state.policyExpanded = !state.policyExpanded; renderCompactPolicyEntry(); }
+function renderCompactQuotaSummary() {
+  const grid=document.getElementById('compact-quota-grid');
+  grid.innerHTML=['年假','调休假','病假'].map(type=>{
+    const data=quotaData[type],summary=ReviewModel.compactQuotaSummary(type,data.total,data.nearestAmount,data.nearestDate);
+    return `<div class="compact-quota-item"><div><span>${summary.title}</span><strong>${summary.amount}</strong></div><small><span>${summary.expiryLabel}</span><time>${summary.expiryDate}</time></small></div>`;
+  }).join('');
+}
+function openCompactQuotaSheet() {
+  renderCompactQuotaDetail();
+  openSheet('compact-quota-sheet');
+}
+function renderCompactQuotaDetail() {
+  const annual=quotaData['年假'];
+  const annualColumns=ReviewModel.quotaDetailColumns('annual');
+  const annualBody=annual.annualRows.map(row=>`<div class="compact-quota-year"><div class="compact-quota-year-title">${row.year}年度</div><div class="compact-annual-head">${annualColumns.map(label=>`<span>${label}</span>`).join('')}</div><div class="compact-annual-row"><span>当年</span><span>${row.currentRemaining}</span><span>${row.currentExpiry}</span></div>${row.carryRemaining?`<div class="compact-annual-row"><span>结转</span><span>${row.carryRemaining}</span><span>${row.carryExpiry}</span></div>`:''}</div>`).join('');
+  const comp=quotaData['调休假'];
+  const compRows=ReviewModel.sortCompQuotaRows(comp.overtimeRows);
+  const compTotal=ReviewModel.quotaRowsTotal(compRows);
+  const compColumns=ReviewModel.quotaDetailColumns('comp');
+  const compBody=`<div class="compact-comp-head">${compColumns.map(label=>`<span>${label}</span>`).join('')}</div>${compRows.map(row=>`<div class="compact-comp-row"><span>${row.overtimeDate}</span><span>${row.remaining}小时</span><span>${row.expiry}</span></div>`).join('')}`;
+  const sick=quotaData['病假'],sickColumns=ReviewModel.quotaDetailColumns('sick');
+  const sickBody=`<div class="compact-sick-head">${sickColumns.map(label=>`<span>${label}</span>`).join('')}</div>${sick.annualRows.map(row=>`<div class="compact-sick-row"><span>${row.year}</span><span>${row.remaining}</span><span>${row.expiry}</span></div>`).join('')}`;
+  document.getElementById('compact-quota-detail').innerHTML = `<section class="compact-quota-group"><div class="compact-quota-group-head"><b>年假</b><strong>${annual.total}</strong></div><div class="compact-quota-group-body">${annualBody}</div></section><section class="compact-quota-group"><div class="compact-quota-group-head"><b>调休假</b><strong>${compTotal}小时</strong></div><div class="compact-quota-group-body">${compBody}</div></section><section class="compact-quota-group"><div class="compact-quota-group-head"><b>病假</b><strong>${sick.total}</strong></div><div class="compact-quota-group-body">${sickBody}</div></section>`;
+}
+function clearCompactError(id) { document.getElementById(id)?.classList.remove('show'); }
+function compactInputMode() { return state.unit === 'day' ? 'date' : ReviewModel.fieldMode(state.selectedType); }
+function compactDisplayValue(value) { return value ? (compactInputMode()==='datetime' ? String(value).replace('T',' ') : String(value).slice(0,10)) : ''; }
+function compactDateLabel(position) {
+  const mode = compactInputMode();
+  if (mode === 'datetime') return position === 'start' ? '开始时间' : '结束时间';
+  return position === 'start' ? '开始日期' : '结束日期';
+}
+function compactSpecialHtml() {
+  const value = key => state.special[key] ?? '';
+  if (state.selectedType === '婚假') return `<button class="field-row" style="width:100%" onclick="openCompactSpecialDate('registrationDate','结婚登记日')"><span class="field-label required">结婚登记日</span><span class="field-value ${value('registrationDate')?'':'placeholder'}">${value('registrationDate')||'请选择'}</span><span class="field-arrow">›</span><input type="hidden" data-compact-required="结婚登记日" value="${value('registrationDate')}"></button>`;
+  if (state.selectedType === '病假') return `<div class="field-row"><span class="field-label required">就诊医院</span><span class="field-value"><input class="inline-input" data-compact-required="就诊医院" data-special-key="hospital" value="${value('hospital')}" placeholder="请输入" oninput="updateCompactSpecial(this)"></span></div>`;
+  if (state.selectedType === '丧假') return `<div class="field-row"><span class="field-label required">去世亲属身份</span><span class="field-value"><select class="inline-input" data-compact-required="去世亲属身份" data-special-key="relation" onchange="updateCompactSpecial(this)"><option value="">请选择</option><option ${value('relation')==='父母'?'selected':''}>父母</option><option ${value('relation')==='配偶'?'selected':''}>配偶</option><option ${value('relation')==='子女'?'selected':''}>子女</option></select></span></div>`;
+  if (state.selectedType === '产假') return `<button class="field-row" style="width:100%" onclick="openCompactSpecialDate('dueDate','预产期')"><span class="field-label required">预产期</span><span class="field-value ${value('dueDate')?'':'placeholder'}">${value('dueDate')||'请选择'}</span><span class="field-arrow">›</span><input type="hidden" data-compact-required="预产期" value="${value('dueDate')}"></button><div class="field-row"><span class="field-label">提前休假天数</span><span class="field-value">0天</span></div>`;
+  if (state.selectedType === '哺乳假') return `<div class="field-row"><span class="field-label required">每日使用方式</span><span class="field-value"><select class="inline-input" data-compact-required="每日使用方式" data-special-key="feedingMode" onchange="updateCompactSpecial(this)"><option ${value('feedingMode')!=='上班后'?'selected':''}>下班前</option><option ${value('feedingMode')==='上班后'?'selected':''}>上班后</option></select></span></div><div class="field-row"><span class="field-label">每日可休时长</span><span class="field-value">1小时</span></div>`;
+  if (state.selectedType === '产检假') return `<div class="field-row"><span class="field-label required">孕周</span><span class="field-value"><span class="gestation-inline"><input class="inline-input" data-compact-required="孕周" data-special-key="weeks" type="number" min="0" step="1" value="${value('weeks')}" placeholder="周" onchange="updateCompactSpecial(this)"> 周 <input class="inline-input" data-compact-required="孕周余天" data-special-key="days" type="number" min="0" max="6" step="1" value="${value('days')}" placeholder="天" onchange="updateCompactSpecial(this)"> 天</span></span></div>`;
+  return '';
+}
+function updateCompactSpecial(input) {
+  state.special[input.dataset.specialKey] = input.value;
+  if (input.dataset.specialKey === 'feedingMode') { buildCompactDailyRows(); renderCompactDynamicFields(); }
+}
+function updateCompactRest(value) {
+  state.special.rest = value === '' ? '' : Number(value);
+  if (state.dailyRows.length === 1) state.dailyRows[0].rest = state.special.rest;
+  renderCompactDynamicFields();
+}
+function compactGrossHours(start='',end='') { return ReviewModel.hourDuration(String(start).slice(-5),String(end).slice(-5),0); }
+function compactRestLimit() {
+  const row=state.dailyRows[0];
+  if (row) return compactGrossHours(row.start,row.end);
+  return compactGrossHours(state.start,state.end);
+}
+function openRestPicker() {
+  state.pendingRest=state.special.rest ?? '';
+  document.getElementById('compact-rest-input').value=state.pendingRest;
+  document.getElementById('compact-rest-error').textContent='';
+  openSheet('compact-rest-picker-sheet');
+}
+function syncPendingRest(value) { state.pendingRest=value; document.getElementById('compact-rest-error').textContent=''; }
+function clearPendingRest() {
+  state.pendingRest='';
+  document.getElementById('compact-rest-input').value='';
+  document.getElementById('compact-rest-error').textContent='';
+}
+function confirmRestPicker() {
+  const parsed=ReviewModel.parseRestHours(document.getElementById('compact-rest-input').value,compactRestLimit());
+  if (!parsed.valid) { document.getElementById('compact-rest-error').textContent=parsed.error; return; }
+  updateCompactRest(parsed.value);
+  closeSheet();
+}
+function compactAttachmentMaterials() {
+  return {'婚假':'结婚证明','病假':'诊断证明、病历、医疗费用单据','丧假':'死亡证明、亲属关系证明','产假':'生育证明、出生证明','产检假':'产检证明'}[state.selectedType] || '';
+}
+function compactDuration() {
+  if (!state.start || !state.end) return {value:0,unit:state.unit==='day'?'天':'小时',days:0,invalid:false};
+  const mode = compactInputMode();
+  if (state.unit === 'day' || mode === 'date') {
+    const natural = !!compactMeta[state.selectedType].natural;
+    const raw = natural ? Math.floor((new Date(`${state.end}T12:00:00`)-new Date(`${state.start}T12:00:00`))/86400000)+1 : ReviewModel.dateList(state.start,state.end).length;
+    return {value:Math.max(0,raw),unit:'天',days:Math.max(0,raw),invalid:raw<=0};
+  }
+  if (mode === 'date-range') {
+    const days = ReviewModel.dateList(state.start,state.end).length;
+    return {value:days,unit:'小时',days,invalid:days<=0};
+  }
+  const values = state.dailyRows.map(row => ReviewModel.hourDuration(row.start,row.end,row.rest));
+  return {value:values.some(value=>value<0)?0:values.reduce((sum,value)=>sum+value,0),unit:'小时',days:state.dailyRows.length,invalid:values.some(value=>value<0)};
+}
+function compactRestMode(result=compactDuration()) {
+  return state.start && state.end ? ReviewModel.restPresentation({unit:state.unit,leaveType:state.selectedType,restMethod:state.restMethod,validDays:result.days,otherAttendanceProcessed:state.otherAttendanceProcessed,mixed:state.mixed}) : 'hidden';
+}
+function compactDurationDestination() {
+  const result = compactDuration(), restMode = compactRestMode(result);
+  return ReviewModel.durationRowState({hasInterval:!!(state.start&&state.end),restMode,complete:!result.invalid&&result.value>0,value:result.value,unit:result.unit,days:result.days,progress:ReviewModel.dailyProgress(state.dailyRows)}).action;
+}
+function handleCompactDuration() {
+  const destination = compactDurationDestination();
+  if (destination === 'daily') { openDailyEditor('leave'); return; }
+}
+function compactEditIcon() {
+  return '<span class="daily-edit-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M13.5 5.5 18.5 10.5M4.5 19.5l3.7-.7L19.1 7.9a1.4 1.4 0 0 0 0-2l-1-1a1.4 1.4 0 0 0-2 0L5.2 15.8l-.7 3.7Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 4.5H6.5a2 2 0 0 0-2 2V13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>';
+}
+function inlineDailyRowsHtml() {
+  return state.dailyRows.map((row,index)=>{
+    const rangeError=dailyRowError(row),summary=ReviewModel.compactDailyRowSummary(row,rangeError);
+    return `<button class="daily-compact-item inline-daily-item" type="button" aria-label="编辑${row.date}休假明细" onclick="openDailyException(${index})"><span class="daily-compact-top"><b>${row.date}　周${['日','一','二','三','四','五','六'][new Date(row.date+'T12:00:00').getDay()]}</b></span><span class="inline-daily-copy"><span>${summary.period}</span>${summary.hours?`<b>${summary.hours}</b>`:''}</span>${compactEditIcon()}${row.locked?'<small class="daily-locked">本日不重复扣减</small>':''}${rangeError?`<small class="daily-range-error">${rangeError}</small>`:''}</button>`;
+  }).join('');
+}
+function inlineDailyBlockHtml() {
+  const summary=ReviewModel.inlineDailySummary(state.dailyRows);
+  return `<section class="compact-inline-daily"><div class="inline-daily-head"><b class="inline-daily-title">休假明细</b><span class="inline-daily-head-right"><button class="inline-daily-batch" type="button" aria-label="批量编辑休假明细" onclick="openBatchSettings()">${compactEditIcon()}</button></span></div><div class="daily-compact-list">${inlineDailyRowsHtml()}</div></section><div class="inline-daily-totals"><div class="inline-daily-total primary"><span>休假时长</span><b id="inline-duration-total">${summary.text}</b></div></div>`;
+}
+function compactNeedsAttachment() {
+  const result = compactDuration();
+  const durationDays = result.unit === '小时' ? result.value / 8 : result.value;
+  return ReviewModel.requiresAttachment(state.selectedType,durationDays);
+}
+function renderCompactDynamicFields() {
+  const box = document.getElementById('compact-dynamic-fields');
+  if (!state.selectedType) { box.hidden = true; box.innerHTML = ''; return; }
+  const result = compactDuration(), needsAttachment = compactNeedsAttachment();
+  const startText = compactDisplayValue(state.start) || '请选择', endText = compactDisplayValue(state.end) || '请选择';
+  const restMode = compactRestMode(result);
+  const restValue = state.special.rest ?? '';
+  const restRow = restMode === 'single' ? `<div class="field-row"><span class="field-label required">扣减休息时长<button class="rest-rule-trigger" onclick="openSheet('compact-rest-rule-sheet')" aria-label="查看扣减规则">?</button></span><button class="field-value rest-value-button ${restValue===''?'placeholder':''}" type="button" onclick="openRestPicker()"><span>${restValue===''?'请选择':`${restValue}小时`}</span><span class="field-arrow">›</span></button></div>` : '';
+  const progress = ReviewModel.dailyProgress(state.dailyRows);
+  const blocked = restMode === 'blocked' ? '<div class="compact-blocked">申请期间计算口径不一致，请拆分申请。</div>' : '';
+  const attachment = needsAttachment ? `<div class="compact-attachment"><div class="compact-attachment-title required">${compactAttachmentMaterials()}</div>${state.attachment?'<div class="compact-file"><span>证明材料.pdf</span><button onclick="removeCompactAttachment(event)">删除</button></div>':'<button class="compact-upload" onclick="addCompactAttachment()">＋ 上传材料</button>'}</div>` : '';
+  const durationState = ReviewModel.durationRowState({hasInterval:!!(state.start&&state.end),restMode,complete:!result.invalid&&result.value>0,value:result.value,unit:result.unit,days:result.days,progress});
+  const durationContent = `<span class="field-label">休假时长</span><span class="field-value"><strong>${durationState.text}</strong></span>${durationState.clickable?'<span class="field-arrow">›</span>':''}`;
+  const durationRow = durationState.clickable ? `<button class="field-row compact-duration-row ${result.invalid?'invalid':''}" type="button" data-duration-action="${durationState.action}" onclick="handleCompactDuration()">${durationContent}</button>` : `<div class="field-row compact-duration-row ${result.invalid?'invalid':''}" data-duration-action="none">${durationContent}</div>`;
+  const durationArea=restMode==='daily'?inlineDailyBlockHtml():durationRow;
+  box.innerHTML = `<button class="field-row" style="width:100%" onclick="openCompactDatePicker('start')"><span class="field-label required">${compactDateLabel('start')}</span><span class="field-value ${state.start?'':'placeholder'}">${startText}</span><span class="field-arrow">›</span></button><button class="field-row" style="width:100%" onclick="openCompactDatePicker('end')"><span class="field-label required">${compactDateLabel('end')}</span><span class="field-value ${state.end?'':'placeholder'}">${endText}</span><span class="field-arrow">›</span></button><div class="compact-special">${compactSpecialHtml()}</div>${restRow}${blocked}${durationArea}${attachment}`;
+  box.hidden = false;
+}
+function compactDaysInMonth(y,m) { return new Date(Number(y),Number(m),0).getDate(); }
+function compactRange(start,end) { return Array.from({length:end-start+1},(_,index)=>String(start+index).padStart(2,'0')); }
+function compactPickerCurrentValue(target) {
+  if (target.startsWith('batch-date:')) return state.batchDraft[`${target.split(':')[1]}Date`] || '';
+  if (target.startsWith('special:')) return state.special[target.split(':')[1]] || '';
+  return state[target] || '';
+}
+function compactPickerParts(value,target) {
+  const match = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})(?:[T\s](\d{2}):(\d{2}))?/);
+  const isEnd = target === 'end' || target.endsWith(':end');
+  return match ? {y:match[1],m:match[2],d:match[3],h:match[4]||String(isEnd?18:9).padStart(2,'0'),min:match[5]||'00'} : {y:'2026',m:'08',d:'28',h:String(isEnd?18:9).padStart(2,'0'),min:'00'};
+}
+function openCompactSpecialDate(key,label) { openCompactDatePicker(`special:${key}`,label); }
+function openBatchDatePicker(position) { openCompactDatePicker(`batch-date:${position}`,position==='start'?'开始日期':'结束日期'); }
+function openCompactDatePicker(target,label='') {
+  state.pickerTarget = target;
+  state.pickerDraft = compactPickerParts(compactPickerCurrentValue(target),target);
+  const title = label || compactDateLabel(target === 'end' ? 'end' : 'start');
+  document.getElementById('compact-date-title').textContent = `选择${title}`;
+  renderCompactDateWheel();
+  openSheet('compact-date-sheet');
+}
+function renderCompactDateWheel() {
+  const specialDate = state.pickerTarget.startsWith('special:');
+  const batchDate = state.pickerTarget.startsWith('batch-date:');
+  const dateOnly = specialDate || batchDate || compactInputMode() !== 'datetime';
+  const maxDay = compactDaysInMonth(state.pickerDraft.y,state.pickerDraft.m);
+  if (Number(state.pickerDraft.d) > maxDay) state.pickerDraft.d = String(maxDay).padStart(2,'0');
+  const columns = [
+    {key:'y',label:'年',items:['2026','2027','2028','2029']},
+    {key:'m',label:'月',items:compactRange(1,12)},
+    {key:'d',label:'日',items:compactRange(1,maxDay)},
+    {key:'h',label:'时',items:compactRange(0,23)},
+    {key:'min',label:'分',items:['00','15','30','45']}
+  ].filter(column => !dateOnly || ['y','m','d'].includes(column.key));
+  const wheel = document.getElementById('compact-date-wheel');
+  wheel.classList.toggle('date-only',dateOnly);
+  wheel.innerHTML = `<div class="compact-wheel-selection" aria-hidden="true"></div>${columns.map(column=>`<div class="compact-wheel-col"><div class="compact-wheel-label">${column.label}</div><div class="compact-wheel-scroll" data-key="${column.key}" onscroll="handleCompactWheelScroll(this,'${column.key}')"><div class="compact-wheel-spacer"></div>${column.items.map(item=>`<button class="compact-wheel-option ${state.pickerDraft[column.key]===item?'selected':''}" data-value="${item}" onclick="selectCompactWheel('${column.key}','${item}')">${item}</button>`).join('')}<div class="compact-wheel-spacer"></div></div></div>`).join('')}`;
+  requestAnimationFrame(()=>wheel.querySelectorAll('.compact-wheel-scroll').forEach(scroll=>{const selected=scroll.querySelector('.selected');if(selected)scroll.scrollTop=ReviewModel.centeredScrollTop(selected.offsetTop,scroll.clientHeight,selected.offsetHeight);requestAnimationFrame(()=>scroll.dataset.ready='1')}));
+}
+function selectCompactWheel(key,value) { state.pickerDraft[key]=value; renderCompactDateWheel(); }
+function handleCompactWheelScroll(scroll,key) {
+  if (!scroll.dataset.ready) return;
+  clearTimeout(scroll._wheelTimer);
+  scroll._wheelTimer=setTimeout(()=>{
+    const center=scroll.scrollTop+scroll.clientHeight/2;
+    const options=[...scroll.querySelectorAll('.compact-wheel-option')];
+    const nearest=options.reduce((best,item)=>Math.abs(item.offsetTop+item.offsetHeight/2-center)<Math.abs(best.offsetTop+best.offsetHeight/2-center)?item:best,options[0]);
+    if (nearest && state.pickerDraft[key]!==nearest.dataset.value) selectCompactWheel(key,nearest.dataset.value);
+  },90);
+}
+function compactDraftValue() {
+  const date = `${state.pickerDraft.y}-${state.pickerDraft.m}-${state.pickerDraft.d}`;
+  const specialDate = state.pickerTarget.startsWith('special:');
+  const batchDate = state.pickerTarget.startsWith('batch-date:');
+  return !specialDate && !batchDate && compactInputMode() === 'datetime' ? `${date}T${state.pickerDraft.h}:${state.pickerDraft.min}` : date;
+}
+function clearCompactDatePicker() {
+  if (state.pickerTarget.startsWith('batch-date:')) {
+    state.batchDraft[`${state.pickerTarget.split(':')[1]}Date`]='';
+    closeSheet(); renderDailyFormEditor(); return;
+  }
+  if (state.pickerTarget.startsWith('special:')) delete state.special[state.pickerTarget.split(':')[1]];
+  else { state[state.pickerTarget]=''; state.dailyRows=[]; state.dailyDefaults={start:'',end:'',rest:''}; }
+  closeSheet(); renderCompactDynamicFields();
+}
+function confirmCompactDatePicker() {
+  const target = state.pickerTarget, next = compactDraftValue();
+  if (target.startsWith('batch-date:')) {
+    const key=target.split(':')[1],otherKey=key==='start'?'endDate':'startDate',other=state.batchDraft[otherKey];
+    if (other && ((key==='end'&&next<other)||(key==='start'&&next>other))) { showToast('结束日期不能早于开始日期'); return; }
+    state.batchDraft[`${key}Date`]=next;
+    closeSheet(); renderDailyFormEditor(); return;
+  }
+  if (target.startsWith('special:')) state.special[target.split(':')[1]] = next;
+  else {
+    const other = target === 'start' ? state.end : state.start;
+    const nextTime = new Date(next.replace(' ','T')).getTime(), otherTime = other ? new Date(other.replace(' ','T')).getTime() : NaN;
+    const isDateTime = compactInputMode()==='datetime';
+    if (target === 'end' && Number.isFinite(otherTime) && (isDateTime ? nextTime <= otherTime : nextTime < otherTime)) { showToast(isDateTime ? '结束时间需晚于开始时间' : '结束日期不能早于开始日期'); return; }
+    state[target] = next;
+    if (target === 'start' && compactMeta[state.selectedType].autoDays) state.end = ReviewModel.autoEnd(next.slice(0,10),compactMeta[state.selectedType].autoDays,!!compactMeta[state.selectedType].natural);
+    else if (target === 'start' && Number.isFinite(otherTime) && (isDateTime ? nextTime >= otherTime : nextTime > otherTime)) state.end = '';
+    buildCompactDailyRows();
+  }
+  closeSheet(); renderCompactDynamicFields();
+}
+function dailyTimeDraftValue(target) {
+  const [scope,key]=target.split(':');
+  return scope==='batch' ? state.batchDraft[key] : state.dayEditDraft[key];
+}
+function openDailyTimePicker(target) {
+  state.timePickerTarget=target;
+  const current=dailyTimeDraftValue(target) || (target.endsWith(':end')?'18:00':'09:00');
+  const [h,min]=current.split(':');
+  state.timePickerDraft={h,min};
+  document.getElementById('compact-time-title').textContent=`选择${target.endsWith(':end')?'结束':'开始'}时间`;
+  renderCompactTimeWheel();
+  closeSheet();
+  openSheet('compact-time-sheet');
+}
+function renderCompactTimeWheel() {
+  const columns=[{key:'h',label:'时',items:compactRange(0,23)},{key:'min',label:'分',items:['00','15','30','45']}];
+  const wheel=document.getElementById('compact-time-wheel');
+  wheel.innerHTML=`<div class="compact-wheel-selection" aria-hidden="true"></div>${columns.map(column=>`<div class="compact-wheel-col"><div class="compact-wheel-label">${column.label}</div><div class="compact-wheel-scroll" data-key="${column.key}" onscroll="handleDailyTimeWheelScroll(this,'${column.key}')"><div class="compact-wheel-spacer"></div>${column.items.map(item=>`<button class="compact-wheel-option ${state.timePickerDraft[column.key]===item?'selected':''}" data-value="${item}" onclick="selectDailyTimeWheel('${column.key}','${item}')">${item}</button>`).join('')}<div class="compact-wheel-spacer"></div></div></div>`).join('')}`;
+  requestAnimationFrame(()=>wheel.querySelectorAll('.compact-wheel-scroll').forEach(scroll=>{const selected=scroll.querySelector('.selected');if(selected)scroll.scrollTop=ReviewModel.centeredScrollTop(selected.offsetTop,scroll.clientHeight,selected.offsetHeight);requestAnimationFrame(()=>scroll.dataset.ready='1')}));
+}
+function selectDailyTimeWheel(key,value) { state.timePickerDraft[key]=value; renderCompactTimeWheel(); }
+function handleDailyTimeWheelScroll(scroll,key) {
+  if (!scroll.dataset.ready) return;
+  clearTimeout(scroll._wheelTimer);
+  scroll._wheelTimer=setTimeout(()=>{
+    const center=scroll.scrollTop+scroll.clientHeight/2,options=[...scroll.querySelectorAll('.compact-wheel-option')];
+    const nearest=options.reduce((best,item)=>Math.abs(item.offsetTop+item.offsetHeight/2-center)<Math.abs(best.offsetTop+best.offsetHeight/2-center)?item:best,options[0]);
+    if (nearest && state.timePickerDraft[key]!==nearest.dataset.value) selectDailyTimeWheel(key,nearest.dataset.value);
+  },90);
+}
+function returnFromDailyTimePicker() {
+  const batch=state.timePickerTarget.startsWith('batch:');
+  closeSheet();
+  if (state.dailyFormMode) { renderDailyFormEditor(); return; }
+  if (batch) { renderBatchSettingsContent(); openSheet('compact-batch-sheet'); }
+  else { renderDailyExceptionSheet(); openSheet('compact-day-edit-sheet'); }
+}
+function confirmDailyTimePicker() {
+  const [scope,key]=state.timePickerTarget.split(':');
+  const value=`${state.timePickerDraft.h}:${state.timePickerDraft.min}`;
+  if (scope==='batch') state.batchDraft[key]=value;
+  else state.dayEditDraft[key]=value;
+  returnFromDailyTimePicker();
+}
+function clearDailyTimePicker() {
+  const [scope,key]=state.timePickerTarget.split(':');
+  if (scope==='batch') state.batchDraft[key]='';
+  else state.dayEditDraft[key]='';
+  returnFromDailyTimePicker();
+}
+function cancelDailyTimePicker() { returnFromDailyTimePicker(); }
+function buildCompactDailyRows() {
+  if (!state.start || !state.end) { state.dailyRows=[]; state.dailyDefaults={start:'',end:'',rest:''}; return; }
+  if (state.unit === 'day') { state.dailyRows=[]; state.dailyDefaults={start:'',end:'',rest:''}; return; }
+  const mode = ReviewModel.fieldMode(state.selectedType);
+  const dates = ReviewModel.dateList(state.start.slice(0,10),state.end.slice(0,10));
+  if (mode === 'date-range') {
+    const afterStart = state.special.feedingMode === '上班后';
+    state.dailyRows=dates.map(date=>({date,start:afterStart?'09:00':'17:00',end:afterStart?'10:00':'18:00',rest:0,locked:false})); return;
+  }
+  if (mode !== 'datetime') { state.dailyRows=[]; return; }
+  const restMode = ReviewModel.restPresentation({unit:'hour',leaveType:state.selectedType,restMethod:state.restMethod,validDays:dates.length,otherAttendanceProcessed:state.otherAttendanceProcessed,mixed:state.mixed});
+  if (state.shiftType === 'free') {
+    state.dailyRows = ReviewModel.freeShiftRows(dates,state.start,state.end,state.lockFirst);
+    state.dailyDefaults={start:state.start.slice(11,16),end:state.end.slice(11,16),rest:''};
+    return;
+  }
+  state.dailyRows = ReviewModel.fixedShiftRows(dates,state.start,state.end,'09:00','18:00',state.lockFirst).map(row=>{
+    const systemRest = state.restMethod === 'period' ? 1 : 0;
+    const rest = row.locked ? 0 : restMode === 'hidden' ? systemRest : dates.length===1 ? (state.special.rest ?? '') : '';
+    return {...row,rest};
+  });
+  state.dailyDefaults={start:'',end:'',rest:''};
+}
+function addCompactAttachment() { state.attachment = true; renderCompactDynamicFields(); }
+function removeCompactAttachment(event) { event.stopPropagation(); state.attachment = false; renderCompactDynamicFields(); }
+function validateCompactSubmit() {
+  clearCompactError('compact-type-error'); clearCompactError('compact-reason-error');
+  if (!state.selectedType) { document.getElementById('compact-type-error').classList.add('show'); return; }
+  if (!state.start || !state.end) { showToast(`请选择${compactDateLabel('start')}和${compactDateLabel('end')}`); return; }
+  const restMode = ReviewModel.restPresentation({unit:state.unit,leaveType:state.selectedType,restMethod:state.restMethod,validDays:compactDuration().days,otherAttendanceProcessed:state.otherAttendanceProcessed,mixed:state.mixed});
+  if (restMode === 'blocked') { showToast('当前班次组合需拆分申请'); return; }
+  const result = compactDuration();
+  if (result.invalid || result.value <= 0) { showToast(restMode === 'single' ? '请填写扣减休息时长' : restMode === 'daily' ? '请完成每日明细' : '请检查休假时间'); return; }
+  const missing = [...document.querySelectorAll('#compact-dynamic-fields [data-compact-required]')].find(field=>!String(field.value||'').trim());
+  if (missing) { showToast(`请填写${missing.dataset.compactRequired}`); missing.focus(); return; }
+  const reason = document.getElementById('compact-reason-input').value.trim();
+  if (!reason) { document.getElementById('compact-reason-error').classList.add('show'); return; }
+  if (compactNeedsAttachment() && !state.attachment) { showToast(`请上传${compactAttachmentMaterials()}`); return; }
+  document.getElementById('success').classList.add('show'); document.getElementById('bottom-action').classList.remove('show');
+}
+function handleQuotaClick(type) {
+  if (variant === 'A') { selectLeaveType(type); return; }
+  if (variant === 'B') { openQuotaSheet(type); return; }
+  showToast('方案 C 的额度仅展示');
+}
+function openQuotaSheet(type) {
+  state.pendingQuota = type;
+  const data = quotaData[type];
+  document.getElementById('quota-sheet-title').textContent = `${type}额度明细`;
+  document.getElementById('quota-sheet-total').textContent = data.total;
+  document.getElementById('batch-list').innerHTML = data.validities.map((item,index) => `<div class="batch"><div class="batch-top"><b>有效期${index+1}</b><strong>${item[0]}</strong></div><p>${item[1]}到期 · 优先扣减</p></div>`).join('');
+  openSheet('quota-sheet');
+}
+function confirmQuotaType() { const type = state.pendingQuota; closeSheet(); selectLeaveType(type); }
+function openTypePicker() { renderTypeList(); showPage('page-type-picker'); document.getElementById('bottom-action').classList.remove('show'); }
+function closeTypePicker() { showPage('page-leave'); document.getElementById('bottom-action').classList.add('show'); }
+function renderTypeList(filter='') {
+  const list = leaveTypes.filter(item => item.name.includes(filter));
+  document.getElementById('type-list').innerHTML = list.map(item => `<button class="type-option ${state.selectedType===item.name?'selected':''}" onclick="selectLeaveType('${item.name}',true)"><span class="type-mark">${item.icon}</span><span class="type-copy"><b>${item.name}</b><small>${item.desc}</small></span><span class="field-arrow">›</span></button>`).join('') || '<div class="empty-form"><p>没有匹配的假期类型</p></div>';
+}
+function filterTypes() { renderTypeList(document.getElementById('type-search').value.trim()); }
+function currentType() { return leaveTypes.find(item => item.name === state.selectedType); }
+function selectLeaveType(type, fromPicker=false) {
+  state.selectedType = type;
+  const config = currentType();
+  state.unit = config.units.includes('day') ? 'day' : 'hour';
+  state.start = ''; state.end = ''; state.dailyRows = []; state.attachment = false;
+  document.querySelectorAll('.quota-card').forEach(card => card.classList.toggle('selected', card.dataset.type === type));
+  document.getElementById('empty-form').style.display = 'none';
+  document.getElementById('form-body').classList.add('visible');
+  document.getElementById('selected-type-chip').textContent = type;
+  document.getElementById('selected-type-value').textContent = type;
+  renderPolicy(); renderUnit(); renderSpecialFields(); renderDates(); renderDuration(); renderAttachment();
+  if (fromPicker) closeTypePicker();
+  else document.getElementById('leave-scroll').scrollTo({top:document.getElementById('application-section').offsetTop-12,behavior:'smooth'});
+}
+function renderPolicy() {
+  const config = currentType();
+  document.getElementById('policy-summary').textContent = `${config.name}适用规则`;
+  document.getElementById('policy-list').innerHTML = config.policy.map(item => `<li>${item}</li>`).join('');
+}
+function togglePolicy() {
+  document.getElementById('policy-panel').classList.toggle('open');
+  document.getElementById('policy-button').classList.toggle('expanded');
+}
+function setUnit(unit) {
+  if (!currentType().units.includes(unit)) { showToast(`${state.selectedType}仅支持${currentType().units[0]==='day'?'按天':'按小时'}申请`); return; }
+  state.unit = unit; state.start=''; state.end=''; state.dailyRows=[]; renderUnit(); renderDates(); renderDuration();
+}
+function renderUnit() {
+  const config = currentType();
+  ['day','hour'].forEach(unit => {
+    const button = document.getElementById(`unit-${unit}`);
+    button.style.display = config.units.includes(unit) ? '' : 'none';
+    button.classList.toggle('active', state.unit === unit);
+  });
+}
+function renderSpecialFields() {
+  const type = state.selectedType; let html = '';
+  if (type === '婚假') html = '<div class="field-row"><span class="field-label required">结婚登记日</span><span class="field-value"><input class="inline-input" data-special-required="结婚登记日" type="date" aria-label="结婚登记日"></span></div>';
+  if (type === '病假') html = '<div class="field-row"><span class="field-label required">就诊医院</span><span class="field-value"><input class="inline-input" data-special-required="就诊医院" placeholder="请输入医院名称"></span></div>';
+  if (type === '丧假') html = '<div class="field-row"><span class="field-label required">亲属关系</span><span class="field-value"><select class="inline-input" data-special-required="亲属关系" aria-label="亲属关系"><option value="">请选择</option><option>父母</option><option>配偶</option><option>子女</option><option>祖父母</option></select></span></div>';
+  if (type === '产假') html = '<div class="field-row"><span class="field-label required">预产期</span><span class="field-value"><input class="inline-input" data-special-required="预产期" type="date" aria-label="预产期"></span></div><div class="field-row"><span class="field-label">生育情形</span><span class="field-value"><select class="inline-input"><option>单胎</option><option>多胞胎</option></select></span></div>';
+  if (type === '哺乳假') html = '<div class="field-row"><span class="field-label required">每日时段</span><span class="field-value"><input class="inline-input" value="16:00 - 17:00" readonly></span></div><div class="tip">选择起止日期后，将在周期内每个有效考勤日生成 1 小时休假。</div>';
+  if (type === '产检假') html = '<div class="field-row"><span class="field-label required">当前孕周</span><span class="field-value"><input class="inline-input" data-special-required="当前孕周" type="number" min="1" max="42" placeholder="请输入 1-42"></span></div>';
+  const box = document.getElementById('special-fields'); box.innerHTML = html; box.classList.toggle('visible', !!html);
+  const needs = currentType().attachment;
+  document.getElementById('attachment-label').className = needs ? 'required' : '';
+  document.getElementById('attachment-label').textContent = needs ? '附件材料' : '附件（选填）';
+}
+function openDateSheet() {
+  document.getElementById('start-input').type = state.unit === 'hour' ? 'datetime-local' : 'date';
+  document.getElementById('end-input').type = state.unit === 'hour' ? 'datetime-local' : 'date';
+  document.getElementById('start-input').value = state.start;
+  document.getElementById('end-input').value = state.end;
+  document.getElementById('date-tips').textContent = currentType().natural ? '该假别按自然日连续计算；填写开始日期后将自动带出结束日期。' : state.unit === 'hour' ? '单日或跨多个考勤日均可；多日时进入每日明细填写。' : '系统按有效考勤日计算休假时长。';
+  openSheet('date-sheet');
+}
+function confirmDates() {
+  const start = document.getElementById('start-input').value; let end = document.getElementById('end-input').value;
+  if (!start) { showToast('请选择开始时间'); return; }
+  const config = currentType();
+  if (state.unit === 'day' && config.autoDays) end = ReviewModel.autoEnd(start, config.autoDays, !!config.natural);
+  if (!end) { showToast('请选择结束时间'); return; }
+  state.start = start; state.end = end; closeSheet(); buildDailyRows(); renderDates(); renderDuration();
+}
+function displayTime(value) { return value ? value.replace('T',' ') : '请选择'; }
+function renderDates() {
+  document.getElementById('start-display').textContent = displayTime(state.start);
+  document.getElementById('start-display').classList.toggle('placeholder', !state.start);
+  const endBox = document.getElementById('end-display');
+  endBox.innerHTML = `${displayTime(state.end)}<span class="sub" id="auto-end-tip">${state.end && currentType().autoDays ? '已按政策自动计算结束日期' : ''}</span>`;
+  endBox.classList.toggle('placeholder', !state.end);
+}
+function getDatePart(value) { return value ? value.slice(0,10) : ''; }
+function getTimePart(value, fallback) { return value && value.includes('T') ? value.slice(11,16) : fallback; }
+function buildDailyRows() {
+  if (state.unit !== 'hour') return;
+  const days = ReviewModel.dateList(getDatePart(state.start), getDatePart(state.end));
+  state.dailyRows = days.map((date,index) => ({date,start:index===0?getTimePart(state.start,'09:00'):'09:00',end:index===days.length-1?getTimePart(state.end,'18:00'):'18:00',rest:1}));
+}
+function calculateDuration() {
+  if (!state.start || !state.end) return {value:0,unit:state.unit==='day'?'天':'小时',days:0,invalid:false};
+  if (state.unit === 'day') {
+    const config = currentType(), raw = config.natural ? Math.floor((new Date(`${state.end}T12:00:00`)-new Date(`${state.start}T12:00:00`))/86400000)+1 : ReviewModel.dateList(state.start,state.end).length;
+    return {value:Math.max(0,raw),unit:'天',days:Math.max(0,raw),invalid:raw<=0};
+  }
+  const values = state.dailyRows.map(row => ReviewModel.hourDuration(row.start,row.end,row.rest));
+  return {value:values.some(v=>v<0)?0:values.reduce((a,b)=>a+b,0),unit:'小时',days:state.dailyRows.length,invalid:values.some(v=>v<0)};
+}
+function renderDuration() {
+  if (!state.selectedType) return;
+  const result = calculateDuration();
+  document.getElementById('duration-value').textContent = `${result.value}${result.unit}`;
+  document.getElementById('attendance-days').textContent = `有效考勤日 ${result.days} 天`;
+  document.getElementById('quota-deduction').textContent = `预计扣减 ${result.value} ${result.unit}`;
+  document.getElementById('duration-warning').style.display = result.invalid ? 'block' : 'none';
+  const multiHourly = state.unit === 'hour' && result.days > 1;
+  document.getElementById('daily-entry').classList.toggle('show', multiHourly);
+  document.getElementById('daily-summary-copy').textContent = `${result.days} 个有效考勤日 · 合计 ${result.value} 小时`;
+}
+function openDailyEditor(returnPage='leave') {
+  state.dailyReturn=returnPage;
+  document.getElementById('daily-editor-title').textContent=variant==='C'?'每日休假设置':'每日明细';
+  renderDailyRows(); showPage('page-daily-editor'); document.getElementById('bottom-action').classList.remove('show');
+}
+function closeDailyEditor() {
+  showPage('page-leave'); document.getElementById('bottom-action').classList.add('show');
+}
+function dailyRangeError(row) {
+  if (state.shiftType!=='free' || !state.freeRangeStart || !state.freeRangeEnd) return '';
+  if (row.start && !ReviewModel.inTimeRange(row.start,state.freeRangeStart,state.freeRangeEnd)) return `开始时间需在 ${state.freeRangeStart}—${state.freeRangeEnd} 内`;
+  if (row.end && !ReviewModel.inTimeRange(row.end,state.freeRangeStart,state.freeRangeEnd)) return `结束时间需在 ${state.freeRangeStart}—${state.freeRangeEnd} 内`;
+  return '';
+}
+function renderDailyRows() {
+  if (variant !== 'C') {
+    document.getElementById('daily-list').innerHTML = state.dailyRows.map((row,index) => `<article class="daily-card"><div class="daily-card-head"><b>${row.date}　${['日','一','二','三','四','五','六'][new Date(row.date+'T12:00:00').getDay()]}</b><span class="work-tag">考勤日</span></div><div class="daily-fields"><div class="daily-field"><label>开始时间</label><input type="time" value="${row.start}" onchange="updateDaily(${index},'start',this.value)"></div><div class="daily-field"><label>结束时间</label><input type="time" value="${row.end}" onchange="updateDaily(${index},'end',this.value)"></div><div class="daily-field"><label>扣减休息(h)</label><input type="number" min="0" step="0.5" value="${row.rest}" onchange="updateDaily(${index},'rest',this.value)"></div></div><div class="daily-total">当日时长：<b id="daily-total-${index}">${Math.max(0,ReviewModel.hourDuration(row.start,row.end,row.rest))}小时</b></div>${index===0?'<button class="apply-other" onclick="applyDailyToOthers(0)">应用到其他未填写日期</button>':''}</article>`).join('');
+    return;
+  }
+  const progress=ReviewModel.dailyProgress(state.dailyRows);
+  const rangeText=state.shiftType==='free' && state.freeRangeStart && state.freeRangeEnd ? `自由班次 · 可填写范围 ${state.freeRangeStart}—${state.freeRangeEnd}` : state.shiftType==='free' ? '自由班次 · 按实际休假时段填写' : `固定班次 09:00—18:00 · ${state.restMethod==='period'?'按时间段休':'按休息时长休'}`;
+  document.getElementById('daily-editor-summary').innerHTML=`<strong>已填${progress.complete}/${progress.total} · 合计${progress.hours}小时</strong><span class="daily-progress-copy">${rangeText}</span>`;
+  const defaults=state.dailyDefaults||{start:'',end:'',rest:''};
+  const settingTitle=state.shiftType==='free'?'批量设置每日时段':'统一填写扣减休息时长';
+  const settingValue=state.shiftType==='free' ? (defaults.start&&defaults.end&&defaults.rest!==''?`${defaults.start}—${defaults.end} · 休息${defaults.rest}小时`:'补齐空白日期') : (defaults.rest!==''?`已设置${defaults.rest}小时`:'未设置');
+  const setting=`<button class="daily-batch-entry" type="button" onclick="openBatchSettings()"><span><b>${settingTitle}</b><small>${settingValue}</small></span><span>设置 ›</span></button>`;
+  const rows = state.dailyRows.map((row,index) => {
+    const total = ReviewModel.hourDuration(row.start,row.end,row.rest);
+    const complete = total > 0;
+    const rangeError=dailyRowError(row);
+    const period=row.start&&row.end?`${row.start}—${row.end}`:'待完善';
+    const rest=row.locked?'0小时':row.rest===''?'待填写':`${row.rest}小时`;
+    return `<button class="daily-compact-item" onclick="openDailyException(${index})"><span class="daily-compact-top"><b>${row.date}　周${['日','一','二','三','四','五','六'][new Date(row.date+'T12:00:00').getDay()]}</b><span>${complete&&!rangeError?`${total}小时`:'待计算'} ›</span></span><span class="daily-compact-meta"><span>${period}</span><span>休息 ${rest}</span></span>${row.locked?'<small class="daily-locked">本日不重复扣减</small>':''}${rangeError?`<small class="daily-range-error">${rangeError}</small>`:''}</button>`;
+  }).join('');
+  document.getElementById('daily-list').innerHTML=`${setting}<section class="daily-compact-list">${rows}</section>`;
+}
+function dailyRowError(row) {
+  const rangeError=dailyRangeError(row);
+  if (rangeError) return rangeError;
+  if (row.start&&row.end&&row.rest!==''&&ReviewModel.hourDuration(row.start,row.end,row.rest)<0) return '扣减休息时长不能大于或等于休假时段';
+  return '';
+}
+function openDailyFormEditor(mode) {
+  state.dailyFormMode=mode;
+  renderDailyFormEditor();
+  showPage('page-daily-form-editor');
+  document.getElementById('bottom-action').classList.remove('show');
+}
+function closeDailyFormEditor() {
+  state.dailyFormMode='';
+  showPage('page-leave');
+  document.getElementById('bottom-action').classList.add('show');
+}
+function dailyFormTimeRow(label,target,value,editable) {
+  if (!editable) return `<div class="daily-form-row"><span>${label}</span><span class="daily-form-value">${value||'—'}</span></div>`;
+  return `<div class="daily-form-row"><span>${label}</span><button class="daily-form-time-button ${value?'':'placeholder'}" type="button" onclick="openDailyTimePicker('${target}')">${value||'请选择'} ›</button></div>`;
+}
+function dailyFormDateRow(label,position,value) {
+  return `<div class="daily-form-row"><span>${label}</span><button class="daily-form-date-button ${value?'':'placeholder'}" type="button" onclick="openBatchDatePicker('${position}')">${value||'请选择'} ›</button></div>`;
+}
+function renderDailyFormEditor() {
+  const batch=state.dailyFormMode==='batch',row=state.dailyRows[state.editingDailyIndex],free=state.shiftType==='free';
+  const draft=batch?state.batchDraft:state.dayEditDraft;
+  document.getElementById('daily-form-editor-title').textContent=batch?'批量编辑休假明细':'编辑当日休假';
+  const dateRows=batch
+    ? `${dailyFormDateRow('开始日期','start',draft.startDate)}${dailyFormDateRow('结束日期','end',draft.endDate)}`
+    : `<div class="daily-form-row"><span>休假日期</span><span class="daily-form-value">${row?.date||'—'}</span></div>`;
+  const scope=batch?'batch':'day';
+  const timeRows=batch&&!free
+    ? `${dailyFormTimeRow('开始时间','', '09:00',false)}${dailyFormTimeRow('结束时间','', '18:00',false)}`
+    : free
+      ? `${dailyFormTimeRow('开始时间',`${scope}:start`,draft.start,true)}${dailyFormTimeRow('结束时间',`${scope}:end`,draft.end,true)}`
+      : `${dailyFormTimeRow('开始时间','',draft.start,false)}${dailyFormTimeRow('结束时间','',draft.end,false)}`;
+  const locked=!batch&&row?.locked;
+  const restRow=locked
+    ? '<div class="daily-form-row"><span>休息时长(小时)</span><span class="daily-form-value muted">0 · 本日不重复扣减</span></div>'
+    : `<div class="daily-form-row"><label for="daily-form-rest-input">休息时长(小时)</label><span class="daily-form-rest-value"><input id="daily-form-rest-input" inputmode="decimal" type="number" min="0" step="0.5" placeholder="请输入" value="${draft.rest ?? ''}" oninput="${batch?'syncBatchRest':'syncDayRest'}(this.value)"><span>小时</span></span></div>`;
+  const hint=free&&batch?'<p class="daily-form-tip">保存后补齐未填写的每日时间和休息时长，首日开始时间、末日结束时间及已修改例外保持不变。</p>':'';
+  const errorId=batch?'batch-settings-error':'day-edit-error';
+  document.getElementById('daily-form-editor-body').innerHTML=`${hint}<section class="daily-form-card">${dateRows}${timeRows}${restRow}</section><div class="daily-form-error" id="${errorId}"></div>`;
+}
+function saveDailyFormEditor() {
+  if (state.dailyFormMode==='batch') confirmBatchSettings();
+  else confirmDailyException();
+}
+function openBatchSettings() {
+  const defaults=state.dailyDefaults||{start:'',end:'',rest:''};
+  state.batchDraft={startDate:state.start.slice(0,10),endDate:state.end.slice(0,10),start:defaults.start||'',end:defaults.end||'',rest:defaults.rest ?? ''};
+  if (variant==='C') { openDailyFormEditor('batch'); return; }
+  document.getElementById('batch-sheet-title').textContent=state.shiftType==='free'?'批量设置每日时段':'统一填写扣减休息时长';
+  renderBatchSettingsContent();
+  openSheet('compact-batch-sheet');
+}
+function renderBatchSettingsContent() {
+  const draft=state.batchDraft||{start:'',end:'',rest:''};
+  const timeFields=state.shiftType==='free'?`<div class="batch-time-fields"><div class="batch-time-field"><label>每日开始时间</label><button class="time-value-button ${draft.start?'':'placeholder'}" type="button" onclick="openDailyTimePicker('batch:start')">${draft.start||'请选择'} ›</button></div><div class="batch-time-field"><label>每日结束时间</label><button class="time-value-button ${draft.end?'':'placeholder'}" type="button" onclick="openDailyTimePicker('batch:end')">${draft.end||'请选择'} ›</button></div></div>`:'';
+  document.getElementById('batch-settings-content').innerHTML=`${timeFields}<div class="batch-rest-title">扣减休息时长</div><label class="batch-rest-input"><span>统一填写</span><span><input id="batch-rest-input" inputmode="decimal" type="number" min="0" step="0.5" placeholder="请输入" value="${draft.rest}" oninput="syncBatchRest(this.value)"><b class="inline-rest-unit">小时</b></span></label><div class="batch-error" id="batch-settings-error"></div>`;
+}
+function syncBatchRest(value) { state.batchDraft.rest=value; document.getElementById('batch-settings-error').textContent=''; }
+function confirmBatchSettings() {
+  const error=document.getElementById('batch-settings-error');
+  const start=state.batchDraft.start||'',end=state.batchDraft.end||'';
+  const startDate=state.batchDraft.startDate||'',endDate=state.batchDraft.endDate||'';
+  if (!startDate||!endDate) { error.textContent='请选择开始日期和结束日期'; return; }
+  if (endDate<startDate) { error.textContent='结束日期不能早于开始日期'; return; }
+  const parsed=ReviewModel.parseRestHours(state.batchDraft.rest,Infinity);
+  if (!parsed.valid) { error.textContent=parsed.error; return; }
+  if (state.shiftType==='free'&&(!start||!end||ReviewModel.hourDuration(start,end,parsed.value)<0)) { error.textContent='请填写有效的每日开始、结束时间'; return; }
+  if (state.shiftType==='free'&&state.freeRangeStart&&(!ReviewModel.inTimeRange(start,state.freeRangeStart,state.freeRangeEnd)||!ReviewModel.inTimeRange(end,state.freeRangeStart,state.freeRangeEnd))) { error.textContent=`每日时间需在 ${state.freeRangeStart}—${state.freeRangeEnd} 内`; return; }
+  const datesChanged=startDate!==state.start.slice(0,10)||endDate!==state.end.slice(0,10);
+  if (datesChanged) {
+    state.start=`${startDate}${state.start.slice(10)}`;
+    state.end=`${endDate}${state.end.slice(10)}`;
+    buildCompactDailyRows();
+  }
+  const defaults={start,end,rest:parsed.value};
+  const applied=ReviewModel.applyDailyDefaults(state.dailyRows,defaults,state.shiftType);
+  let exceptions=0;
+  state.dailyRows=applied.rows.map((row,index)=>{
+    if (!row.locked&&!row.exception) row.rest=parsed.value;
+    if (!row.locked&&!row.exception&&dailyRowError(row)) { exceptions++; return {...row,rest:state.dailyRows[index].rest}; }
+    return row;
+  });
+  state.dailyDefaults=defaults;
+  if (variant==='C') closeDailyFormEditor(); else closeSheet();
+  renderCompactDynamicFields();
+  showToast(exceptions?`已批量填写，${exceptions}个边界日期请单独设置`:'已批量填写，可逐日修改例外');
+}
+function openDailyException(index) {
+  state.editingDailyIndex=index;
+  const row=state.dailyRows[index];
+  state.dayEditDraft={start:row.start,end:row.end,rest:row.rest};
+  if (variant==='C') { openDailyFormEditor('day'); return; }
+  document.getElementById('day-edit-title').textContent=`${row.date} 设置`;
+  renderDailyExceptionSheet();
+  openSheet('compact-day-edit-sheet');
+}
+function renderDailyExceptionSheet() {
+  const row=state.dailyRows[state.editingDailyIndex];
+  if (!row) return;
+  const draft=state.dayEditDraft||{start:'',end:'',rest:''},fixed=state.shiftType==='fixed';
+  const startControl=`<button class="time-value-button ${draft.start?'':'placeholder'}" type="button" ${fixed?'disabled':`onclick="openDailyTimePicker('day:start')"`}>${draft.start||'请选择'}${fixed?'':' ›'}</button>`;
+  const endControl=`<button class="time-value-button ${draft.end?'':'placeholder'}" type="button" ${fixed?'disabled':`onclick="openDailyTimePicker('day:end')"`}>${draft.end||'请选择'}${fixed?'':' ›'}</button>`;
+  const restControl=row.locked?'<div class="daily-lock-note">0小时／本日不重复扣减</div>':`<div class="day-rest-block"><b>扣减休息时长</b><label class="day-rest-input"><span>本日扣减</span><span><input id="day-rest-input" inputmode="decimal" type="number" min="0" step="0.5" placeholder="请输入" value="${draft.rest}" oninput="syncDayRest(this.value)"><b class="inline-rest-unit">小时</b></span></label></div>`;
+  document.getElementById('day-edit-fields').innerHTML=`<div class="day-edit-row"><span>开始时间</span>${startControl}</div><div class="day-edit-row"><span>结束时间</span>${endControl}</div>${restControl}<div class="daily-range-error" id="day-edit-error"></div>`;
+}
+function syncDayRest(value) { state.dayEditDraft.rest=value; document.getElementById('day-edit-error').textContent=''; }
+function confirmDailyException() {
+  const index=state.editingDailyIndex,row=state.dailyRows[index];
+  if (!row) return;
+  const parsed=row.locked?{valid:true,value:0,error:''}:ReviewModel.parseRestHours(state.dayEditDraft.rest,compactGrossHours(state.dayEditDraft.start,state.dayEditDraft.end));
+  const error=document.getElementById('day-edit-error');
+  if (!parsed.valid) { error.textContent=parsed.error; return; }
+  const next={...row,start:state.dayEditDraft.start,end:state.dayEditDraft.end,rest:parsed.value,exception:true};
+  const rangeError=dailyRowError(next);
+  if (rangeError) { error.textContent=rangeError; return; }
+  if (ReviewModel.hourDuration(next.start,next.end,next.rest)<0) { error.textContent='请完整填写有效的开始、结束时间和扣减休息时长'; return; }
+  state.dailyRows[index]=next;
+  if (variant==='C') closeDailyFormEditor(); else closeSheet();
+  renderCompactDynamicFields(); showToast('当日例外已保存');
+}
+function updateDaily(index,key,value) { state.dailyRows[index][key] = key==='rest' ? (value===''?'':Number(value)) : value; renderDailyRows(); }
+function applyDailyToOthers(index) {
+  const applied=ReviewModel.applyDailyTemplate(state.dailyRows,index);
+  state.dailyRows=applied.rows;
+  renderDailyRows(); showToast(applied.changed?'已带入其他未填写日期':'没有可带入的空白日期');
+}
+function saveDailyEditor() {
+  if (state.mixed) { showToast('申请期间计算口径不一致，请拆分申请'); return; }
+  if (state.dailyRows.some(row=>ReviewModel.hourDuration(row.start,row.end,row.rest)<0)) { showToast(variant === 'C' ? '请完整填写每日开始时间、结束时间和扣减休息时长' : '请检查每日开始与结束时间'); return; }
+  const rangeError=state.dailyRows.map(dailyRangeError).find(Boolean);
+  if (rangeError) { showToast(rangeError); return; }
+  if (variant === 'C') {
+    renderCompactDynamicFields();
+    closeDailyEditor();
+  } else { closeDailyEditor(); renderDuration(); }
+}
+function addAttachment() { state.attachment=true; renderAttachment(); showToast('已添加示例附件'); }
+function removeAttachment(event) { event.stopPropagation(); state.attachment=false; renderAttachment(); }
+function renderAttachment() { document.getElementById('attachment-list').classList.toggle('show', state.attachment); }
+function updateReasonCount() { document.getElementById('reason-count').textContent=document.getElementById('reason').value.length; }
+function validateAndSubmit() {
+  if (variant === 'C') { validateCompactSubmit(); return; }
+  if (!state.selectedType) { showToast('请先选择假期类型'); document.getElementById('leave-scroll').scrollTo({top:document.getElementById('application-section').offsetTop-12,behavior:'smooth'}); return; }
+  if (!state.start || !state.end) { showToast('请选择休假开始与结束时间'); return; }
+  if (calculateDuration().invalid || calculateDuration().value<=0) { showToast('请检查休假时间'); return; }
+  const missingSpecial = [...document.querySelectorAll('[data-special-required]')].find(field => !String(field.value || '').trim());
+  if (missingSpecial) { showToast(`请填写${missingSpecial.dataset.specialRequired}`); missingSpecial.focus(); return; }
+  if (!document.getElementById('reason').value.trim()) { showToast('请填写休假说明'); return; }
+  if (currentType().attachment && !state.attachment) { showToast(`${state.selectedType}需上传附件材料`); return; }
+  document.getElementById('success').classList.add('show'); document.getElementById('bottom-action').classList.remove('show');
+}
+function finishSuccess() { document.getElementById('success').classList.remove('show'); const homeScroll=state.homeScroll; selectedScenarioRoute=''; pendingScenarioRoute=''; state={selectedType:'',pendingType:'',pendingQuota:'',unit:'day',start:'',end:'',attachment:false,homeScroll,dailyRows:[],dailyDefaults:{start:'',end:'',rest:''},batchDraft:{startDate:'',endDate:'',start:'',end:'',rest:''},dayEditDraft:{start:'',end:'',rest:''},editingDailyIndex:-1,dailyFormMode:'',special:{},pickerTarget:'',pickerDraft:{},timePickerTarget:'',timePickerDraft:{h:'09',min:'00'},pendingRest:'',policyExpanded:false,dailyReturn:'leave',...scenarioConfig('rest-single')}; if(variant==='C'){document.getElementById('compact-type-value').textContent='请选择';document.getElementById('compact-type-value').classList.add('placeholder');document.getElementById('compact-reason-input').value='';renderCompactPolicyEntry();renderCompactDynamicFields()}else{document.getElementById('empty-form').style.display='block';document.getElementById('form-body').classList.remove('visible');document.querySelectorAll('.quota-card').forEach(card=>card.classList.remove('selected'))}goHome(); }
+function resetAppScroll() { const app=document.getElementById('app'); if (app) app.scrollTop=0; }
+function openSheet(id) { resetAppScroll(); document.querySelectorAll('.sheet').forEach(sheet=>sheet.classList.remove('show')); document.getElementById('mask').classList.add('show'); requestAnimationFrame(()=>{resetAppScroll();document.getElementById(id).classList.add('show')}); }
+function closeSheet() { document.getElementById('mask').classList.remove('show'); document.querySelectorAll('.sheet').forEach(sheet=>sheet.classList.remove('show')); resetAppScroll(); }
+let toastTimer;
+function showToast(message) { const toast=document.getElementById('toast'); toast.textContent=message; toast.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>toast.classList.remove('show'),1800); }
+init();
+</script>
+</body>
+</html>

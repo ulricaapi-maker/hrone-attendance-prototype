@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>HR One · 新增加班</title><link rel="stylesheet" href="../assets/unified-navigation.css"><link rel="stylesheet" href="style.css?v=29"></head>
+<body data-unified-page="overtime-hr" data-unified-root="../" data-unified-active="overtime-hr">
+<div class="layout">
+ <aside class="sidebar"><div id="unifiedAttendanceNav"><a href="../index.html">首页</a></div></aside>
+ <main class="main"><header class="header"><div class="breadcrumb">考勤管理 / 假勤流程 / <span>加班</span></div><div class="user-info">简体中文　　当前HR</div></header>
+ <section class="content"><h1>加班</h1>
+ <section class="search-bar" aria-label="查询条件">
+  <label class="search-item">员工<input id="filterEmployee" placeholder="姓名 / 工号"></label>
+  <label class="search-item">组织<select id="filterOrg"><option value="">全部</option><option>产品研发部</option><option>客户成功部</option></select></label>
+  <label class="search-item">审批状态<select id="filterStatus"><option value="">全部</option><option>审批中</option><option>已通过</option></select></label>
+  <label class="search-item">加班日期<input type="date" id="filterDate"></label>
+  <div class="search-actions"><button class="btn btn-primary" id="query">查询</button><button class="btn btn-default" id="reset">重置</button></div>
+ </section>
+ <section class="card"><div class="card-header"><span class="record-total" id="recordTotal"></span><div class="toolbar"><button class="btn btn-primary" id="add">＋ 发起加班</button><button class="btn btn-default" id="export"><svg width="14" height="14" viewBox="0 0 1030 1024" xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-hidden="true">
+  <path d="M140.8 1017.6c-38.4 0-70.4-12.8-96-38.4-25.6-25.6-38.4-57.6-38.4-96v-185.6c0-12.8 6.4-25.6 12.8-32s19.2-12.8 32-12.8 25.6 6.4 32 12.8 12.8 19.2 12.8 32v185.6c0 12.8 6.4 32 12.8 38.4 6.4 6.4 19.2 12.8 38.4 12.8h742.4c12.8 0 32-6.4 38.4-12.8 6.4-6.4 12.8-19.2 12.8-38.4v-185.6c0-12.8 6.4-25.6 12.8-32 6.4-6.4 19.2-12.8 32-12.8s25.6 6.4 32 12.8c6.4 6.4 12.8 19.2 12.8 32v185.6c0 38.4-12.8 70.4-38.4 96-25.6 25.6-57.6 38.4-96 38.4H140.8z m377.6-275.2c-12.8 0-25.6-6.4-32-12.8s-12.8-19.2-12.8-32V160s0-6.4-6.4-6.4h-6.4L313.6 313.6c-6.4 6.4-25.6 12.8-25.6 12.8-12.8 0-25.6-6.4-32-12.8-12.8-12.8-19.2-19.2-19.2-25.6 0-12.8 6.4-25.6 12.8-32L480 25.6c12.8-12.8 25.6-19.2 38.4-19.2 12.8 0 25.6 6.4 32 12.8L774.4 256c6.4 6.4 12.8 19.2 12.8 32s-6.4 25.6-12.8 32-19.2 12.8-32 12.8-19.2-12.8-25.6-19.2L563.2 153.6h-6.4s-6.4 0-6.4 6.4V704c0 12.8-6.4 25.6-12.8 32s-12.8 6.4-19.2 6.4z"/>
+</svg>
+导出</button><button class="btn btn-default" id="exportSettings">导出设置</button></div></div><div class="table-wrap"><table><thead><tr><th>员工</th><th>工号</th><th>组织全称</th><th>加班日期</th><th>加班时长</th><th>加班补偿方式</th><th>审批状态</th><th>操作</th></tr></thead><tbody id="rows"></tbody></table></div><div class="pagination"><span id="count"></span><div class="page-btns"><button class="page-btn" disabled>‹</button><button class="page-btn active">1</button><button class="page-btn" disabled>›</button></div></div></section>
+ </section></main>
+</div>
+<div class="modal-overlay" id="formOverlay" hidden>
+ <section class="modal" role="dialog" aria-modal="true" aria-labelledby="formTitle">
+  <header class="modal-header"><h2 id="formTitle">新增加班</h2><button class="close" data-close="formOverlay" aria-label="关闭申请">×</button></header>
+  <form id="application" novalidate><div class="modal-body">
+   <section class="employee-section"><div class="employee-box"><label class="form-item"><span class="form-label"><i class="required">*</i>员工</span><span class="employee-select-shell"><span class="employee-avatar" id="employeeAvatar" aria-hidden="true">员</span><select id="employee" class="form-select" required><option value="">请选择员工</option><option value="A">示例员工A（E10086）</option><option value="B">示例员工B（E10092）</option></select><span class="employee-chevron" aria-hidden="true"></span><span id="selfEmployeeName"></span></span><span class="error" id="employeeError"></span></label><div class="employee-meta" id="employeeMeta"><div><span>工号</span><b>—</b></div><div><span>组织全称</span><b>—</b></div><div><span>职位</span><b>—</b></div><div><span>职级</span><b>—</b></div></div></div></section>
+   <fieldset id="editable" disabled>
+    <div id="groups"></div>
+    <div class="group-add-row"><button type="button" class="add-group" id="addGroup">＋ 添加一组加班</button><span class="muted" id="groupCount" hidden></span></div>
+    <div id="sharedPlacement"><div class="comp-result-row" id="sharedCompResult">
+     <div class="form-item"><span class="form-label"><i class="required">*</i>加班补偿方式</span><div class="radio-row" id="compOptions"></div><span class="error" id="compError"></span></div>
+     <div class="duration-summary"><span class="form-label"><span id="totalDurationLabel">加班时长</span><button type="button" class="btn-text" id="openCalculation">查看明细</button></span><div class="result-line"><output class="readonly duration-value" id="total" aria-label="加班时长">—</output></div></div>
+    </div></div>
+   </fieldset>
+  </div><footer class="modal-footer"><button type="button" class="btn btn-default" data-close="formOverlay">取消</button><button type="submit" class="btn btn-primary" id="submit">提交</button></footer></form>
+ </section>
+</div>
+<div class="drawer-mask" id="drawerMask" hidden><aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle"><header class="modal-header"><h2 id="drawerTitle"></h2><button class="close" data-close="drawerMask" aria-label="关闭明细">×</button></header><div class="drawer-body" id="drawerBody"></div></aside></div>
+<div class="toast" id="toast" role="status"></div>
+<script src="../assets/unified-navigation.js?v=mobile-home-20260921"></script><script src="calculation-view.js?v=4"></script><script src="vesting-date.js?v=1"></script><script src="app.js?v=27"></script>
+<script src="application-workflow.js?v=3"></script>
+</body></html>

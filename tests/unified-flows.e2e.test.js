@@ -2,8 +2,8 @@ const assert = require("node:assert/strict");
 const { chromium } = require("playwright");
 
 const chromePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
-const base = "http://127.0.0.1:4173";
-const canonicalMobileUrl = "https://ulricaapi-maker.github.io/hrone-leave-plan-prototype/leave-prototype/07-%E7%A7%BB%E5%8A%A8%E7%AB%AF%E4%BC%91%E5%81%87%E5%8E%9F%E5%9E%8B/";
+const base = process.env.PROTOTYPE_BASE_URL || "http://127.0.0.1:4173";
+const canonicalMobileUrl = base + "/07-%E7%A7%BB%E5%8A%A8%E7%AB%AF%E9%A6%96%E9%A1%B5/index.html";
 const routes = [
   ["leave-plan", "/01-基础配置/01-假期方案/index.html", ""],
   ["cost-allocation-exception", "/01-基础配置/02-成本分摊特例管理/index.html", ""],
@@ -93,10 +93,10 @@ async function verifyDetailRoundTrip(page, mode) {
   }
 
   await page.goto(`${base}/01-基础配置/01-假期方案/index.html`);
-  const mobileAnchor = page.locator('[data-unified-key="my-leave-mobile"]');
+  const mobileAnchor = page.locator('[data-unified-key="mobile-home"]');
   assert.equal(await mobileAnchor.getAttribute("target"), "_blank");
   assert.equal(await mobileAnchor.getAttribute("rel"), "noopener");
-  assert.equal(await mobileAnchor.getAttribute("href"), canonicalMobileUrl);
+  assert.equal(await mobileAnchor.evaluate(a=>a.href), canonicalMobileUrl);
   const [mobilePopup] = await Promise.all([
     context.waitForEvent("page"),
     mobileAnchor.click()
@@ -105,10 +105,17 @@ async function verifyDetailRoundTrip(page, mode) {
   await mobilePopup.waitForURL(canonicalMobileUrl);
   await mobilePopup.waitForLoadState("domcontentloaded");
   assert.equal(mobilePopup.url(), canonicalMobileUrl);
-  assert.equal(await mobilePopup.title(), "HR One 移动端休假交互方案");
+  assert.equal(await mobilePopup.title(), "HR One · 移动端首页");
   await mobilePopup.locator(".quick-app.leave").click();
   assert.equal(await mobilePopup.locator("#scenario-trigger").isVisible(), true);
   assert.equal(await mobilePopup.locator("#scenario-value").innerText(), "固定班次·按休息时长休");
+  await mobilePopup.locator('#page-leave .back').click();
+  await mobilePopup.locator('.quick-app.overtime').click();
+  await mobilePopup.waitForURL('**/mobile/application.html?mode=self');
+  assert.equal(await mobilePopup.locator('#formTitle').innerText(),'加班申请');
+  await mobilePopup.getByRole('link',{name:'加班记录',exact:true}).click();
+  await mobilePopup.waitForURL('**surface=mobile**');
+  assert.equal(await mobilePopup.locator('#listPage h1').innerText(),'加班记录');
   assert.equal(page.url(), `${base}/01-%E5%9F%BA%E7%A1%80%E9%85%8D%E7%BD%AE/01-%E5%81%87%E6%9C%9F%E6%96%B9%E6%A1%88/index.html`);
   await assertActive(page, "leave-plan");
   await mobilePopup.close();

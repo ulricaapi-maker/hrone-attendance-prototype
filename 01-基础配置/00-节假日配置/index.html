@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="../../assets/unified-navigation.css">
+  <link rel="stylesheet" href="styles.css?v=2">
+  <title>HR One · 节假日配置</title>
+</head>
+<body data-unified-page="holiday-config" data-unified-root="../../">
+  <div class="layout">
+    <aside class="sidebar"><div id="unifiedAttendanceNav"><a class="unified-nav__home" href="../../index.html">首页</a></div></aside>
+    <main class="main">
+      <header class="header"><div class="breadcrumb">考勤管理 / 基础配置 / <span>节假日配置</span></div><div class="user-info">GMT+8:00　简体中文　用户信息</div></header>
+      <section class="content">
+        <div class="page-head"><h1>节假日配置</h1></div>
+        <section class="card query-card"><div class="query-heading">查询条件</div><div class="plan-query">
+          <label>节假日方案名称<input id="filterPlanName" placeholder="请输入"></label>
+          <label>地区<select id="filterRegion"><option value="">全部</option><option>中国</option><option>非中国</option></select></label>
+          <label>年份<input id="filterYear" type="number" placeholder="请输入年份"></label>
+          <div class="query-actions"><button class="btn" id="resetPlans">重置</button><button class="btn btn-primary" id="queryPlans">查询</button></div>
+        </div></section>
+        <section class="card plan-list"><div class="list-toolbar"><span>节假日方案</span><button class="btn btn-primary" id="addPlan">＋ 新增</button></div><div class="table-wrap"><table class="plan-table"><thead><tr><th class="seq">序号</th><th>节假日方案名称</th><th>地区</th><th>年份</th><th class="plan-actions-col">操作</th></tr></thead><tbody id="holidayPlanRows"></tbody></table></div><div class="pagination"><span id="planCount"></span><div id="planPages"></div></div></section>
+      </section>
+    </main>
+  </div>
+  <div class="holiday-overlay" id="planOverlay" hidden><section class="holiday-dialog" role="dialog" aria-modal="true" aria-labelledby="planTitle"><header class="dialog-header"><h2 id="planTitle">新增节假日方案</h2><button class="close" id="closePlan" aria-label="关闭">×</button></header><div class="dialog-body"><div class="plan-fields">
+    <label><span><i class="required">*</i> 节假日方案名称</span><input id="planName" maxlength="100"></label>
+    <label><span><i class="required">*</i> 地区</span><select id="planRegion"><option value="">请选择</option><option>中国</option><option>非中国</option></select></label>
+    <label><span><i class="required">*</i> 年份</span><input id="planYear" type="number" min="2000" max="2100"></label>
+  </div><h3>节假日明细</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th class="seq">序号</th><th>节假日名称</th><th class="legal-col"><span class="required">*</span> 是否法定</th><th>开始日期</th><th>结束日期</th><th>每日时长</th><th class="operate">操作</th></tr></thead>
+              <tbody id="holidayRows"></tbody>
+            </table>
+          </div>
+          <p class="error" id="planError" role="alert"></p></div><footer class="card-foot modal-footer"><button class="btn" id="cancel">取消</button><button class="btn btn-primary" id="save">保存</button></footer>
+  </section></div>
+  <div class="holiday-overlay" id="deleteOverlay" hidden><section class="delete-dialog" role="dialog" aria-modal="true" aria-labelledby="deleteTitle"><h2 id="deleteTitle">删除节假日方案</h2><p id="deleteMessage"></p><footer><button class="btn" id="cancelDeletePlan">取消</button><button class="btn btn-primary" id="confirmDeletePlan">确定删除</button></footer></section></div>
+  <div class="toast" id="toast" hidden></div>
+  <script src="../../assets/unified-navigation.js"></script>
+  <script src="app.js?v=2"></script>
+</body>
+</html>

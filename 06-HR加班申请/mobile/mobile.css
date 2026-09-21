@@ -1,0 +1,117 @@
+:root{--mobile-blue:#2764ea;--mobile-ink:#182235;--mobile-line:#edf0f4;--mobile-muted:#718198}
+/* Mobile is a single-column form even when previewed in a wide desktop window. */
+.mobile-overtime.application-page .single-comp-slot{display:block}
+.mobile-overtime.application-page .single-comp-slot #sharedCompResult{display:contents}
+.mobile-overtime.application-page .duration-summary,.mobile-overtime.application-page .single-comp-slot>.comp-field{width:100%;max-width:none}
+.mobile-overtime.application-page .duration-value{white-space:nowrap}
+.mobile-overtime.application-page .application-shell>.modal>.modal-header{grid-template-columns:80px minmax(0,1fr) 80px}
+.mobile-record-link{grid-column:3;grid-row:1;text-decoration:none;color:#2764ea;font-size:14px;text-align:right;white-space:nowrap}
+.mobile-overtime.application-page .single-comp-slot #sharedCompResult>.form-item{display:block;width:100%}
+html,body.mobile-overtime{margin:0;min-height:100%;background:#dfe6ed;color:var(--mobile-ink);font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif}
+.mobile-overtime *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+.mobile-overtime .sidebar,.mobile-overtime .main>.header,.mobile-overtime .content{display:none}
+.mobile-overtime .layout{display:block;min-height:100dvh}.mobile-overtime .main{width:100%;min-width:0;margin:0}
+.mobile-overtime .application-shell{width:100%;max-width:430px;min-height:100dvh;margin:auto;padding:0;background:#f1f5f8}
+.mobile-overtime .application-shell>.modal,.mobile-overtime .modal:has(.multi-group){width:100%;max-width:none;border:0;border-radius:0;background:transparent;overflow:visible;margin:0}
+.mobile-overtime .application-shell>.modal>.modal-header{height:58px;position:sticky;top:0;z-index:20;display:grid;grid-template-columns:44px 1fr 44px;padding:0 12px;background:#fff;border-bottom:1px solid #e7ebf2}
+.mobile-overtime .application-shell>.modal>.modal-header h2{grid-column:2;grid-row:1;text-align:center;font-size:18px;font-weight:600}
+.mobile-overtime .application-shell>.modal>.modal-header>.close{grid-column:1;grid-row:1;font-size:28px;color:#182235;width:40px;height:44px;text-align:left}
+.mobile-overtime .modal-body{padding:12px 12px 100px;overflow:visible}
+.mobile-overtime .employee-section{margin:0 0 12px;padding:0;border:0;border-radius:14px;background:#fff;overflow:hidden}
+.mobile-overtime .employee-box{padding:0}.mobile-overtime .employee-box>.form-item{display:grid;grid-template-columns:86px 1fr;align-items:center;padding:4px 14px;min-height:54px}
+.mobile-overtime .employee-box>.form-item>.form-label{margin:0;font-size:14px}.mobile-overtime #employee{border:0;background-color:#fff;text-align:right;padding-right:20px;font-size:14px;height:44px}
+.mobile-overtime .employee-meta{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0;padding:0 14px 14px}.mobile-overtime .employee-meta span{font-size:11px}.mobile-overtime .employee-meta b{font-size:12px;font-weight:500;line-height:1.5}
+.employee-details{border-top:1px solid var(--mobile-line)}.employee-details summary{font-size:12px;color:#718198;cursor:pointer;padding:10px 14px;list-style:none}.employee-details summary:after{content:'⌄';float:right}.employee-details[open] summary:after{content:'⌃'}
+.mobile-overtime .group,.mobile-overtime .multi-group:first-child{background:#fff;border:0;border-radius:14px;margin:0 0 12px;padding:0;overflow:hidden}
+.mobile-overtime .group .form-grid{display:block;padding:0}.mobile-overtime .group .form-item{display:grid;grid-template-columns:104px minmax(0,1fr);gap:0 8px;align-items:center;min-height:54px;padding:5px 14px;border-bottom:1px solid var(--mobile-line)}
+.mobile-overtime .group .form-item>.form-label{margin:0;font-size:14px;line-height:22px;min-height:22px}
+.mobile-overtime .form-label .required{font-size:13px}.mobile-overtime .group .form-input,.mobile-overtime .group .form-select,.mobile-overtime .group .readonly{border:0;background-color:transparent;border-radius:0;height:42px;min-height:42px;padding:0;font-size:14px;text-align:right;box-shadow:none;color:#303d50}
+.mobile-overtime .group .form-select{padding-right:18px}.mobile-overtime .group .type-value{display:flex;justify-content:flex-end;align-items:center;color:#718198;gap:4px}
+.mobile-overtime .group .time-field{border:0;background:none;width:100%;max-width:none;min-width:0;height:42px;justify-content:flex-end;gap:6px;cursor:pointer}
+.mobile-overtime .time-field .time-day{padding:0;color:#303d50;font-size:14px}.mobile-overtime .time-field .form-input{flex:0 1 82px;width:82px;min-width:0;pointer-events:none;color:#303d50;font-size:14px}.mobile-overtime input[type=time]::-webkit-calendar-picker-indicator{display:none}
+.mobile-overtime .time-field:after{content:'›';color:#a6b1be;font-size:22px;margin-left:3px}.mobile-overtime .time-field:focus-visible{outline:2px solid #2764ea;outline-offset:2px;border-radius:4px}
+.mobile-overtime .group .error{grid-column:1/-1;padding:0;line-height:1.6;font-size:12px}.mobile-overtime .error:empty{display:none}
+.mobile-reference-row{height:36px;display:flex;align-items:center;justify-content:flex-end;padding:0 14px;border-bottom:1px solid var(--mobile-line)}.mobile-reference-row button{font-size:12px!important;color:var(--mobile-blue);min-height:32px}
+.mobile-overtime .group .group-duration-field{grid-template-columns:104px minmax(0,1fr) auto;gap:8px}
+.mobile-overtime .duration-control,.mobile-overtime .result-line{height:42px;width:100%}.mobile-overtime .duration-value{height:42px!important;min-height:42px!important;display:flex;align-items:center;justify-content:flex-end;border:0;background:none;padding:0;font-size:16px!important;font-weight:600;color:var(--mobile-blue)!important;width:100%}
+.mobile-overtime .group-duration-field>.btn-text,.mobile-overtime .duration-summary>.btn-text{font-size:12px;min-height:42px;color:var(--mobile-blue)}
+.mobile-overtime .group .group-reason{display:block;padding:14px;border-bottom:0}.mobile-overtime .group-reason>.form-label{margin-bottom:8px!important}
+.mobile-overtime .reason-box{width:100%;border:0}.mobile-overtime .reason-box textarea{height:76px;min-height:76px;border:1px solid #e3e8ef;border-radius:10px;background:#fafbfc;padding:10px 10px 24px;font-size:14px;line-height:1.5}.mobile-overtime .counter{font-size:11px;bottom:7px;right:10px;color:#a0acba}
+.mobile-overtime .group-head,.mobile-overtime .group-head:has(+[hidden]){background:#fff;padding:10px 14px;gap:10px;border-bottom:1px solid var(--mobile-line);align-items:flex-start}
+.mobile-overtime .group-toggle{display:flex;flex-wrap:wrap!important;gap:4px 7px;height:auto;min-height:30px;font-weight:400}.mobile-overtime .group-toggle b{font-size:14px}.mobile-overtime .group-chevron{font-size:18px}.mobile-overtime .toggle-label{margin-left:auto;font-size:12px}.mobile-overtime .group-head>[data-remove]{font-size:12px;min-height:30px;margin:0;color:#718198}
+.mobile-overtime .group-brief{display:flex;flex-basis:100%;order:3;padding-left:19px;gap:3px 10px;font-size:12px;line-height:1.8;color:#718198}.mobile-overtime .group-toggle[aria-expanded=true] .group-brief{display:none}.mobile-overtime .group-brief span:first-child{flex-basis:100%}.mobile-overtime .group-brief span:nth-child(3){display:none}.mobile-overtime .brief-hours{color:#303d50}
+.mobile-overtime .group-add-row{margin:0 0 12px;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:14px;min-height:48px}.mobile-overtime .add-group{min-height:48px;padding:0 14px;font-size:14px;color:var(--mobile-blue)}.mobile-overtime #groupCount{font-size:11px;padding-right:14px}
+.mobile-overtime #sharedPlacement:not(:empty){background:#fff;border-radius:14px;border:0;padding:0;margin:0 0 10px;overflow:hidden}.mobile-overtime .comp-result-row,.mobile-overtime .overseas-result{display:block}
+.mobile-overtime #sharedCompResult>.form-item{display:block;padding:14px;border-bottom:1px solid var(--mobile-line)}.mobile-overtime #sharedCompResult>.form-item>.form-label{font-size:14px;margin:0 0 12px}.mobile-overtime #sharedCompResult .form-label .rule-link{margin-left:auto;font-size:12px;color:var(--mobile-blue)}
+.mobile-overtime .radio-row{height:auto;display:flex;gap:10px}.mobile-overtime .radio-row label{display:flex;align-items:center;justify-content:center;gap:7px;flex:1;background:#f7f9fc;min-height:40px;border:1px solid #e7ebf2;border-radius:9px;font-size:14px}.mobile-overtime .radio-row label:has(input:checked){background:#edf4ff;border-color:#b9cefa;color:#2764ea}.mobile-overtime .radio-row input{accent-color:#2764ea}
+.mobile-overtime .duration-summary{padding:5px 14px;display:grid;grid-template-columns:104px minmax(0,1fr) auto;gap:8px;align-items:center;width:100%;max-width:none;min-height:54px;border-bottom:1px solid var(--mobile-line)}.mobile-overtime .duration-summary>.form-label{margin:0;font-size:14px}
+.mobile-overtime .modal-footer{position:fixed!important;left:50%;bottom:0;transform:translateX(-50%);width:100%;max-width:430px;background:#fff;z-index:25;padding:10px 16px calc(10px + env(safe-area-inset-bottom));border-top:1px solid #e7ebf2;display:flex;gap:12px}.mobile-overtime .modal-footer .btn{height:44px;border-radius:12px;font-size:15px}.mobile-overtime .modal-footer .btn-default{flex:1}.mobile-overtime .modal-footer .btn-primary{flex:2;background:var(--mobile-blue);border-color:var(--mobile-blue)}
+#mobileShade{position:fixed;inset:0;z-index:79;background:rgba(19,31,49,.4)}
+.mobile-overtime .field-popover,.mobile-overtime .drawer{position:fixed!important;left:50%!important;top:auto!important;bottom:0!important;transform:translateX(-50%)!important;width:100%!important;max-width:430px!important;max-height:82dvh!important;border:0;border-radius:20px 20px 0 0;z-index:80;background:#fff;box-shadow:0 -5px 25px #18223512;padding-bottom:env(safe-area-inset-bottom)}
+.mobile-overtime .field-popover:before{display:none}.mobile-overtime .popover-heading{padding:18px 18px 14px;border-bottom:1px solid #edf0f4}.mobile-overtime .popover-heading h3{font-size:17px}.mobile-overtime .popover-heading .close{min-width:36px;min-height:36px}.mobile-overtime .popover-content{padding:16px 18px 24px;overscroll-behavior:contain}.mobile-overtime .drawer-mask{z-index:81}.mobile-overtime .drawer .modal-header{padding:16px 18px}.mobile-overtime .drawer h2{font-size:17px}.mobile-overtime .drawer-body{padding:16px 18px 24px;font-size:14px;line-height:1.8}
+.mobile-calc-summary{display:grid;grid-template-columns:1fr 1fr;padding:18px 0;background:#f4f7fc;border-radius:12px;margin-bottom:15px}.mobile-calc-summary div{text-align:center}.mobile-calc-summary div+div{border-left:1px solid #e0e6ef}.mobile-calc-summary span{display:block;color:#718198;font-size:12px;margin-bottom:8px}.mobile-calc-summary strong{font-size:22px;font-weight:600}.mobile-calc-summary div:last-child strong{color:#2764ea}.mobile-calc-row{display:flex;justify-content:space-between;gap:16px;padding:10px 0;font-size:14px;line-height:1.6}.mobile-calc-row>span{color:#718198;white-space:nowrap}.mobile-calc-row b{font-weight:400;text-align:right}.mobile-calc-row small{display:block;font-size:12px;color:#718198}.mobile-overtime .calculation-explanation{font-size:13px;line-height:1.8;padding-top:14px}.mobile-overtime .shift-info-row{grid-template-columns:90px minmax(0,1fr);font-size:13px;gap:8px;line-height:1.7;padding:6px 0}.mobile-overtime .date-tabs{gap:5px}.mobile-overtime .date-tab{padding:8px 9px;font-size:12px;flex:1}.mobile-overtime .reference-title{font-size:13px}.mobile-overtime .punch-list span{font-size:13px;padding:2px 9px}.mobile-overtime .punch-list span:first-child{padding-left:0}
+#timeSheet{position:fixed;top:auto;bottom:0;left:0;right:0;width:100%;max-width:430px;margin:0 auto;border:0;border-radius:20px 20px 0 0;padding:0 18px calc(28px + env(safe-area-inset-bottom));color:#182235}#timeSheet::backdrop{background:rgba(19,31,49,.4)}.sheet-grip{width:36px;height:4px;border-radius:4px;background:#d7dde5;margin:9px auto}#timeSheet header{display:flex;align-items:center;justify-content:space-between;height:50px}#timeSheet h2{font-size:17px;margin:0}#timeSheet button{background:none;border:0;color:#2764ea;min-height:44px;padding:0 4px;font-size:14px}.time-selection{display:grid;grid-template-columns:1fr 1fr auto 1fr;align-items:center;gap:14px;padding:25px 8px 12px}.time-selection>span{text-align:center}.time-selection label{color:#718198;text-align:center;font-size:12px}.time-selection select{width:100%;height:60px;background:#f3f6fb;border:1px solid #e5eaf2;border-radius:12px;font-size:24px;text-align:center;color:#182235;margin-top:8px}
+.mobile-overtime .toast{max-width:360px;width:calc(100% - 40px);font-size:14px;z-index:1000}.mobile-overtime:has(#fieldPopover:not([hidden])),.mobile-overtime:has(#drawerMask:not([hidden])){overflow:hidden}
+@media(max-width:360px){.mobile-overtime .group .form-item{grid-template-columns:95px minmax(0,1fr);gap:4px}.mobile-overtime .group .group-duration-field,.mobile-overtime .duration-summary{grid-template-columns:95px minmax(0,1fr) auto;gap:4px}.mobile-overtime .date-tab{padding:8px 5px;font-size:11px}}
+
+/* Mobile form rhythm: aligned rows, one clear entry per interaction. */
+.mobile-overtime .modal-body{padding:12px 14px 98px}
+.mobile-overtime .employee-section,.mobile-overtime .group,.mobile-overtime #sharedPlacement:not(:empty){border-radius:12px;box-shadow:none}
+.mobile-overtime .employee-box>.form-item{padding:3px 14px;grid-template-columns:74px 1fr}
+.mobile-overtime #employee{height:44px;font-size:14px;padding-right:18px;outline:none}
+.mobile-overtime #employee:focus-visible{outline:2px solid #91b3f6;outline-offset:-2px;border-radius:6px}
+.employee-details summary{padding:9px 14px;font-size:12px;color:#718198}
+.mobile-overtime .group .form-item{min-height:49px;padding:3px 14px;grid-template-columns:100px minmax(0,1fr);border-bottom-color:#f0f2f5}
+.mobile-overtime .group .form-item>.form-label{font-size:14px;color:#354052}
+.mobile-overtime .group .form-input,.mobile-overtime .group .form-select,.mobile-overtime .group .readonly{height:42px;min-height:42px;font-size:14px}
+.mobile-overtime .group input[type=date]{font-family:inherit;padding-right:0;min-width:0}
+.mobile-overtime .group input[type=date]::-webkit-calendar-picker-indicator{width:16px;margin-left:6px;opacity:.45}
+.mobile-overtime .group .mobile-type-row{grid-template-columns:80px minmax(0,1fr) auto;gap:5px;min-height:44px}
+.mobile-overtime .mobile-type-row .type-value{justify-content:flex-start!important;font-size:12px!important;color:#718198!important}
+.mobile-overtime .mobile-type-row>[data-reference]{font-size:11px!important;padding:0;min-height:40px;color:#5273a6;white-space:nowrap}
+.mobile-overtime .time-field .time-day,.mobile-overtime .time-field .time-day-select,.mobile-overtime .time-field input{display:none}
+.mobile-time-value{font-size:14px;color:#303d50;white-space:nowrap}.mobile-time-value.placeholder{color:#a5b0be}
+.mobile-overtime .group .time-field{gap:7px}.mobile-overtime .time-field:after{font-size:20px;margin-left:0;color:#a6b1be}
+.mobile-overtime .group .group-duration-field,.mobile-overtime .duration-summary{grid-template-columns:100px minmax(0,1fr) 16px;gap:7px;min-height:49px}
+.mobile-overtime .group-duration-field>.btn-text,.mobile-overtime .duration-summary>.btn-text{width:16px;font-size:22px!important;color:#a6b1be;padding:0;min-height:42px}
+.mobile-overtime .duration-value{font-size:16px!important;font-weight:600}
+.mobile-overtime .group .group-reason{padding:12px 14px 8px}
+.mobile-overtime .reason-box textarea{background:#fff;border:0;border-radius:0;height:62px;min-height:62px;padding:4px 0 20px;font-size:14px;resize:none}
+.mobile-overtime .counter{right:0;bottom:3px}.mobile-overtime .group-reason>.form-label{margin-bottom:5px!important}
+.mobile-overtime .group-head,.mobile-overtime .group-head:has(+[hidden]){padding:7px 14px;background:#fafbfd;border-bottom-color:#edf0f4}
+.mobile-overtime .group-chevron{display:none}.mobile-overtime .group-toggle b{font-size:14px;font-weight:600}.mobile-overtime .group-brief{padding-left:0;gap:3px 8px;font-size:12px}
+.mobile-overtime .group-brief span:first-child{flex-basis:auto}.mobile-overtime .group-brief .brief-hours{margin-left:auto;font-weight:500}
+.mobile-overtime .group-head>[data-remove]{padding-left:10px;border-left:1px solid #e4e8ee;min-height:22px;margin-top:4px;line-height:22px;color:#8491a3}
+.mobile-overtime .group-toggle .toggle-label{font-size:12px;line-height:30px;color:#5273a6}
+.mobile-overtime .group-add-row{background:transparent;margin:-2px 0 10px;min-height:38px}.mobile-overtime .add-group{min-height:38px;font-size:13px;padding:0 8px}.mobile-overtime #groupCount{padding:0;color:#8a96a7}
+.mobile-overtime #sharedCompResult>.form-item{padding:12px 14px}.mobile-overtime #sharedCompResult>.form-item>.form-label{margin-bottom:10px}.mobile-overtime .radio-row label{min-height:36px;border-radius:8px}.mobile-overtime .radio-row input{width:14px;height:14px}
+.mobile-overtime .modal-footer{padding:10px 16px calc(10px + env(safe-area-inset-bottom));gap:10px}.mobile-overtime .modal-footer .btn{border-radius:10px}
+.mobile-overtime .modal-footer .btn-default{flex:0 0 82px;border-color:#e2e7ef;color:#718198}.mobile-overtime .modal-footer .btn-primary{flex:1}
+.mobile-overtime .duration-summary:has(>#openCalculation[hidden]){grid-template-columns:100px minmax(0,1fr)}
+#timeSheet{padding:0 18px calc(18px + env(safe-area-inset-bottom))}
+#timeSheet header{border-bottom:1px solid #edf0f4;height:54px}#timeSheet header button{font-size:14px}
+.time-selection{position:relative;display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;align-items:center;padding:12px 15px}
+.time-selection>label{display:none}
+.time-wheel{position:relative;min-width:0}.wheel-highlight{position:absolute;top:88px;left:0;right:0;height:44px;background:#f2f6fd;pointer-events:none}.time-wheel:first-of-type .wheel-highlight{border-radius:8px 0 0 8px}.time-wheel:last-child .wheel-highlight{border-radius:0 8px 8px 0}
+.wheel-scroll{height:220px;overflow-y:auto;scroll-snap-type:y mandatory;scrollbar-width:none;overscroll-behavior:contain;position:relative;mask-image:linear-gradient(transparent,#000 25%,#000 75%,transparent)}.wheel-scroll::-webkit-scrollbar{display:none}.wheel-space{height:88px}
+#timeSheet .wheel-scroll button{display:block;width:100%;height:44px;min-height:44px;scroll-snap-align:center;font-size:19px;color:#8995a6;font-weight:400;padding:0}
+#timeSheet .wheel-scroll button.selected{font-size:22px;color:#182235;font-weight:600}
+@media(max-width:360px){.mobile-overtime .modal-body{padding-left:10px;padding-right:10px}.mobile-overtime .group .form-item{grid-template-columns:94px minmax(0,1fr)}.mobile-overtime .group .mobile-type-row{grid-template-columns:72px minmax(0,1fr) auto}.mobile-overtime .mobile-type-row>[data-reference]{font-size:10px!important}.mobile-overtime .group .group-duration-field,.mobile-overtime .duration-summary{grid-template-columns:94px minmax(0,1fr) 16px}}
+
+.mobile-overtime .add-group{background:transparent}
+
+.mobile-overtime .group .vesting-value{justify-content:flex-end}
+
+.mobile-overtime .group .vesting-field{grid-template-columns:112px minmax(0,1fr)}
+.mobile-overtime .vesting-field>[data-reference]{grid-column:2;justify-self:end;font-size:11px;min-height:32px;color:#5273a6}
+.mobile-overtime .vesting-field .vesting-notice{grid-column:1/-1;margin:0 0 5px}
+.mobile-overtime .vesting-tip [role=tooltip]{left:-80px;width:210px}
+
+.mobile-overtime .group .vesting-field{grid-template-columns:122px minmax(0,1fr)}
+.mobile-overtime .vesting-field>.form-label{white-space:nowrap;gap:2px}
+
+/* Employee selector wrapper is shared with PC; mobile keeps the native row layout. */
+.mobile-overtime .employee-select-shell{display:block;min-width:0;width:100%}
+.mobile-overtime .employee-avatar,.mobile-overtime .employee-chevron{display:none}
+.mobile-overtime #selfEmployeeName{padding-left:0;line-height:44px;text-align:right}
+.mobile-overtime .group-result-row{display:contents}.mobile-overtime .workflow-reason{padding:14px;background:white;border:0;border-radius:12px;margin:14px 0}.mobile-overtime .workflow-reason textarea{font-size:14px}.mobile-overtime .workflow-error{font-size:13px}.mobile-overtime .city-panel{position:fixed;left:50%;transform:translateX(-50%);top:auto;bottom:0;z-index:90;width:100%;max-width:430px!important;border-radius:14px 14px 0 0}.mobile-overtime .city-panel>div{min-width:0;flex:1;max-height:260px}.mobile-overtime .city-cascader{width:100%;min-width:0}.mobile-overtime .city-trigger{font-size:12px!important;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;padding-right:18px}.mobile-overtime .city-trigger:after{right:4px}.mobile-overtime.operation-cancel .time-field:after{display:none}.mobile-overtime.operation-cancel .mobile-time-value{color:#718198}

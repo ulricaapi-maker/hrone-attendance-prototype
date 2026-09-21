@@ -3,7 +3,9 @@
 
   const groups = [
     { label: "基础配置", items: [
-      { key: "leave-plan", label: "假期方案", href: "01-基础配置/01-假期方案/index.html" }
+      { key: "holiday-config", label: "节假日配置", href: "01-基础配置/00-节假日配置/index.html" },
+      { key: "leave-plan", label: "假期方案", href: "01-基础配置/01-假期方案/index.html" },
+      { key: "overtime-plan", label: "加班方案配置", href: "01-基础配置/03-加班方案配置/index.html" }
     ] },
     { label: "成本中心配置", items: [
       { key: "cost-allocation-exception", label: "成本分摊特例管理", href: "01-基础配置/02-成本分摊特例管理/index.html" }
@@ -16,16 +18,19 @@
       { key: "quota-comp-settlement", label: "调休假结算", href: "02-额度管理/index.html?page=comp-settlement" }
     ] },
     { label: "假勤流程", items: [
-      { key: "leave-hr", label: "休假", href: "03-休假管理/index.html?mode=hr" }
+      { key: "leave-hr", label: "休假", href: "03-休假管理/index.html?mode=hr" },
+      { key: "overtime-hr", label: "加班", href: "06-HR加班申请/index.html" }
     ] },
-    { label: "团队假期", items: [
+    { label: "团队考勤", items: [
       { key: "team-balance", label: "团队假期余额", href: "02-额度管理/index.html?page=team-balance" },
-      { key: "team-leave", label: "团队休假", href: "03-休假管理/index.html?mode=team" }
+      { key: "team-leave", label: "团队休假", href: "03-休假管理/index.html?mode=team" },
+      { key: "team-overtime", label: "团队加班", href: "06-HR加班申请/index.html?mode=team" }
     ] },
-    { label: "我的假勤", items: [
+    { label: "我的考勤", items: [
       { key: "my-balance", label: "我的假期余额", href: "02-额度管理/index.html?page=my-balance" },
+      { key: "my-overtime-pc", label: "我的加班-PC端", href: "06-HR加班申请/index.html?mode=self" },
       { key: "my-leave-pc", label: "我的休假-PC端", href: "04-我的休假-PC端/index.html" },
-      { key: "my-leave-mobile", label: "我的休假-移动端", href: "https://ulricaapi-maker.github.io/hrone-leave-plan-prototype/leave-prototype/07-%E7%A7%BB%E5%8A%A8%E7%AB%AF%E4%BC%91%E5%81%87%E5%8E%9F%E5%9E%8B/", target: "_blank" }
+      { key: "mobile-home", label: "移动端首页", href: "07-移动端首页/index.html", target: "_blank" }
     ] }
   ];
 
@@ -52,6 +57,8 @@
     const declaredPage = dataset.unifiedPage || dataset.page || "";
     const fallback = dataset.unifiedActive || declaredPage || "leave-plan";
 
+    if (declaredPage === "overtime-hr" && queryValue(searchParams, "mode") === "self") return queryValue(searchParams,"surface")==="mobile"?"mobile-home":"my-overtime-pc";
+    if (declaredPage === "overtime-hr" && queryValue(searchParams, "mode") === "team") return "team-overtime";
     if (declaredPage === "quota") {
       return quotaRoutes[queryValue(searchParams, "page")] || fallback;
     }

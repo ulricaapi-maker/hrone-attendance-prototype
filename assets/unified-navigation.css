@@ -6,3 +6,4 @@
 .unified-nav__item{padding:9px 18px 9px 36px}
 .unified-nav__item:hover,.unified-nav__item[aria-current="page"]{background:#e7f0ff;color:#0e66fb}
 .unified-nav__item[aria-current="page"]{font-weight:600}
+.layout>.sidebar{overflow-y:auto}
