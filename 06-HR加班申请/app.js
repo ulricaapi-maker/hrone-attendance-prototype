@@ -69,7 +69,7 @@ function suggestVesting(g){
  const days=[-1,0,1].map(n=>{const d=dateShift(g.date,n),shift=overseas()?overseasScheduleSamples[d]:referenceSchedule(d),range=overseas()?overseasVestingWindows[d]:(domesticVestingWindows[d]||[420,1380]);return shift&&range?{date:d,working:shift.attr?shift.attr==='工作日':type({date:d})==='工作日加班',from:origin+(n*1440+range[0])*60000,to:origin+(n*1440+range[1])*60000}:null;});
  return OvertimeVestingDate.resolve(a,b,days)||'';
 }
-function syncVesting(g){const basis=[g.date,g.start,g.endDay,g.end].join('|');if(g.vestingBasis===basis)return;g.vesting=suggestVesting(g);g.vestingBasis=basis;}
+function syncVesting(g){if(['change','cancel'].includes(new URLSearchParams(location.search).get('action')))return;const basis=[g.date,g.start,g.endDay,g.end].join('|');if(g.vestingBasis===basis)return;g.vesting=suggestVesting(g);g.vestingBasis=basis;}
 
 function renderGroups(){
  closePopover(false);

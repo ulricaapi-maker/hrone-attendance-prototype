@@ -54,3 +54,49 @@
 .query-plan select{width:156px;height:36px;padding:0 32px 0 12px;font-size:13px}
 .query-plan-icon{width:36px;height:36px;box-sizing:border-box;color:#687180}
 .query-plan-icon svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+
+/* Overflow actions are portalled outside the sticky, scrollable table. */
+.row-actions{display:flex;gap:18px;align-items:center;white-space:nowrap}
+.row-more-menu{position:fixed;z-index:1100;min-width:164px;padding:5px 0;background:#fff;border:1px solid #E6E6E8;border-radius:4px;box-shadow:0 6px 20px #202d4020}
+.row-more-menu>span{display:block}
+.row-more-menu button{display:block;width:100%;padding:10px 16px;text-align:left;font-size:13px;line-height:20px}
+.row-more-menu button:hover:not(:disabled){background:#e7f0ff;text-decoration:none}
+.row-more-menu button:disabled{color:#999ca3;opacity:.65;cursor:not-allowed}
+.history-employee{margin-bottom:16px;color:#666b75;font-size:13px}
+.history-scroll{overflow:auto;max-width:100%}
+.modal .history-table{min-width:1120px;width:100%;table-layout:auto}
+.modal .history-table.punch-history{min-width:870px}
+.history-table th,.history-table td{padding:12px 16px;text-align:left;white-space:nowrap;vertical-align:top}
+.history-table .history-reason{min-width:180px;max-width:260px;white-space:normal;overflow-wrap:anywhere}
+.history-line{min-height:24px;line-height:24px}
+.modal:has(.history-table){width:1240px}
+.modal .attribution-table{min-width:760px;width:100%}
+.attribution-table td{padding:12px 16px;vertical-align:top}
+.attribution-table .operation-form{display:table-cell}
+.attribution-table label{display:flex;flex-direction:column;gap:6px}
+.attribution-table label>span:first-child{display:none}
+.operation-form input[readonly]{background:#f5f6f7;color:#666b75}
+.import-instructions{color:#666b75;font-size:13px;line-height:1.8;margin-bottom:14px}
+.import-upload{display:flex;flex-direction:column;gap:8px;margin:20px 0 12px}
+.import-upload input{padding:12px;border:1px dashed #cbd2dd;border-radius:4px;background:#fafbfc}
+.import-error{font-size:12px;color:#cf3d3d;line-height:1.6;margin-top:8px}
+.import-error:empty{display:none}
+.import-summary{margin:16px 0 12px;font-size:13px}
+.modal .import-table{min-width:1040px;width:100%}
+.import-table th,.import-table td{padding:10px 14px;text-align:left;white-space:nowrap;vertical-align:top}
+.import-table td:last-child{min-width:160px;max-width:230px;white-space:normal}
+.import-result{padding:24px 0;text-align:center}.import-result p{margin-top:14px}
+.modal:has(.vesting-adjustment){width:680px}
+.modal:has(.vesting-adjustment.is-multiple){width:880px}
+.modal:has(.resubmit-confirmation),.modal:has(#withdrawError){width:480px}
+.vesting-summary{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 100px;gap:16px;margin-bottom:20px;padding-bottom:18px;border-bottom:1px solid #eef0f3}
+.vesting-info{display:flex;flex-direction:column;gap:7px;min-width:0}
+.vesting-info>span{font-size:12px;color:#777e89;line-height:18px}
+.vesting-info b,.vesting-info output{font-size:13px;font-weight:400;color:#333947;line-height:20px}
+.vesting-date-fields{gap:16px 20px}
+.vesting-date-fields label{gap:7px;font-size:13px}
+.vesting-date-fields input{height:32px;padding:0 10px;box-sizing:border-box;font-size:13px;width:100%}
+.vesting-date-fields .error:empty{display:none}
+.withdraw-explanation{margin-top:12px;font-size:13px;color:#666b75;line-height:1.7}
+.toolbar{flex-wrap:wrap}
+@media(max-width:700px){.modal:has(.history-table){max-width:calc(100vw - 24px)}.history-scroll{max-height:65vh}.operation-form{grid-template-columns:1fr}.row-more-menu{z-index:1200}.vesting-summary{grid-template-columns:1fr 1fr}.vesting-info:last-child{grid-column:1/-1}}
