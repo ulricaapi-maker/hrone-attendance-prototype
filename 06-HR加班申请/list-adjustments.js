@@ -112,7 +112,8 @@ function openVestingAdjustment(r){
 function csvCell(value){return '"'+String(value??'').replace(/^[=+@-]/,"'$&").replaceAll('"','""')+'"';}
 function vestingTemplate(){
  const headers=['加班明细编号','工号','姓名','加班开始时间','加班结束时间','原归属日期','新归属日期'];
- return '\ufeff'+[headers,...filtered.filter(r=>!adjustmentReason(r)).flatMap(r=>overtimeDetails(r).map(d=>[d.id,d.no,d.name,d.start,d.end,d.date,'']))].map(row=>row.map(csvCell).join(',')).join('\r\n');
+ const visibleIds=new Set(filteredRows.map(({record,index})=>`${record.id}-${index}`));
+ return '\ufeff'+[headers,...filtered.filter(r=>!adjustmentReason(r)).flatMap(r=>overtimeDetails(r).filter(d=>visibleIds.has(`${r.id}-${d.index}`)).map(d=>[d.id,d.no,d.name,d.start,d.end,d.date,'']))].map(row=>row.map(csvCell).join(',')).join('\r\n');
 }
 function downloadVestingTemplate(){
  const url=URL.createObjectURL(new Blob([vestingTemplate()],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download='加班归属日期更新模板.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);

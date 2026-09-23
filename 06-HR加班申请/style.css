@@ -117,6 +117,8 @@ tr:hover td{background:#f9fafe}
 
 /* Compact repeated form; the reason and duration share the last row. */
 .application-page .modal:has(.multi-group){max-width:820px}
+
+.workflow-reason{margin-top:18px}.workflow-reason textarea{margin-top:7px}
 .multi-group,.multi-group:first-child{margin-bottom:10px}
 .multi-group .group-head,.multi-group .group-head:has(+[hidden]){padding:4px 12px;gap:12px}
 .multi-group .group-toggle{height:26px;min-height:26px}.multi-group .group-toggle b{font-size:13px}

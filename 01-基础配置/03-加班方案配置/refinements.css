@@ -1,1 +1,14 @@
 .choice-group label{white-space:nowrap}
+.choice-group input{width:auto}
+.holiday-picker{position:relative;min-width:0}
+.holiday-picker summary{min-height:34px;padding:7px 28px 7px 10px;border:1px solid var(--border);border-radius:4px;cursor:pointer;list-style:none;background:#fff}
+.holiday-picker summary::-webkit-details-marker{display:none}
+.holiday-picker summary::after{content:'⌄';position:absolute;right:10px;top:6px;color:var(--muted)}
+.holiday-picker[open] summary,.holiday-picker summary:focus{border-color:var(--blue);outline:none}
+.holiday-options{position:absolute;top:38px;left:0;right:0;padding:6px;background:white;border:1px solid var(--border);border-radius:4px;box-shadow:0 4px 12px #0002;z-index:10;max-height:220px;overflow:auto}
+.holiday-options label{display:flex;align-items:center;gap:8px;padding:7px;cursor:pointer}
+.holiday-options label:hover{background:var(--blue-light)}
+.holiday-options input{width:auto;height:auto;accent-color:var(--blue)}
+.field-error{color:#f74c4c;font-size:12px}
+.field-error:empty{display:none}
+.holiday-picker.invalid summary{border-color:#f74c4c}
