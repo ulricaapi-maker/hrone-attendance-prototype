@@ -7,7 +7,7 @@ const selfEmployee=new URLSearchParams(location.search).get('region')==='oversea
 const states=['草稿','审批中','通过','不通过','已作废','已驳回','已撤回'];
 const fields=['姓名','工号','组织','审批状态','申请开始时间','申请结束时间','申请时长','实际开始时间','实际结束时间','实际时长','归属日期','补卡状态','加班类型','补偿方式','值班方式','工作城市','值班补偿方式'];
 const keys=['name','no','dept','status','start','end','requestHours','actualStart','actualEnd','actualHours','vestingDate','punchStatus','kind','comp','dutyMode','city','dutyComp'];
-const widths=[120,100,180,120,160,160,100,160,160,100,120,120,130,100,110,200,130,178];
+const widths=[120,100,180,120,160,160,100,160,160,100,120,120,210,100,110,200,130,178];
 const organizationFields=['一级组织','二级组织','三级组织','四级组织','五级组织','六级组织','七级组织','八级组织'];
 const organizationKeys=['org1','org2','org3','org4','org5','org6','org7','org8'];
 const exportableFields=[...fields.slice(0,3),...organizationFields,...fields.slice(3)];
@@ -116,7 +116,7 @@ function render(){
  filtered=[...new Map(filteredRows.map(item=>[item.record.id,item.record])).values()];
  page=Math.min(page,Math.max(1,Math.ceil(filteredRows.length/10)));
  const visibleRows=filteredRows.slice((page-1)*10,page*10);
- $('#rows').innerHTML=visibleRows.map(({record:r,row,index,count})=>`<tr data-row="${count>1?r.id+'-'+(index+1):r.id}" data-record-id="${r.id}" data-segment-index="${index}" class="${count>1?'application-segment-row':''}">${keys.map(k=>`<td class="${k==='dept'?'department':''}" title="${esc(row[k])}">${k==='name'?`<button class="btn-text" data-detail="${r.id}">${esc(r.name)}</button>`:k==='status'?`<span class="cell-with-icon">${badge(r.status)}${r.history?.length>1?historyButton(r):''}</span>`:k==='punchStatus'?`<span class="cell-with-icon">${row.punchStatus==='—'?'—':badge(row.punchStatus)+(punchEntries(r,index).length?historyButton(r,true,index):'')}</span>`:esc(row[k])}${k==='start'&&count>1?` <span class="tag" title="本申请第 ${index+1} 段，共 ${count} 段">${index+1}/${count}</span>`:''}</td>`).join('')}<td>${actions(r,row,index)}</td></tr>`).join('')||`<tr><td colspan="${keys.length+1}" class="empty">暂无符合条件的加班申请</td></tr>`;
+ $('#rows').innerHTML=visibleRows.map(({record:r,row,index,count})=>`<tr data-row="${count>1?r.id+'-'+(index+1):r.id}" data-record-id="${r.id}" data-segment-index="${index}" class="${count>1?'application-segment-row':''}">${keys.map(k=>`<td class="${k==='dept'?'department':''}" title="${esc(row[k])}">${k==='name'?`<button class="btn-text" data-detail="${r.id}">${esc(r.name)}</button>`:k==='status'?`<span class="cell-with-icon">${badge(r.status)}${r.history?.length>1?historyButton(r):''}</span>`:k==='punchStatus'?`<span class="cell-with-icon">${row.punchStatus==='—'?'—':badge(row.punchStatus)+(punchEntries(r,index).length?historyButton(r,true,index):'')}</span>`:k==='kind'&&typeof kindWithException==='function'?kindWithException(row,r,index):esc(row[k])}${k==='start'&&count>1?` <span class="tag" title="本申请第 ${index+1} 段，共 ${count} 段">${index+1}/${count}</span>`:''}</td>`).join('')}<td>${actions(r,row,index)}</td></tr>`).join('')||`<tr><td colspan="${keys.length+1}" class="empty">暂无符合条件的加班申请</td></tr>`;
  $('#recordTotal').textContent=isSelf?'我的加班':isTeam?'团队加班':'加班申请';
  if(isMobile)$('#rows').innerHTML=visibleRows.map(({record,row,index,count})=>mobileRecord(record,row,index,count)).join('')||'<tr><td class="empty">暂无符合条件的加班申请</td></tr>';
  $('#count').textContent=`共 ${filteredRows.length} 条加班明细，每页 10 条`;
