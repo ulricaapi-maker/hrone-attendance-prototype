@@ -116,7 +116,7 @@ render=function(){
  $('#planning-tabs').hidden=false;$('#headcount-tab').hidden=source;$('#processing-tabs').hidden=true;$('#source-tools').hidden=true;$('#active-tools').hidden=false;
  $('#headcount-display-tools').hidden=planningTab!=='headcounts';$('#staffing-views').hidden=true;
  $('#pending-switch').hidden=true;$('#batch-migrate-hc').hidden=true;
- if(planningTab==='headcounts')$('#row-count').textContent=`共 ${visibleRows().length} 条编制记录`; 
+ if(planningTab==='headcounts')$('#row-count').textContent=`共 ${visibleRows().length} 条编制记录`;
  $('#final-position-view').classList.toggle('active',$('#group-headcounts').checked);$('#final-list-view').classList.toggle('active',!$('#group-headcounts').checked);
  $('#final-position-view').setAttribute('aria-pressed',String($('#group-headcounts').checked));$('#final-list-view').setAttribute('aria-pressed',String(!$('#group-headcounts').checked));
  for(const id of ['add-position','add-hc']){$('#'+id).hidden=id==='add-position'||source||planningTab!=='headcounts';$('#'+id).disabled=false;}

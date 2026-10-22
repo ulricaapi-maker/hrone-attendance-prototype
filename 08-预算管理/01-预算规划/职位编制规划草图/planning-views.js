@@ -14,7 +14,7 @@ dataValue=function(r,key){
 };
 visibleRows=function(){const rows=beforeViewVisibleRows();return sourceView()||planningTab==='headcounts'?rows:rows.filter(r=>r.person&&!r.deleted);};
 sticky=function(key){
- 
+
  if(key==='check')return 'sticky-check check';
  if(key==='code'&&planningTab==='headcounts')return 'sticky-code';
  if(key==='name'&&planningTab==='people')return 'sticky-name';
@@ -22,7 +22,7 @@ sticky=function(key){
  return '';
 };
 cell=function(r,key){
- 
+
  if(key==='code')return `<button class="text name-link" data-detail="${esc(r.id)}" title="${esc(r.code)}">${esc(r.code)}</button>${r.deleted?'<small class="stopped-chip">已停用</small>':''}`;
  if(key==='name')return r.person?`<button class="text name-link" data-detail="${esc(r.id)}" title="${esc(staff(r)?.name)}">${esc(staff(r)?.name)}</button>`:'<span class="vacant-label">空编</span>';
  if(key==='occupancy')return `<span class="occupancy-chip ${r.deleted?'off':r.person?'occupied':'vacant'}">${dataValue(r,key)}</span>`;
