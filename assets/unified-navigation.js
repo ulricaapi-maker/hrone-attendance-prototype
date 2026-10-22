@@ -26,6 +26,9 @@
       { key: "team-leave", label: "团队休假", href: "03-休假管理/index.html?mode=team" },
       { key: "team-overtime", label: "团队加班", href: "06-HR加班申请/index.html?mode=team" }
     ] },
+    { label: "预算管理", items: [
+      { key: "budget-planning", label: "预算规划", href: "08-预算管理/01-预算规划/index.html" }
+    ] },
     { label: "我的考勤", items: [
       { key: "my-balance", label: "我的假期余额", href: "02-额度管理/index.html?page=my-balance" },
       { key: "my-overtime-pc", label: "我的加班-PC端", href: "06-HR加班申请/index.html?mode=self" },

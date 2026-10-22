@@ -51,7 +51,7 @@
     </section>
   </main>
 </div>
-<script src="../assets/unified-navigation.js"></script>
+<script src="../assets/unified-navigation.js?v=20261022-budget"></script>
 <script>
 const params=new URLSearchParams(window.location.search);const kind=params.get('kind')||'leave';const record={id:params.get('id')||'—',type:params.get('type')||'休假',start:params.get('start')||'—',end:params.get('end')||'—',duration:params.get('duration')||'—',unit:params.get('unit')||'',status:params.get('status')||'审批中',approver:params.get('approver')||'—',created:params.get('created')||'—',reason:params.get('reason')||'—',follow:params.get('follow')||'—',source:params.get('source')||'',archiveMode:params.get('archiveMode')||'none',employee:params.get('employee')||'示例员工',employeeId:params.get('employeeId')||'E10086',initiator:params.get('initiator')||params.get('employee')||'示例员工',entryMode:['team','hr'].includes(params.get('entryMode'))?params.get('entryMode'):'self'};
 const $=id=>document.getElementById(id);const isCancel=kind==='cancel';
