@@ -22,7 +22,7 @@ class OrgPlan {
     const n=nodes.find(x=>x.id===id); return n ? (n.parent?this.path(n.parent,nodes)+' / ':'')+n.name : '—';
   }
   tags(n) {
-    if(n.disabled)return ['拟定停用'];
+    if(n.disabled)return ['停用'];
     const old=this.original(n.id); if(!old)return ['新增'];
     const a=[];if(n.name!==old.name)a.push('名称调整');if(n.parent!==old.parent)a.push('调整上级');
     if(n.owner!==old.owner)a.push('负责人调整');
@@ -35,7 +35,7 @@ class OrgPlan {
     if(n?.disabled)throw Error('请先取消停用，再编辑组织。');
     const name=values.name.trim(),parent=this.get(values.parent);
     if(!name)throw Error('请输入组织名称。');
-    if(!parent||parent.disabled)throw Error('请选择未拟定停用的上级组织。');
+    if(!parent||parent.disabled)throw Error('请选择未停用的上级组织。');
     if(n&&(parent.id===id||this.descendants(id).some(x=>x.id===parent.id)))throw Error('不能将本组织或其下级设为上级组织。');
     if(this.nodes.some(x=>x.id!==id&&x.parent===parent.id&&x.name===name))throw Error('同一上级下已存在同名组织，请修改名称。');
     const orderChanged=values.details&&(!n||n.sortOrder!==values.details.sortOrder);
@@ -48,7 +48,7 @@ class OrgPlan {
     const n=this.get(id),target=this.get(targetId);
     if(!n?.parent)throw Error('本期二级组织保持不变。');
     if(!target)throw Error('请选择目标组织。');
-    if(n.disabled||target.disabled)throw Error('拟定停用的组织不能参与拖动，请先取消停用。');
+    if(n.disabled||target.disabled)throw Error('停用的组织不能参与拖动，请先取消停用。');
     if(id===targetId||this.descendants(id).some(x=>x.id===targetId))throw Error('不能移动到本组织或其下级。');
     const parent=position==='inside'?target.id:target.parent;
     if(!parent)throw Error('不能调整到二级组织之外。');
@@ -64,7 +64,7 @@ class OrgPlan {
   }
   stop(id) {
     const n=this.get(id);if(!n?.parent)throw Error('本期二级组织保持不变。');
-    if(n.disabled)throw Error('该组织已拟定停用。');
+    if(n.disabled)throw Error('该组织已停用。');
     const token='stop-'+id+'-'+Date.now();
     [n,...this.descendants(id)].filter(x=>!x.disabled).forEach(x=>{x.disabled=true;x.stopGroup=token;});
   }

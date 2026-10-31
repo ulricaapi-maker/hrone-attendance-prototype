@@ -6,7 +6,7 @@ let plan=new OrgPlan(saved?.nodes), collapsed=new Set(), previewCollapsed=new Se
 let editId=null,selectedId='a',confirmCallback=null,toastTimer,filterKey=null;
 let persisted=JSON.stringify(plan.nodes);
 const action=(label,op,id)=>`<button class="text" data-op="${op}" data-id="${esc(id)}">${label}</button>`;
-const tagHtml=(n,all=false)=>plan.tags(n).filter(tag=>all||tag!=='顺序调整').map(tag=>`<span class="tag ${tag==='新增'?'tag-new':tag==='拟定停用'?'tag-stopped':'tag-change'}">${tag}</span>`).join('');
+const tagHtml=(n,all=false)=>plan.tags(n).filter(tag=>all||tag!=='顺序调整').map(tag=>`<span class="tag ${tag==='新增'?'tag-new':tag==='停用'?'tag-stopped':'tag-change'}">${tag}</span>`).join('');
 function toast(message){$('#toast').textContent=message;$('#toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').hidden=true,3200);}
 function open(id){closeFilter();const dlg=document.getElementById(id);if(!dlg.open)dlg.showModal();}
 function walk(nodes,callback,parent=null,depth=0){nodes.filter(n=>n.parent===parent).forEach(n=>{if(callback(n,depth)!==false)walk(nodes,callback,n.id,depth+1);});}
@@ -54,10 +54,7 @@ function handleAction(op,id){
  if(op==='toggle'){collapsed.has(id)?collapsed.delete(id):collapsed.add(id);render();}
  if(op==='add')edit(null,id);
  if(op==='edit')edit(id);
- if(op==='stop'){
-  const affected=[n,...plan.descendants(id)].filter(x=>!x.disabled);
-  confirmAction('停用组织',`<p>确认将“${esc(n.name)}”设为拟定停用？</p>${affected.length>1?`<p>以下 ${affected.length} 个组织将一并拟定停用：</p><div class="affected">${affected.map(x=>esc(plan.path(x.id))).join('<br>')}</div>`:''}<p class="muted">如需保留下级组织，请先调整其上级。编制随组织停用；第二步仅需安排人员。本次操作仅影响本次规划。</p>`,'确认停用',()=>{plan.stop(id);render();toast('已设为拟定停用');});
- }
+ if(op==='stop'){plan.stop(id);render();}
  if(op==='restore'){
   try{plan.restore(id);render();toast('已取消停用');}catch(e){toast(e.message);}
  }

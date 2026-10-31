@@ -20,7 +20,7 @@ function renderPlanningResult(){
  const html=rows.map(r=>'<tr>'+cols.map(([key])=>{const value=key==='name'?(staff(r)?.name||''):dataValue(r,key);return `<td><span class="${!r.person&&key==='name'?'vacant-label':''}" title="${esc(value)}">${key==='name'?esc(value):esc(value)||'—'}</span></td>`;}).join('')+'</tr>').join('');
  $('#result-body').innerHTML=html||`<tr><td colspan="${cols.length}" class="empty">当前范围暂无职位与编制配置</td></tr>`;$('#result-total').textContent=`${validPositions.length} 个职位 · ${rows.length} 份编制`;
 }
-previewButton.onclick=()=>{resultOrg=activeOrg(selectedOrg)?selectedOrg:resultRoot();$('#result-children').checked=resultOrg===resultRoot()||$('#include-children').checked;renderPlanningResult();resultDialog.showModal();};
+previewButton.onclick=()=>{resultOrg=resultRoot();$('#result-children').checked=true;renderPlanningResult();resultDialog.showModal();};
 $('#result-org-tree').onclick=e=>{const id=e.target.closest('[data-result-org]')?.dataset.resultOrg;if(id){resultOrg=id;$('#result-children').checked=id===resultRoot();renderPlanningResult();$('.result-scroll').scrollTop=0;$('.result-scroll').scrollLeft=0;}};
 $('#result-children').onchange=renderPlanningResult;
 $('#close-planning-result').onclick=()=>resultDialog.close();
