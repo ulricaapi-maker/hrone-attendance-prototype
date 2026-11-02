@@ -70,35 +70,30 @@ $('#group-headcounts').onchange=()=>{selected.clear();render();};
 let bindingOriginalPerson=null;
 function validBindingHeadcount(r){return !!r&&!r.deleted&&activeOrg(r.org)&&positions.some(p=>p.org===r.org&&p.name===r.job&&!p.disabled);}
 function bindSources(){const target=records.find(r=>r.id===bindingTargetId);return target?records.filter(r=>r.org===target.org&&r.person&&!r.deleted&&!r.plannedExitDate&&r.id!==target.id):[];}
-function fillOriginalBindingTargets(){
- const target=records.find(r=>r.id===bindingTargetId);
- $('#bind-original-target').innerHTML='<option value="">请选择本部门空编</option>'+records.filter(r=>r.org===target?.org&&r.id!==target.id&&r.id!==bindingSourceId&&!r.person&&validBindingHeadcount(r)).map(r=>`<option value="${esc(r.id)}">${esc(r.code)} · ${esc(r.job)}</option>`).join('');
-}
 function openBindPerson(id){
  const target=records.find(r=>r.id===id);
  if(!validBindingHeadcount(target)||target.plannedExitDate){notify('请选择有效编制。');return;}
  $('#bind-assignment-type').value=target.assignmentType||'';$('#bind-assignment-type').removeAttribute('aria-invalid');bindingTargetId=id;bindingSourceId=null;bindingOriginalPerson=target.person||null;$('#bind-person-error').textContent='';
  $('#bind-person-select').innerHTML='<option value="">请选择员工</option>'+bindSources().map(r=>`<option value="${esc(r.id)}">${esc(staff(r)?.name)}（${esc(staff(r)?.no)}）</option>`).join('');
- $('#bind-original-section').hidden=!bindingOriginalPerson;
- $('#bind-original-person').innerHTML=bindingOriginalPerson?info([['原员工',staff(target)?.name],['工号',staff(target)?.no]]):'';
- fillOriginalBindingTargets();open('bind-person-dialog');
+ open('bind-person-dialog');
 }
-$('#bind-person-select').onchange=()=>{bindingSourceId=$('#bind-person-select').value||null;$('#bind-person-error').textContent='';fillOriginalBindingTargets();};
-$('#bind-original-target').onchange=()=>$('#bind-person-error').textContent='';
+$('#bind-person-select').onchange=()=>{bindingSourceId=$('#bind-person-select').value||null;$('#bind-person-error').textContent='';};
 $('#confirm-bind-person').onclick=()=>{
- const target=records.find(r=>r.id===bindingTargetId),source=records.find(r=>r.id===bindingSourceId),originalTarget=records.find(r=>r.id===$('#bind-original-target').value);
+ const target=records.find(r=>r.id===bindingTargetId),source=records.find(r=>r.id===bindingSourceId);
  const fail=message=>{$('#bind-person-error').textContent=message;};
  if(!validBindingHeadcount(target)||(target.person||null)!==bindingOriginalPerson||target.plannedExitDate)return fail('当前编制已发生变化，请重新打开。');
  const assignmentType=$('#bind-assignment-type').value;if(!['主职','长期兼职','短期兼职'].includes(assignmentType)){$('#bind-assignment-type').setAttribute('aria-invalid','true');$('#bind-assignment-type').focus();return fail('请选择编制任职类型。');}
  if(!source?.person||source.deleted||source.plannedExitDate||source.org!==target.org||source.id===target.id)return fail('请选择本部门员工。');
  if(records.filter(r=>r.person===source.person&&!r.deleted).length!==1)return fail('该员工已有重复绑定记录，请先核对。');
- if(bindingOriginalPerson&&(!validBindingHeadcount(originalTarget)||originalTarget.person||originalTarget.org!==target.org||[source.id,target.id].includes(originalTarget.id)))return fail('请选择原员工可绑定的本部门空编。');
  if(bindingOriginalPerson&&records.filter(r=>r.person===bindingOriginalPerson&&!r.deleted).length!==1)return fail('原员工绑定关系已发生变化，请重新打开。');
  // Dates belong to the person: retain them when changing the headcount relation.
  const personDates=r=>Object.fromEntries(['plannedEntryDate','plannedExitDate','actualPerson','planningGrade','assignmentType','plannedTransferDate'].filter(key=>Object.hasOwn(r,key)).map(key=>[key,r[key]]));
  const sourcePerson=source.person,sourceDates=personDates(source),originalDates=personDates(target);
  const clearPerson=r=>{r.person=null;delete r.plannedEntryDate;delete r.plannedExitDate;delete r.bindingTransferId;delete r.actualPerson;delete r.planningGrade;delete r.assignmentType;delete r.plannedTransferDate;};
- if(bindingOriginalPerson){clearPerson(originalTarget);Object.assign(originalTarget,{person:bindingOriginalPerson},originalDates);}
+ if(bindingOriginalPerson){
+  const unbound={id:'unbound-person-'+bindingOriginalPerson,personOnly:true,code:'',person:bindingOriginalPerson,org:target.org,job:target.job,grade:'',...originalDates};
+  const existing=records.findIndex(r=>r.id===unbound.id);if(existing>=0)records[existing]=unbound;else records.push(unbound);
+ }
  clearPerson(target);Object.assign(target,{person:sourcePerson},sourceDates,{assignmentType});clearPerson(source);
  $('#bind-person-dialog').close();selected.clear();render();notify('人员绑定已更新');
 };
