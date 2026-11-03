@@ -59,3 +59,7 @@ body>main.organization-step .workspace>.toolbar,body>main.staffing-step .workspa
 body>main .workspace>.table-scroll>table{border-collapse:separate;border-spacing:0}
 body>main #plan-table th .filter{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:20px;height:20px;padding:0}
 body>main .workspace>.table-scroll>table td,body>main #plan-table td{height:54px}
+
+/* Compact department context; the organization tree needs no repeated heading. */
+body>main.staffing-step .org-panel{padding-top:10px}
+body>main.staffing-step .workspace>.dept-heading{min-height:48px;padding:8px 20px}
