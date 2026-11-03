@@ -3,10 +3,8 @@ let dragging=null,dragGhost=null;
 function clearDrag(){document.querySelectorAll('.drop-before,.drop-after,.drop-inside').forEach(r=>r.classList.remove('drop-before','drop-after','drop-inside'));dragGhost?.remove();dragGhost=null;dragging=null;document.body.classList.remove('dragging');}
 function dropMove(source,target,position){
  try{
-  const n=plan.get(source),oldParent=n.parent,parent=plan.validateMove(source,target,position);
-  const commit=()=>{plan.move(source,target,position);collapsed.delete(parent);render();toast(parent===oldParent?'组织位置已调整':'组织上级已调整');};
-  if(parent!==n.parent){const old=plan.path(n.parent);confirmAction('调整组织上级',`<p>将“${esc(n.name)}”及其下级一起移动？</p><div class="affected">原上级：${esc(old)}<br>目标上级：${esc(plan.path(parent))}</div>`,'确认移动',commit);}
-  else commit();
+  const oldParent=plan.get(source).parent,parent=plan.validateMove(source,target,position);
+  plan.move(source,target,position);collapsed.delete(parent);render();toast(parent===oldParent?'组织位置已调整':'组织上级已调整');
  }catch(e){toast(e.message);}
 }
 $('#org-rows').addEventListener('pointerdown',e=>{
