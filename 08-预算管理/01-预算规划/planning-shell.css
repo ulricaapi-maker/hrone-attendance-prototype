@@ -1,0 +1,61 @@
+/* Shared presentation for the two stages of the same planning workflow. */
+:root{--planning-blue:#0e66fb;--planning-border:#e6e6e8;--planning-text:#333947;--planning-muted:#858b96;--planning-width:1600px}
+html{scrollbar-gutter:stable}
+body{margin:0;background:#fafbfc;color:var(--planning-text);font:14px/1.5 'PingFang SC','Microsoft YaHei',sans-serif}
+body>header{height:58px;padding:0 28px;gap:30px;display:flex;align-items:center;background:#fff;border-bottom:1px solid var(--planning-border)}
+body>header .brand{font-size:22px;font-weight:600;letter-spacing:.5px;color:var(--planning-blue)}
+body>header #reset{margin-left:auto}
+body>nav.steps{display:flex;align-items:center;justify-content:center;gap:24px;padding:14px 24px 10px;margin:0 auto;min-height:54px;max-width:var(--planning-width);font-size:14px}
+body>nav.steps .step{display:flex;align-items:center;gap:10px;color:var(--planning-muted);text-decoration:none;white-space:nowrap}
+body>nav.steps .step b{display:grid;place-items:center;flex:0 0 30px;width:30px;height:30px;border:1px solid #ccced1;border-radius:50%;font-size:14px;font-weight:500;background:transparent;color:inherit}
+body>nav.steps .step.active{color:var(--planning-blue)}
+body>nav.steps .step.active b{background:var(--planning-blue);border-color:var(--planning-blue);color:#fff}
+body>nav.steps .step.completed{color:#777d88}
+body>nav.steps .step.completed b{background:#e7f0ff;border-color:#e7f0ff;color:var(--planning-blue)}
+body>nav.steps .connector{display:block;width:170px;height:1px;background:var(--planning-border)}
+body>.planning-page-heading{display:flex;align-items:center;justify-content:flex-end;max-width:var(--planning-width);min-height:32px;margin:0 auto 12px;padding:0 24px;gap:0}
+body>.planning-page-heading .buttons{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-left:auto}
+body>main{max-width:var(--planning-width);margin:0 auto;padding:0 24px 88px}
+body>main .workspace,body>main .org-panel{background:#fff;border:1px solid var(--planning-border);border-radius:4px;box-shadow:none;min-height:calc(100dvh - 244px)}
+body>main button,body>.planning-page-heading button,body>header button,body>footer button{font-size:14px;height:32px;padding:0 12px;border-radius:4px}
+body>main button.text,body>header button.text{border:0;background:transparent;height:auto;padding:0}
+body>main .workspace>.toolbar{min-height:64px;padding:16px 20px;gap:12px;align-items:center}
+body>main .workspace>.dept-heading{display:flex;align-items:center;flex-wrap:wrap;min-height:64px;padding:16px 20px 12px;gap:12px;border-bottom:0}
+body>main .workspace h1,body>main .workspace #dept-name,body>main .aside-title{font-size:16px;font-weight:600;line-height:24px;letter-spacing:0;margin:0}
+body>main .aside-title{padding:20px 16px}
+body>main .org-item{font-size:14px;min-height:42px;padding-top:10px;padding-bottom:10px}
+body>main .workspace>.toolbar .toolbar-left{display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+body>main .tree-tools{display:flex;align-items:center;gap:16px;border-left:1px solid var(--planning-border);padding-left:24px}
+body>main .tree-tools button{font-size:13px;height:28px;padding:0;border:0;color:#777d88;background:transparent}
+body>main .workspace>.table-scroll>table{font-size:14px}
+body>main .workspace>.table-scroll>table th{font-size:13px;font-weight:400;color:#69717d;background:#f5f6f8;height:44px;padding:11px 16px;border-bottom:1px solid #edf0f3}
+body>main .workspace>.table-scroll>table td{font-size:14px;height:52px;padding:12px 16px;border-bottom:1px solid #edf0f3}
+body>main .workspace>.table-scroll>table .check{padding-left:8px;padding-right:8px}
+body>main .workspace .actions{display:flex;align-items:center;gap:16px}
+body>main .workspace .actions button{font-size:13px;line-height:22px}
+body>main .workspace>.table-scroll>table tbody tr:hover td{background:#f8faff}
+body>main .workspace .planning-tabs{padding:0 20px;gap:24px}
+body>main .workspace .planning-tabs button{font-size:14px;height:42px;border-radius:0}
+body>footer{position:fixed;left:0;right:0;bottom:0;min-height:64px;display:flex;align-items:center;gap:20px;padding:16px max(24px,calc((100vw - 1552px)/2));border-top:1px solid var(--planning-border);background:#fff;z-index:6;font-size:14px}
+body>footer .buttons,body>footer .button-group{display:flex;gap:10px;margin-left:auto}
+body>footer>span{font-size:13px}
+.modal-header{padding:18px 24px;border-bottom:1px solid var(--planning-border)}
+.modal-header h2{font-size:16px;font-weight:600;margin:0}
+.modal-footer{padding:14px 24px;gap:10px;border-top:1px solid var(--planning-border)}
+@media(max-width:1050px){body>main.staffing-step{grid-template-columns:190px minmax(0,1fr);gap:16px}}
+@media(max-width:700px){body>header{padding:0 16px;gap:16px}body>header .brand{font-size:20px}body>header #reset{font-size:12px}body>nav.steps{gap:12px;padding:14px 12px 10px}body>nav.steps .connector{width:40px}body>main,body>.planning-page-heading{padding-left:12px;padding-right:12px}body>main.staffing-step{grid-template-columns:150px minmax(0,1fr);gap:10px}body>main .workspace>.toolbar,body>main .workspace>.dept-heading{padding-left:16px;padding-right:16px}body>footer{padding-left:16px;padding-right:16px}}
+/* Retire page-specific overrides for the shared chrome and table density. */
+body>header.header{padding:0 28px}
+body>footer.page-footer,body>footer{height:64px;min-height:64px;padding:15px max(24px,calc((100vw - 1552px)/2))}
+body>main #plan-table th{font-size:13px;font-weight:400;color:#69717d;background:#f5f6f8;height:44px;padding:11px 16px;line-height:20px}
+body>main #plan-table td{font-size:14px;height:52px;padding:12px 16px;line-height:22px}
+body>main #plan-table th.check,body>main #plan-table td.check{padding-left:8px;padding-right:8px}
+body>main #plan-table .actions button{font-size:13px;line-height:22px}
+body>main .workspace table .filter{width:20px;height:20px;padding:0;border:0;background:transparent}
+body>main .workspace .tree-toggle{width:20px;height:24px;padding:0;border:0;background:transparent}
+body>main .workspace .drag-handle{width:18px;height:24px;padding:0;border:0;background:transparent}
+body>main.organization-step .workspace>.toolbar,body>main.staffing-step .workspace>.dept-heading{min-height:64px;height:auto;padding:16px 20px}
+@media(max-width:700px){body>header.header{padding:0 16px}body>footer.page-footer,body>footer{padding-left:16px;padding-right:16px}}
+body>main .workspace>.table-scroll>table{border-collapse:separate;border-spacing:0}
+body>main #plan-table th .filter{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:20px;height:20px;padding:0}
+body>main .workspace>.table-scroll>table td,body>main #plan-table td{height:54px}

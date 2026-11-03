@@ -115,29 +115,3 @@ dialog button.primary,#manager-add-position,#copy-existing-position{background:#
 
 /* Keep navigation, centered steps and global actions on separate compact rows. */
 .steps{padding:12px 0 8px}.planning-page-heading{min-height:32px;justify-content:flex-end;margin-bottom:10px;gap:0}.planning-page-heading .buttons{margin-left:auto}footer #save[hidden]{display:none}footer{padding-top:10px;padding-bottom:10px}@media(max-width:700px){.planning-page-heading{gap:0;flex-wrap:nowrap}.planning-page-heading .buttons{justify-content:flex-end}.steps{padding:10px 0 8px}}
-
-/* Shared planning shell for both steps. */
-body{background:#FAFBFC;font-size:14px}
-header,.header{height:58px;padding:0 28px;gap:30px}
-.steps{display:flex;align-items:center;justify-content:center;gap:24px;padding:24px 0;margin:0 auto;font-size:14px;min-height:78px}
-.steps .step{display:flex;align-items:center;gap:10px;color:#999ca3;text-decoration:none}
-.steps .step b{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border:1px solid #ccced1;border-radius:50%;font-size:14px;font-weight:500;background:transparent;color:inherit}
-.steps .step.active{color:#0E66FB}
-.steps .step.active b{background:#0E66FB;border-color:#0E66FB;color:#fff}
-.steps .step.completed{color:#777d88}
-.steps .step.completed b{background:#e7f0ff;border-color:#e7f0ff;color:#0E66FB}
-.steps .connector{display:block;width:170px;height:1px;background:#E6E6E8}
-main{max-width:1600px;margin:0 auto;padding:0 24px 90px}
-@media(max-width:700px){header,.header{padding:0 16px;gap:15px}.steps{gap:12px;padding:22px 0}.steps .connector{width:40px}main{padding:0 12px 90px}}
-
-.dept-heading{flex-wrap:wrap;min-height:74px}
-
-html{scrollbar-gutter:stable}
-
-/* Organization-wide actions sit above both the tree and department workspace. */
-.planning-page-heading{max-width:1600px;padding:0 24px;margin:0 auto 10px;min-height:32px;justify-content:flex-end}
-.planning-page-heading .buttons{gap:10px;flex-wrap:wrap;justify-content:flex-end}
-@media(max-width:700px){.planning-page-heading{padding:0 12px}}
-
-/* Compact step spacing; global actions retain their own row. */
-.steps{padding:14px 0 10px;min-height:54px}

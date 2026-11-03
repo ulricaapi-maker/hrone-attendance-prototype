@@ -1,11 +1,12 @@
 <!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>组织调整 · 人力规划</title><link rel="stylesheet" href="style.css?v=20261103-compact-spacing"></head>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>组织调整 · 人力规划</title><link rel="stylesheet" href="style.css?v=20261103-consistent-flow"><link rel="stylesheet" href="../planning-shell.css?v=20261103-consistent-flow2"></head>
 <body>
-<header class="header"><a class="brand" title="返回编制规划列表" aria-label="HRONE，返回编制规划列表" href="../编制规划列表/index.html">HRONE</a><span class="breadcrumb">人力规划 / 二级A组织</span><span class="demo">交互演示</span><button class="text muted" id="reset">恢复示例</button></header>
-<main>
-  <nav class="steps" aria-label="规划步骤"><span class="step active"><b>1</b>组织调整</span><span class="connector"></span><span class="step"><b>2</b>职位与编制规划</span></nav>
+<header class="header"><a class="brand" title="返回编制规划列表" aria-label="HRONE，返回编制规划列表" href="../编制规划列表/index.html">HRONE</a><span class="breadcrumb">人力规划 / 二级A组织</span><button class="text muted" id="reset">恢复示例</button></header>
+<nav class="steps" aria-label="规划步骤"><span class="step active"><b>1</b>组织调整</span><span class="connector"></span><span class="step"><b>2</b>职位与编制规划</span></nav>
+<section class="planning-page-heading" aria-label="全组织规划操作"><div class="buttons"><button id="preview">预览架构</button><button id="import-org">导入</button></div></section>
+<main class="organization-step">
   <section class="workspace" aria-label="组织调整">
-    <div class="toolbar"><div class="toolbar-left"><h1>组织架构</h1><div class="button-group tree-tools"><button id="expand">展开全部</button><button id="collapse">收起全部</button></div></div><div class="button-group"><button id="preview">预览架构</button><button id="import-org">导入</button></div></div>
+    <div class="toolbar"><div class="toolbar-left"><h1>组织架构</h1><div class="button-group tree-tools"><button id="expand">展开全部</button><button id="collapse">收起全部</button></div></div></div>
     <div class="table-scroll"><table><colgroup><col style="width:32%"><col style="width:22%"><col style="width:12%"><col style="width:14%"><col style="width:20%"></colgroup><thead><tr><th><div class="th-content">组织名称<button class="filter" data-filter="name" aria-label="筛选组织名称"></button></div></th><th>上级组织</th><th>组织层级</th><th><div class="th-content">部门负责人<button class="filter" data-filter="owner" aria-label="筛选部门负责人"></button></div></th><th>操作</th></tr></thead><tbody id="org-rows"></tbody></table></div>
     <div id="table-info" class="table-info" hidden></div>
   </section>
