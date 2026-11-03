@@ -28,3 +28,6 @@ main{max-width:1600px;margin:0 auto;padding:0 24px 90px}
 @media(max-width:700px){header,.header{padding:0 16px;gap:15px}.steps{gap:12px;padding:22px 0}.steps .connector{width:40px}main{padding:0 12px 90px}}
 
 html{scrollbar-gutter:stable}
+
+/* Compact step spacing; global actions retain their own row. */
+.steps{padding:14px 0 10px;min-height:54px}
