@@ -130,7 +130,11 @@ header,.header{height:58px;padding:0 28px;gap:30px}
 main{max-width:1600px;margin:0 auto;padding:0 24px 90px}
 @media(max-width:700px){header,.header{padding:0 16px;gap:15px}.steps{gap:12px;padding:22px 0}.steps .connector{width:40px}main{padding:0 12px 90px}}
 
-.dept-heading{flex-wrap:wrap;min-height:74px}.dept-heading #planning-global-actions{margin-left:auto;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.dept-heading{flex-wrap:wrap;min-height:74px}
 
 html{scrollbar-gutter:stable}
- .workspace>.dept-heading>#open-budget-scope{margin-left:0}
+
+/* Organization-wide actions sit above both the tree and department workspace. */
+.planning-page-heading{max-width:1600px;padding:0 24px;margin:0 auto 16px;min-height:32px;justify-content:flex-end}
+.planning-page-heading .buttons{gap:10px;flex-wrap:wrap;justify-content:flex-end}
+@media(max-width:700px){.planning-page-heading{padding:0 12px}}
