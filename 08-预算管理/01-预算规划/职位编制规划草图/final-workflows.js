@@ -21,7 +21,7 @@ function extraFields(kind) {
  }
 }
 extraFields('position');extraFields('hc');
-const hcFieldGrid=$('#hc-form .form-grid');for(const id of ['dept','position','grade','abc','collar','overseas','center','quantity','costClass','place','office','arrival','remark'])hcFieldGrid.appendChild($('#hc-'+id).closest('label'));
+const hcFieldGrid=$('#hc-form .form-grid');for(const id of ['dept','position','grade','abc','collar','overseas','formalFlag','center','quantity','costClass','place','office','arrival','remark'])hcFieldGrid.appendChild($('#hc-'+id).closest('label'));
 $('#hc-dept').closest('label').firstChild.textContent='部门 ';
 $('#hc-remark').outerHTML='<textarea id="hc-remark" maxlength="20000" rows="3"></textarea>';
 for(const key of ['place','office']){const field=$('#hc-'+key),values=[...new Set(['深圳','上海','北京',...records.map(r=>r[key]||r.place).filter(Boolean)])];field.outerHTML='<select id="hc-'+key+'"><option value="">请选择</option>'+values.map(value=>'<option>'+esc(value)+'</option>').join('')+'</select>';}
@@ -68,11 +68,16 @@ function undoAction(id){
 }
 function currentRows(){const scope=scopes();return records.filter(r=>scope.has(r.org));}
 rowScope=currentRows;
+function formalHeadcountLabel(r){
+ const flag=r.formalFlag??baseRecords.find(b=>b.id===r.id)?.formalFlag;
+ return flag===1?'正式编制':flag===0?'浮动编制':'—';
+}
 dataValue=function(r,k){
  if(k==='name')return staff(r)?.name||'';
  if(k==='employeeNo')return staff(r)?.no||'';
  if(k==='personGrade')return staff(r)?.grade||'';
  if(k==='overseas')return r.overseas?'是':'否';
+ if(k==='formalFlag')return formalHeadcountLabel(r);
  if(k==='org')return formatOrg(r.org);
  if(k==='occupancy')return r.person?'在职':'空编';
  if(k==='collar'||k==='costClass')return positions.find(p=>p.org===r.org&&p.name===r.job)?.[k]||'';
@@ -80,7 +85,7 @@ dataValue=function(r,k){
  return String(r[k]??'');
 };
 visibleRows=function(){return currentRows().filter(r=>(planningTab==='headcounts'?activeOrg(r.org):r.person&&!r.deleted)&&Object.entries(filters).every(([k,v])=>dataValue(r,k).toLowerCase().includes(v.toLowerCase())));};
-headcountColumns.splice(0,headcountColumns.length,['check','',36],['code','编制编码',120],['org','编制部门',170],['name','员工',230],['assignmentType','编制任职类型',140],['job','编制职位',240],['grade','编制职级',100],['occupancy','编制在岗状态',130],['abc','编制ABC分类',120],['overseas','是否海外编制',120],['place','编制工作地点',195],['office','编制办公地点',220],['center','一级成本中心',180],['collar','领色',100],['costClass','成本分类',130],['remark','备注',220],['arrival','预计到岗时间',140],['actions','操作',250]);
+headcountColumns.splice(0,headcountColumns.length,['check','',36],['code','编制编码',120],['org','编制部门',170],['name','员工',230],['assignmentType','编制任职类型',140],['job','编制职位',240],['grade','编制职级',100],['occupancy','编制在岗状态',130],['abc','编制ABC分类',120],['overseas','是否海外编制',120],['formalFlag','是否正式编制',120],['place','编制工作地点',195],['office','编制办公地点',220],['center','一级成本中心',180],['collar','领色',100],['costClass','成本分类',130],['remark','备注',220],['arrival','预计到岗时间',140],['actions','操作',250]);
 employeeColumns.find(c=>c[0]==='job')[1]='编制职位';
 function planningChangeBadge(r){
  const position=positions.find(p=>p.org===r.org&&p.name===r.job);let label='',kind='';
@@ -195,6 +200,9 @@ openHC=function(ids=[],copy=null,batchMode=false){
  hcCopying=!!copy;hcBatchEditing=batchMode||ids.length>1;originalOpenHC(ids,copy);
  $('#hc-title').textContent=copy?'复制编制':ids.length>1?'批量编辑编制':ids.length?'编辑编制':'新增编制';
  const rows=ids.map(id=>records.find(r=>r.id===id)),r=copy||rows[0];
+ const showFormal=rows.length===1&&!hcBatchEditing;
+ $('#hc-formalFlag').closest('label').hidden=!showFormal;
+ $('#hc-formalFlag').value=showFormal?formalHeadcountLabel(r):'';
  $('#hc-dept').disabled=!!rows.length;$('#hc-position').disabled=!!rows.length;$('#hc-dept').closest('label').hidden=hcBatchEditing;$('#hc-position').closest('label').hidden=hcBatchEditing;$('#hc-add-position').hidden=true;
  for(const key of ['collar','costClass'])$('#hc-'+key).closest('label').hidden=hcBatchEditing;
  if(rows.length===1){$('#hc-dept').innerHTML=orgOptions()+(!activeOrg(r.org)?`<option value="${esc(r.org)}">${esc(formatOrg(r.org))}（停用）</option>`:'');$('#hc-dept').value=r.org;fillPositions(r.org,'#hc-position',r.job);}
