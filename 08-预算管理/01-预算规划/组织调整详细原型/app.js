@@ -60,6 +60,11 @@ function handleAction(op,id){
  }
  if(op==='remove'){
   if(plan.descendants(id).length){confirmAction('无法取消新增','<p>该组织下还有下级组织，请先调整下级归属或取消下级新增。</p>','知道了',()=>{});return;}
+  let staffing;
+  try{staffing=JSON.parse(localStorage.getItem('hrone-staffing-sketch-v1'));}catch{toast('无法读取人员编制草稿，请重新保存后再试。');return;}
+  const related=(staffing?.records||[]).filter(row=>row.org===id);
+  if(related.some(row=>row.person)){toast('该组织下还有人员，请先调整人员去向，再撤销新增。');return;}
+  if(related.some(row=>!row.personOnly&&!row.deleted)){toast('该组织下还有有效编制，请先停用编制，再撤销新增。');return;}
   confirmAction('取消新增',`<p>确认取消新增“${esc(n.name)}”？</p><p class="muted">该组织将从本次规划中移除。</p>`,'确认取消新增',()=>{plan.removeNew(id);render();toast('已取消新增');});
  }
 }

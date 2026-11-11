@@ -148,7 +148,8 @@ function handlePositionAction(d){
  }
  if(d.cancelPosition){
   if(originalPositionIds.has(id))return true;
-  if(records.some(r=>r.org===p.org&&r.job===p.name)){notify('该职位仍有关联编制，请先迁移或取消相关新增编制。');return true;}
+  if(records.some(r=>r.org===p.org&&r.job===p.name&&r.person)){notify('该职位下还有人员，请先调整人员去向，再撤销新增。');return true;}
+  if(records.some(r=>r.org===p.org&&r.job===p.name&&!r.personOnly&&!r.deleted)){notify('该职位下还有有效编制，请先迁移或停用编制。');return true;}
   confirm('取消新增职位',`<p>确认取消新增“${esc(p.name)}”？</p>`,()=>{positions=positions.filter(p=>p.id!==id);render();if($('#position-list').open)renderPositions();notify('已取消新增职位');});
  }
  return true;

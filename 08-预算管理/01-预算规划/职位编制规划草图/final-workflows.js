@@ -93,6 +93,30 @@ function planningChangeBadge(r){
  else {const base=baseRecords.find(b=>b.id===r.id);if(!base){label='新增';kind='added';}else{const first=adjustmentHistory.flatMap(t=>t.records).find(c=>c.id===r.id&&c.before)?.before,normalize=(key,v)=>key==='arrival'&&typeof v==='string'&&v.endsWith('月')?'2027-'+v.slice(0,-1).padStart(2,'0')+'-01':v;const keys=['org','job','grade','overseas','place','arrival','abc','center','office','remark'];if(keys.some(key=>{const source=base[key]!==undefined?base:first;return source?.[key]!==undefined&&normalize(key,r[key])!==normalize(key,source[key]);})){label='调整';kind='changed';}}}
  return label?`<small class="planning-change-tag ${kind}">${label}</small>`:'';
 }
+const bindingLockMessage='请先撤回该员工的人员调整，再变更编制绑定。';
+function bindingLocked(row){
+ return !!row&&bindingTransfers.some(t=>!t.revoked&&t.targetId===row.id&&t.person===row.person);
+}
+function transferStoppedHeadcount(row){
+ return !!row?.transferStopDate&&bindingTransfers.some(t=>!t.revoked&&t.sourceId===row.id);
+}
+function unbindHeadcount(id){
+ const row=records.find(r=>r.id===id);
+ if(bindingLocked(row)){notify(bindingLockMessage);return;}
+ if(!validBindingHeadcount(row)||!row.person||row.plannedExitDate)return;
+ const before=snapshot();
+ const person={id:'unbound-person-'+row.person,personOnly:true,code:'',person:row.person,org:row.org,job:row.job,grade:''};
+ for(const key of ['plannedEntryDate','actualPerson','planningGrade','assignmentType','plannedTransferDate']){
+  if(Object.hasOwn(row,key)){person[key]=row[key];delete row[key];}
+ }
+ row.person=null;
+ delete row.bindingTransferId;
+ records.push(person);
+ recordAction('解绑人员',before);
+ selected.clear();
+ render();
+ notify('人员已解绑，编制已转为空编。');
+}
 function latestActionFor(r){return adjustmentHistory.slice().reverse().find(t=>!t.revoked&&t.label.includes('人员调整')&&t.records.some(c=>c.after?.person===r.person&&c.id===r.id));}
 cell=function(r,key){
  const value=dataValue(r,key);
@@ -106,9 +130,12 @@ cell=function(r,key){
    return `<div class="actions"><button class="text" data-adjust="${r.id}">人员调整</button>${action?`<button class="text" data-undo-action="${action.id}">取消调整</button>`:''}</div>`;
   }
   if(!activeOrg(r.org))return '';
-  if(r.deleted)return `<button class="text" data-final-restore="${r.id}">撤回停用</button>`;
+  if(r.deleted)return transferStoppedHeadcount(r)?'':`<button class="text" data-final-restore="${r.id}">撤回停用</button>`;
   const limited=sourceView();
-  return `<div class="actions">${!limited&&positions.some(p=>p.org===r.org&&p.name===r.job&&!p.disabled)?`<button class="text" data-bind-person="${r.id}">绑定人员</button>`:''}${!limited||!r.person?`<button class="text" data-edit="${r.id}">编辑</button>`:''}${!limited?`<button class="text" data-copy="${r.id}">复制</button>`:''}${!r.person?`<button class="text" data-stop-hc="${r.id}">停用</button>`:''}</div>`||'—';
+  const lifecycleAction=original(r)
+   ? (!r.person?`<button class="text" data-stop-hc="${r.id}">停用</button>`:'')
+   : `<button class="text" data-cancel-hc="${r.id}">取消新增</button>`;
+  return `<div class="actions">${!limited&&positions.some(p=>p.org===r.org&&p.name===r.job&&!p.disabled)?`<button class="text" data-${r.person?'unbind':'bind'}-person="${r.id}">${r.person?'解绑':'绑定'}</button>`:''}${!limited||!r.person?`<button class="text" data-edit="${r.id}">编辑</button>`:''}${!limited?`<button class="text" data-copy="${r.id}">复制</button>`:''}${lifecycleAction}</div>`||'—';
  }
  return `<span class="cell-text" title="${esc(value)}">${esc(value)||'—'}</span>`;
 };
@@ -129,7 +156,7 @@ render=function(){
  $('#positions').hidden=source||planningTab!=='headcounts';
  $('#arrange').hidden=planningTab!=='people';$('#arrange').disabled=!items.length;
  $('#edit-hc').hidden=planningTab!=='headcounts';$('#edit-hc').disabled=!items.length||items.some(r=>!activeOrg(r.org));
- $('#batch-vacancy-tools').hidden=planningTab!=='headcounts';$('#batch-stop-hc').hidden=planningTab!=='headcounts';$('#batch-stop-hc').disabled=!items.length||items.some(r=>r.person||!activeOrg(r.org));
+ $('#batch-vacancy-tools').hidden=planningTab!=='headcounts';$('#batch-stop-hc').hidden=planningTab!=='headcounts';$('#batch-stop-hc').disabled=!items.length||items.some(r=>r.person||!original(r)||!activeOrg(r.org));
  $('.toolbar').hidden=false;
  const actual=currentRows().filter(r=>!r.deleted&&activeOrg(r.org));
  $('#occupancy-summary').textContent=`在职 ${actual.filter(r=>r.person).length} · 空编 ${actual.filter(r=>!r.person).length}`;
@@ -147,6 +174,7 @@ positionActions=function(p){if(!activeOrg(p.org))return '';if(p.disabled)return 
 stopHeadcounts=function(ids){
  const items=ids.map(id=>records.find(r=>r.id===id));
  if(!items.length||items.some(r=>!r||r.deleted||r.person)){notify('请选择有效空编；在职编制需先调整人员。');return;}
+ if(items.some(r=>!original(r))){notify('新增编制请使用「取消新增」。');return;}
  const before=snapshot();items.forEach(r=>{r.deleted=true;selected.delete(r.id);});recordAction('减编',before);render();
 };
 const oldPositionAction=handlePositionAction;
@@ -160,12 +188,14 @@ $('#table-body').onclick=e=>{
  const b=e.target.closest('button');if(!b)return;const d=b.dataset;
  if(handlePositionAction(d))return;
  if(d.bindPerson){openBindPerson(d.bindPerson);return;}
+ if(d.unbindPerson){unbindHeadcount(d.unbindPerson);return;}
  if(d.undoAction){undoAction(d.undoAction);return;}
- if(d.finalRestore){const r=records.find(r=>r.id===d.finalRestore),p=positions.find(p=>p.org===r.org&&p.name===r.job);if(!activeOrg(r.org)||p?.disabled){notify('请先恢复所属部门和职位，再取消编制停用。');return;}const before=snapshot();r.deleted=false;recordAction('取消编制停用',before);render();return;}
+ if(d.finalRestore){const r=records.find(r=>r.id===d.finalRestore);if(transferStoppedHeadcount(r)){notify('请先撤回对应的人员调整。');return;}const p=positions.find(p=>p.org===r.org&&p.name===r.job);if(!activeOrg(r.org)||p?.disabled){notify('请先恢复所属部门和职位，再取消编制停用。');return;}const before=snapshot();r.deleted=false;recordAction('取消编制停用',before);render();return;}
  if(d.detail)showDetail(d.detail);
  if(d.adjust)openArrange([d.adjust]);
  if(d.edit)openHC([d.edit]);
  if(d.copy)openHC([],records.find(r=>r.id===d.copy));
+ if(d.cancelHc){cancelHeadcount(d.cancelHc);return;}
  if(d.stopHc)stopHeadcounts([d.stopHc]);
 };
 const positionListFields=[['name','名称'],['org','部门'],['sequence','职序'],['family','职族'],['category','职类'],['min','最低职级'],['max','最高职级'],['costClass','成本分类'],['collar','领色'],['code','编码']];
@@ -275,9 +305,17 @@ $('#position-form').onsubmit=e=>{
 const openArrangeBeforeFinal=openArrange;
 openArrange=function(ids){const chosen=(ids?.length?ids:[...selected]).filter(id=>records.find(r=>r.id===id)?.person);openArrangeBeforeFinal(chosen);$('#arrange-title').textContent=chosen.length>1?'批量人员调整':'人员调整';$('#apply-arrange').textContent='确认调整';$('#planned-transfer-field').hidden=false;$('#planned-transfer-date').value=chosen.length===1?records.find(r=>r.id===chosen[0])?.plannedTransferDate||'':'';$('#planned-transfer-date').removeAttribute('aria-invalid');};
 const renderMappingsBeforeFinal=renderMappings;
-renderMappings=function(){renderMappingsBeforeFinal();$('#binding-impact').textContent='员工改占目标空编制，原编制留在原部门并释放为空编制。';if(!$('#arrange-new-position')){const b=document.createElement('button');b.id='arrange-new-position';b.className='text';b.type='button';b.textContent='新增目标职位';b.onclick=()=>{const org=$('#arrange-dept').value;if(!activeOrg(org)){notify('请先选择目标部门');return;}openPosition(org,'arrange');};$('#transfer-note').before(b);}$('#arrange-new-position').hidden=bindingMode==='target';};
+renderMappings=function(){renderMappingsBeforeFinal();$('#binding-impact').textContent='员工使用目标编制后，原编制自计划调动月份起自动停用。';if(!$('#arrange-new-position')){const b=document.createElement('button');b.id='arrange-new-position';b.className='text';b.type='button';b.textContent='新增目标职位';b.onclick=()=>{const org=$('#arrange-dept').value;if(!activeOrg(org)){notify('请先选择目标部门');return;}openPosition(org,'arrange');};$('#transfer-note').before(b);}$('#arrange-new-position').hidden=bindingMode==='target';};
 const applyArrangeBeforeFinal=$('#apply-arrange').onclick;
-$('#apply-arrange').onclick=()=>{const personIds=transferRows.map(r=>r.person).filter(Boolean),date=$('#planned-transfer-date').value;if(!date||!Number.isFinite(Date.parse(date))){$('#arrange-error').textContent='请填写计划调动日期。';$('#planned-transfer-date').setAttribute('aria-invalid','true');$('#planned-transfer-date').focus();return;}const before=snapshot();applyArrangeBeforeFinal();if(!$('#arrange-dialog').open){for(const personId of personIds){const moved=records.find(r=>r.person===personId);if(moved)moved.plannedTransferDate=date;}positions.filter(p=>!before.positions.some(old=>old.id===p.id)).forEach(p=>{const source=before.positions.find(old=>old.name===p.name&&old.min===p.min&&old.max===p.max);if(source){const identity={id:p.id,org:p.org,name:p.name};Object.assign(p,clone(source),identity,{code:'PLPOS'+Date.now().toString().slice(-8)});}});recordAction('人员调整',before);render();notify(bindingMode==='target'?'人员调整完成，原编制已释放为空编制':'人员与原编制已一起调整');}};
+$('#apply-arrange').onclick=()=>{const personIds=transferRows.map(r=>r.person).filter(Boolean),date=$('#planned-transfer-date').value;if(!date||!Number.isFinite(Date.parse(date))){$('#arrange-error').textContent='请填写计划调动日期。';$('#planned-transfer-date').setAttribute('aria-invalid','true');$('#planned-transfer-date').focus();return;}const before=snapshot();applyArrangeBeforeFinal();if(!$('#arrange-dialog').open){
+ for(const transfer of bindingTransfers.filter(t=>!before.bindings.some(old=>old.id===t.id))){
+  const source=records.find(r=>r.id===transfer.sourceId);
+  if(!source||source.personOnly)continue;
+  source.deleted=true;
+  source.transferStopDate=date;
+  transfer.sourceAfter=bindingSignature(source);
+ }
+ for(const personId of personIds){const moved=records.find(r=>r.person===personId);if(moved)moved.plannedTransferDate=date;}positions.filter(p=>!before.positions.some(old=>old.id===p.id)).forEach(p=>{const source=before.positions.find(old=>old.name===p.name&&old.min===p.min&&old.max===p.max);if(source){const identity={id:p.id,org:p.org,name:p.name};Object.assign(p,clone(source),identity,{code:'PLPOS'+Date.now().toString().slice(-8)});}});recordAction('人员调整',before);render();notify(bindingMode==='target'?'人员调整已保存':'人员与原编制已一起调整');}};
 function showHistoryValue(r){return r?`${formatOrg(r.org)} / ${r.job} / ${r.grade}${r.deleted?'（停用）':''}${r.person?' · '+(STAFF_DEMO.find(p=>p.id===r.person)?.name||''):''}`:'—';}
 function historyField(value){return value===true?'是':value===false?'否':value??'—';}
 function renderHistory(){
@@ -377,7 +415,7 @@ const confirmBindBeforeFinal=$('#confirm-bind-person').onclick;
 $('#confirm-bind-person').onclick=()=>{
  const before=snapshot(),wasOpen=$('#bind-person-dialog').open;
  confirmBindBeforeFinal();
- if(wasOpen&&!$('#bind-person-dialog').open)recordAction('人员调整（绑定人员）',before);
+ if(wasOpen&&!$('#bind-person-dialog').open)recordAction('绑定人员',before);
 };
 
 for(const kind of ['hc','position']){const error=$('#'+kind+'-error'),footer=$('#'+kind+'-form .modal-footer');footer.prepend(error);$('#'+kind+'-form').addEventListener('input',e=>{if(e.target.matches('[aria-invalid]'))e.target.removeAttribute('aria-invalid');error.textContent='';});}
@@ -388,3 +426,9 @@ $('#edit-hc').onclick=()=>{const ids=[...selected].filter(id=>{const r=records.f
 if(sourceView())planningTab='people';
 
 $('#planned-transfer-date').oninput=()=>{$('#planned-transfer-date').removeAttribute('aria-invalid');$('#arrange-error').textContent='';};
+
+for(const link of document.querySelectorAll('header .brand, .steps a.step')){
+ link.addEventListener('click',event=>{
+  if(!saveDraft())event.preventDefault();
+ });
+}
