@@ -27,7 +27,8 @@
       { key: "team-overtime", label: "团队加班", href: "06-HR加班申请/index.html?mode=team" }
     ] },
     { label: "预算管理", items: [
-      { key: "budget-planning", label: "预算规划", href: "08-预算管理/01-预算规划/index.html" }
+      { key: "budget-planning", label: "预算规划", href: "08-预算管理/01-预算规划/index.html" },
+      { key: "budget-city-salary", label: "城市折算规则", href: "08-预算管理/02-城市折算规则/index.html" }
     ] },
     { label: "我的考勤", items: [
       { key: "my-balance", label: "我的假期余额", href: "02-额度管理/index.html?page=my-balance" },

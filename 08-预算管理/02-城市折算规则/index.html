@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>城市折算规则</title>
+  <link rel="stylesheet" href="https://unpkg.com/ant-design-vue@4.2.6/dist/reset.css" />
+  <script src="https://unpkg.com/vue@3.5.13/dist/vue.global.prod.js"></script>
+  <script src="https://unpkg.com/dayjs@1.11.13/dayjs.min.js"></script>
+  <script src="https://unpkg.com/dayjs@1.11.13/locale/zh-cn.js"></script>
+  <!-- 原型说明: antd 的 UMD 包在全局分支下依赖下列 dayjs 插件全局变量，缺失会导致 antd is not defined；顺序不可调整 -->
+  <script src="https://unpkg.com/dayjs@1.11.13/plugin/advancedFormat.js"></script>
+  <script src="https://unpkg.com/dayjs@1.11.13/plugin/customParseFormat.js"></script>
+  <script src="https://unpkg.com/dayjs@1.11.13/plugin/localeData.js"></script>
+  <script src="https://unpkg.com/dayjs@1.11.13/plugin/quarterOfYear.js"></script>
+  <script src="https://unpkg.com/dayjs@1.11.13/plugin/weekOfYear.js"></script>
+  <script src="https://unpkg.com/dayjs@1.11.13/plugin/weekYear.js"></script>
+  <script src="https://unpkg.com/dayjs@1.11.13/plugin/weekday.js"></script>
+  <script src="https://unpkg.com/ant-design-vue@4.2.6/dist/antd.min.js"></script>
+  <style>
+    /* ===== 系统风格基线令牌（来源：baseline/系统风格基线.md，原始出处 hrms-hc-web/src/docs/系统风格基线.md） ===== */
+    :root {
+      --primary: #0E66FB;
+      --primary-hover: #036dde;
+      --primary-bg: #EEF2FF;
+      --success: #00b259;
+      --success-bg: #e0f7ea;
+      --warning: #FAAD14;
+      --error: #FF4D4F;
+      --error-bg: #fff0f0;
+      --bg-light: #f5f7fd;
+      --secondary: #2f3640;
+      --text: #333;
+      --text-title: rgba(0, 0, 0, 0.84);
+      --text-2: #666;
+      --text-3: #888;
+      --border: #eee;
+      --summary-bg: #FFF8E8;
+      --tabs-bg: #f9fafc;
+      --font-size-base: 12px;
+      --height-base: 30px;
+      --radius: 8px;
+      --header: 52px;
+      --side: 220px;
+      --side-collapsed: 80px;
+      --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      --box-shadow: 0 0 6px rgba(0, 0, 0, 0.07);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; height: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--text); background: var(--bg-light);
+      font-size: var(--font-size-base); line-height: 27px;
+    }
+    #app { height: 100%; }
+
+    /* ===== 全局控件尺寸对齐系统（global.less） =====
+       原型说明: 系统靠 line-height 让文字居中；这里统一改成 inline-flex + align-items:center，
+       同时覆盖 antd 默认的 padding: 4px 15px / 4px 11px，
+       否则中文/多语言字号变化时文字会偏下，出现「文字掉到下沿」的问题。 */
+    .ant-btn {
+      height: var(--height-base); line-height: 1; font-size: 12px;
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 0 10px;
+    }
+    .ant-btn-sm { height: 24px; padding: 0 7px; }
+    .ant-btn.ant-btn-link, .ant-btn.ant-btn-icon-only { padding: 0; }
+    .ant-btn > span { display: inline-flex; align-items: center; }
+    .ant-btn > svg + span, .ant-btn > span + svg, .ant-btn > .anticon + span { margin-inline-start: 4px; }
+    /* 原型说明: 内联 SVG 替代 @ant-design/icons-vue（UMD 包不导出图标），需要手动继承当前文字颜色 */
+    .ant-btn > svg, .table-icon-btn > svg, .search-config svg, .search-card-title svg { fill: currentColor; }
+
+    /* 输入类控件：flex 居中 + 去掉 antd 默认的上下内边距 */
+    .ant-input:not(textarea), .ant-input-affix-wrapper, .ant-input-number, .ant-picker {
+      height: var(--height-base); display: inline-flex; align-items: center; padding: 0 11px; line-height: 1;
+    }
+    .ant-input-affix-wrapper > input.ant-input { height: auto; padding: 0; line-height: 1; }
+    .ant-input-affix-wrapper .ant-input-prefix,
+    .ant-input-affix-wrapper .ant-input-suffix { display: inline-flex; align-items: center; }
+    .ant-select-single .ant-select-selector {
+      height: var(--height-base) !important; display: flex; align-items: center; padding: 0 11px;
+    }
+    .ant-select-single .ant-select-selector .ant-select-selection-item,
+    .ant-select-single .ant-select-selector .ant-select-selection-placeholder {
+      line-height: 1; display: flex; align-items: center; overflow: hidden;
+    }
+    .ant-form-item-label > label { font-size: 12px; }
+    .ant-form .ant-form-item { margin-bottom: 19px; }
+    .ant-typography, .ant-col { font-size: 12px; }
+    .ant-modal-title { font-size: 14px; }
+    .ant-picker { width: 100%; }
+
+    /* ===== 顶栏 52px ===== */
+    .layout-header, .header {
+      height: var(--header); background: #fff; padding: 0 15px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-left, .header-right { display: flex; align-items: center; flex-shrink: 0; }
+    .layout-logo { display: flex; align-items: center; height: 24px; margin-right: 20px; padding-left: 12px; }
+    .layout-logo .logo-text { font-size: 18px; font-weight: 700; line-height: 24px; color: var(--primary); letter-spacing: 0.5px; }
+    .header-icon-btn {
+      width: 32px; height: 32px; border: 0 none; border-radius: 50%;
+      background: transparent; color: var(--text-3); cursor: pointer; font-size: 14px; line-height: 30px;
+    }
+    .header-icon-btn:hover { background: #f2f3f5; color: var(--primary); }
+    .header-all-menu {
+      height: 30px; margin-left: 10px; padding: 0 10px; font-size: 12px; cursor: pointer;
+      border: 1px solid #e5e5e5; border-radius: 6px; background: #fff; color: var(--text);
+    }
+    /* 打开态：手动加 .is-open，或用 a-dropdown 包裹后由 antd 自动加 .ant-dropdown-open */
+    .header-all-menu.is-open, .header-all-menu.ant-dropdown-open { color: var(--primary); border-color: #C7D7FE; background: #F0F5FF; }
+    .header-history { flex: 1; min-width: 0; display: flex; align-items: center; overflow: hidden; margin: 0 15px; }
+    .history-tag { height: 52px; line-height: 52px; padding: 0 12px; font-size: 12px; white-space: nowrap; cursor: pointer; }
+    .history-tag:hover { background: #F0F5FF; }
+    .history-tag.is-active { background: var(--primary); color: #fff; }
+    .layout-shortcuts-select { width: 200px; margin-right: 15px; }
+    /* 收起态宽 28px（layout.less） */
+    .layout-shortcuts-select.is-collapsed { width: 28px; }
+    .layout-shortcuts-select .ant-select-selector { border-radius: 16px !important; box-shadow: var(--box-shadow); }
+    /* 待办 / 通知徽标底色（layout.less #F74C4C） */
+    .layout-header .ant-badge-count { background: #F74C4C; box-shadow: none; }
+    .header-user { display: flex; align-items: center; margin-left: 15px; font-size: 12px; cursor: pointer; }
+    .header-user .ant-avatar { margin-right: 6px; }
+
+    /* ===== 左菜单 220px / 折叠 80px ===== */
+    .layout-content { display: flex; height: calc(100vh - var(--header)); }
+    .layout-left {
+      width: var(--side); flex-shrink: 0; background: #fff;
+      display: flex; flex-direction: column; transition: width 0.2s ease;
+      border-right: 1px solid #f6f6f6;
+    }
+    .layout-left.is-collapsed { width: var(--side-collapsed); }
+    .layout-menu { flex: 1; min-height: 0; overflow-y: auto; padding: 6px 8px; }
+    .menu-group-title { padding: 8px; font-size: 12px; color: var(--text-3); }
+    .menu-item {
+      display: block; width: 100%; height: 38px; line-height: 38px; padding: 0 12px;
+      border: 0; border-radius: 6px; background: transparent; color: var(--text-2);
+      font-size: 14px; text-align: left; cursor: pointer;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .menu-item:hover, .menu-item.is-active { background: var(--primary-bg); color: var(--primary); }
+    .layout-menu-footer {
+      flex-shrink: 0; padding: 6px 12px; text-align: right;
+      border-top: 1px solid #f6f6f6; background: #fff; color: var(--text-3); cursor: pointer;
+    }
+
+    /* ===== 内容区 ===== */
+    .layout-right {
+      flex: 1; min-width: 0; background: var(--bg-light);
+      padding: 5px 10px 10px; overflow: auto;
+      scrollbar-width: none; -ms-overflow-style: none;
+    }
+    .layout-right::-webkit-scrollbar { display: none; width: 0; height: 0; }
+    .layout-view { border-radius: var(--radius); overflow: hidden; box-shadow: var(--card-shadow); margin-bottom: 10px; }
+    .layout-view-main { flex: 1; }
+    .layout-tabs .ant-tabs-nav { margin-bottom: 0; background: var(--tabs-bg); }
+    .layout-tabs .ant-tabs-nav::before { border-bottom: 0 none !important; }
+    .layout-tabs .ant-tabs-tab {
+      margin-left: 0 !important; border-radius: 0 !important; background-color: transparent !important;
+      border-left: 0 none !important; border-top: 0 none !important; border-right: 0 none !important;
+      border-bottom-width: 2px; border-bottom-color: transparent;
+    }
+    .layout-tabs .ant-tabs-tab-btn { font-size: 12px; }
+    .layout-tabs .ant-tabs-tab-active { background-color: transparent !important; border-bottom-color: var(--primary) !important; }
+    .layout-tab-title { display: inline-flex; align-items: center; max-width: 300px; }
+    .layout-tab-title-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* ===== 列表页结构（table-public.vue） ===== */
+    .card-shadow { border-radius: var(--radius); box-shadow: var(--card-shadow); }
+    .pulic-table-box {
+      max-height: calc(100vh - 116px); overflow: auto;
+      scrollbar-width: none; -ms-overflow-style: none;
+    }
+    .pulic-table-box::-webkit-scrollbar { display: none; width: 0; height: 0; }
+    .pulic-table-search-form { margin-bottom: 10px; }
+    .pulic-table-search-form .ant-card-body { padding-top: 2px !important; }
+    .pulic-table-search-form .ant-card-head { min-height: 40px; padding: 0 12px; }
+    .pulic-table-search-form .ant-card-head-title { font-size: 14px; font-weight: 500; }
+    .search-card-title { display: inline-flex; align-items: center; gap: 5px; }
+    .search-card-title svg { fill: var(--primary); }
+    .table-main { background: #fff; padding: 0; border-radius: var(--radius); overflow: hidden; }
+    .table-toolBox { display: flex; justify-content: space-between; align-items: center; padding: 0 10px; margin: 10px 0; }
+    .table-main .baseTableElement { padding: 0 10px; }
+    .toolBox-left, .toolBox-right { display: flex; align-items: center; }
+    .toolBox-right { gap: 5px; }
+    .table-header-search { width: 140px; }
+    /* 列设置触发图标（column-setting.vue 的 <SettingOutlined />） */
+    .column-setting-trigger { cursor: pointer; color: var(--text-2); display: inline-flex; align-items: center; font-size: 14px; }
+    .column-setting-trigger:hover { color: var(--primary); }
+    .column-setting-trigger > svg, .column-setting-body svg { fill: currentColor; }
+    .column-setting-title { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+    .column-setting-body { max-height: 400px; overflow: auto; }
+    .column-setting-item { display: flex; align-items: center; padding: 4px 16px 8px 0; }
+    .column-setting-item .drag-icon { color: #bfbfbf; margin-right: 6px; cursor: move; }
+    .column-setting-item .drag-icon.is-fixed { cursor: default; }
+
+    /* 查询条件（index.less .my-search-form.vertical）：label 与控件上下结构，一行 4 项、每项 25% */
+    .my-search-form.vertical { text-align: left; padding-top: 2px; }
+    /* 原型说明: 系统用 inline-block + 25% 实现一行 4 项；原型改用 flex 保证 4 项精确占满一行 */
+    .my-search-form.vertical .item-group-down,
+    .my-search-form.vertical .item-group-up { display: flex; flex-wrap: wrap; }
+    .my-search-form.vertical .item-group-down { height: 67px; overflow: hidden; }
+    .my-search-form.vertical .item-group-down .ant-form-item { margin-bottom: 10px; }
+    .my-search-form.vertical .ant-form-item {
+      flex: 0 0 25%; width: 25%; padding: 0 6px; margin-bottom: 2px; vertical-align: top;
+    }
+    .my-search-form.vertical .ant-form-item-label { padding: 0 0 3px; }
+    .my-search-form.vertical .ant-form-item-label > label { height: 22px; line-height: 22px; color: var(--text-2); }
+    /* 查询条件卡片右上角配置区（search-plan-config.vue） */
+    .search-config { display: flex; align-items: center; }
+    .search-config .plan-select { width: 120px; }
+    .search-config .ant-btn { margin-left: 5px; color: var(--text-3); }
+    .search-action { display: flex; justify-content: space-between; align-items: center; margin-top: 5px; padding: 0 6px 6px; }
+    .search-action .action { display: flex; align-items: center; }
+    .search-action .action button { margin-right: 5px; }
+
+    /* ===== 表格（layout.less .ant-table-tbody） ===== */
+    .ant-table-summary,
+    .ant-table-summary .ant-table-cell-fix-right,
+    .ant-table-summary .ant-table-cell-fix-left { background-color: var(--summary-bg) !important; }
+    .ant-table-tbody .ant-table-cell { white-space: pre-line; }
+    .ant-table-tbody .ant-table-cell .ant-tag { margin-right: 0; border-radius: 11px; white-space: pre-wrap; }
+    .ant-table-tbody .ant-table-cell button.ant-btn { padding: 0 !important; height: 26px !important; line-height: 26px !important; }
+    .ant-table-tbody .ant-table-cell.ant-table-cell-fix-right .ant-btn-link { margin-right: 5px; }
+    .table-cell-link { display: inline-block; max-width: 100%; vertical-align: top; color: var(--primary); cursor: pointer; }
+    .table-cell-link:hover { color: var(--primary-hover); }
+    .ellip-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; max-width: 100%; vertical-align: top; }
+
+    /* 表格内 26×26 图标按钮（layout.less） */
+    .table-icon-btn {
+      width: 26px; height: 26px !important; min-width: 26px; padding: 0 !important;
+      border: 0 none; border-radius: 6px; background: var(--bg-light); color: var(--primary);
+      margin-right: 5px; line-height: 26px !important; box-shadow: none;
+    }
+    .table-icon-btn:hover { background: var(--primary-bg); color: var(--primary); }
+    .table-icon-btn.is-danger { background: var(--error-bg); color: var(--error); }
+    .table-icon-btn.is-success { background: var(--success-bg); color: #10b981; }
+    .table-icon-btn.is-more { background: var(--bg-light); color: var(--text-2); }
+    .table-icon-btn[disabled], .table-icon-btn.is-disabled {
+      background: #f1f1f1 !important; color: var(--text-3) !important; border: 0 none;
+    }
+    .table-cell-dropdown .ant-btn { width: 100%; padding: 0 !important; border: 0 none; text-align: left; }
+
+    /* ===== 区块标题 / 弹窗 / 其它系统组件 ===== */
+    .basic-title { font-size: 14px; font-weight: 500; line-height: 26px; color: var(--text-title); }
+    .basic-title::before {
+      content: ''; display: inline-block; vertical-align: middle;
+      margin: -3px 5px 0 0; width: 4px; height: 22px; background: #197aff;
+    }
+    .custom-modal .ant-modal-content { padding: 0; border-radius: var(--radius); overflow: hidden; }
+    .custom-modal .ant-modal-header { padding: 17px 20px; margin-bottom: 0; background: var(--primary-bg); border-radius: 0; }
+    .custom-modal .ant-modal-title { color: var(--primary); font-size: 14px; }
+    .custom-modal .ant-modal-body { padding: 10px 20px; max-height: calc(100vh - 200px); overflow: auto; }
+    .custom-modal .ant-modal-footer { padding: 10px 20px; margin-top: 0; border-top: 1px solid var(--border); }
+    .table-modal .ant-modal-content { width: calc(100vw - 160px); }
+    .ant-modal-confirm .ant-modal-content { padding: 16px 18px; }
+    .ant-modal-confirm .ant-modal-confirm-title,
+    .ant-modal-confirm .ant-modal-confirm-content { font-size: 12px; }
+    .ant-modal-confirm .ant-modal-confirm-btns button { height: var(--height-base) !important; }
+    .ant-radio-group-solid { background: var(--primary-bg); padding: 3px; border-radius: 15px; display: inline-flex; }
+    .ant-radio-group-solid .ant-radio-button-wrapper {
+      height: 24px; line-height: 24px; padding: 0 8px; border: 0 none;
+      border-radius: 12px !important; background: transparent; font-size: 12px;
+    }
+    .ant-radio-group-solid .ant-radio-button-wrapper::before { display: none; }
+    .ant-radio-group-solid .ant-radio-button-wrapper-checked { background: var(--primary); color: #fff; }
+    /* ===== 其它系统组件（layout.less） ===== */
+    /* 提示条：div div.ant-alert */
+    div div.ant-alert { padding: 6px; border-radius: 6px; }
+    div div.ant-alert .ant-alert-message { font-size: 12px; font-weight: bold; }
+    /* 抽屉：宽 36vw（用 :width="'36vw'"），body 底 #fafbfc，遮罩 rgba(0, 8, 25, 0.4) */
+    .ant-drawer .ant-drawer-body { background: #fafbfc; }
+    .ant-drawer-mask { background: rgba(0, 8, 25, 0.4) !important; }
+    /* 步骤条：进行中标题为主色 */
+    .ant-steps .ant-steps-item-process .ant-steps-item-title { color: var(--primary); }
+    .ant-tooltip-inner { white-space: pre-line; }
+
+    .layout-logo { text-decoration:none; }
+    .rule-search { display:flex; flex-wrap:wrap; align-items:end; gap:8px 16px; padding:10px 4px 2px; }
+    .my-search-form.vertical.rule-search .ant-form-item { width:min(100%,220px); margin:0; padding:0; flex:0 1 220px; }
+    .rule-search .query-actions { margin-left:auto; display:flex; gap:8px; }
+    .rule-list { padding:0 12px 6px; }
+    .rule-list-header { display:flex; align-items:center; justify-content:space-between; padding:14px 0; }
+    .rule-list-actions { display:flex; align-items:center; gap:8px; }
+    .country-select { width:100%; }
+    .section-title { color:var(--text-1); font-weight:600; font-size:14px; margin:0; }
+    .section-title::before { content:''; display:inline-block; width:3px; height:12px; border-radius:2px; background:#197aff; margin-right:8px; vertical-align:-1px; }
+    .country-cell { font-weight:600; }
+    .country-code { margin-left:8px; color:#666; font-size:11px; }
+    .coefficient-cell { font-variant-numeric:tabular-nums; }
+    .muted { color:#666; }
+    .overview-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; padding:4px 0 16px; }
+    .field-label { display:block; color:#666; margin-bottom:5px; }
+    .readonly-country { display:flex; align-items:center; height:30px; padding:0 10px; border:1px solid #eee; border-radius:6px; background:#f5f7fd; }
+    .enabled-control { display:flex; align-items:center; gap:8px; min-height:30px; }
+    .modal-section { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+    .tier-label { display:inline-flex; align-items:center; justify-content:center; min-width:46px; padding:3px 6px; color:#174eaa; background:#eef2ff; border-radius:4px; font-weight:600; }
+    .tier-table { width:100%; border:1px solid #eee; border-radius:8px; overflow:hidden; border-spacing:0; table-layout:fixed; }
+    .tier-table th { background:#fafafa; color:#333; font-weight:600; text-align:left; padding:9px 12px; }
+    .tier-table td { border-top:1px solid #eee; padding:10px 12px; vertical-align:top; }
+    .tier-table th:first-child { width:94px; }
+    .tier-table th:nth-child(2) { width:156px; }
+    .tier-table .ant-input-number, .tier-table .ant-select { width:100%; }
+    .tier-table .ant-select-selection-item { max-width:100%; }
+    .rule-modal .ant-modal-body { max-height:calc(100vh - 205px); overflow:auto; padding:1px; }
+    .field-error { color:#c42a32; margin-top:4px; }
+    .form-error { margin-top:12px; }
+    .example { border:1px solid #eee; border-radius:8px; padding:12px; background:#f5f7fd; font-variant-numeric:tabular-nums; }
+    .example strong { color:#0e66fb; }
+    @media (max-width:700px) {
+      .layout-left { display:none; }
+      .header-history { display:none; }
+      .rule-search .query-actions { margin-left:0; }
+      .tier-table td,.tier-table th { padding:7px; }
+      .tier-table th:first-child { width:64px; }
+      .tier-table th:nth-child(2) { width:92px; }
+    }
+  </style>
+</head>
+<body>
+<div id="app"></div>
+
+<!-- 原型说明: 页面模板必须放在 x-template 中。若直接写在 <div id="app"> 里，浏览器会先解析 HTML，
+     自闭合的组件标签（<a-select ... />）会被当成未闭合的开标签，把后面的兄弟节点吞成它的子节点，
+     slot 名也会被小写化（#bodyCell → #bodycell）。x-template 内容是纯文本，可避免这两类问题。 -->
+<script type="text/x-template" id="page-tpl">
+  <a-config-provider :locale="zhCN" :theme="theme">
+    <header class="layout-header header">
+      <div class="header-left">
+        <a class="layout-logo" href="../../index.html" aria-label="原型首页"><span class="logo-text">HRONE</span></a>
+      </div>
+      <div class="header-history"><span class="history-tag is-active">城市折算规则</span></div>
+      <div class="header-right"><span class="muted">预算管理</span></div>
+    </header>
+    <div class="layout-content">
+      <aside class="layout-left">
+        <div class="layout-menu">
+          <div class="menu-group-title">预算管理</div>
+          <div class="menu-item">海外薪酬中位值</div>
+          <div class="menu-item is-active" aria-current="page">城市折算规则</div>
+        </div>
+      </aside>
+      <main class="layout-right">
+        <div class="layout-view">
+          <a-tabs class="layout-tabs" size="small" type="card" active-key="rules">
+            <a-tab-pane key="rules" tab="城市折算规则" />
+          </a-tabs>
+        </div>
+        <div class="layout-view-main pulic-table-box">
+          <a-card class="pulic-table-search-form card-shadow" size="small" :bordered="false">
+            <template #title><span class="search-card-title"><i-filter /> 查询条件</span></template>
+            <a-form class="my-search-form vertical rule-search" layout="vertical" @finish="search">
+              <a-form-item label="国家">
+                <a-select v-model:value="filters.country" :options="countryOptions" option-filter-prop="label"
+                  placeholder="请选择国家" show-search allow-clear />
+              </a-form-item>
+              <a-form-item label="启用状态">
+                <a-select v-model:value="filters.status" :options="statusOptions" placeholder="请选择启用状态" allow-clear />
+              </a-form-item>
+              <div class="query-actions">
+                <a-button @click="reset">重置</a-button>
+                <a-button type="primary" html-type="submit"><template #icon><i-search /></template>查询</a-button>
+              </div>
+            </a-form>
+          </a-card>
+          <section class="table-main card-shadow rule-list">
+            <div class="rule-list-header">
+              <h1 class="section-title">国家折算规则</h1>
+              <div class="rule-list-actions">
+                <a-button type="link" size="small" @click="ruleOpen = true">规则说明</a-button>
+                <a-button type="primary" :disabled="!newCountryOptions.length" @click="openNewRule">
+                  <template #icon><i-plus /></template>新增
+                </a-button>
+              </div>
+            </div>
+            <proto-table :columns="columns" :data-source="visibleCountries" :pagination="pagination"
+              :scroll="{x:750}" row-key="id" @change="pageChanged">
+              <template #bodyCell="{ column, record }">
+                <template v-if="column.key === 'country'">
+                  <span class="country-cell">{{ record.name }}</span><span class="country-code">{{ record.id }}</span>
+                </template>
+                <template v-else-if="column.key === 'status'">
+                  <a-badge :status="record.enabled ? 'success' : 'default'" :text="record.enabled ? '已启用' : '未启用'" />
+                </template>
+                <template v-else-if="tierKeys.includes(column.key)">
+                  <span class="coefficient-cell">{{ formatFactor(record.tiers[column.key].factor) }}</span>
+                </template>
+                <template v-else-if="column.key === 'action'">
+                  <a-tooltip title="配置规则">
+                    <button type="button" class="table-icon-btn" :aria-label="'配置规则 · ' + record.name"
+                      @click="openEditor(record)"><i-edit /></button>
+                  </a-tooltip>
+                </template>
+              </template>
+            </proto-table>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <a-modal v-if="draft" :open="true" class="rule-modal" :title="isAdding ? '新增城市折算规则' : '配置城市折算规则'" :width="800"
+      :mask-closable="false" ok-text="保存" cancel-text="取消" @ok="save" @cancel="draft = null">
+      <div class="overview-row">
+        <div>
+          <span class="field-label" id="country-label"><span v-if="isAdding" class="field-error">*</span> 国家</span>
+          <a-select v-if="isAdding" class="country-select" :value="draft.id" :options="newCountryOptions"
+            aria-labelledby="country-label" placeholder="请选择国家" option-filter-prop="label" show-search
+            :status="submitted && !draft.id ? 'error' : undefined" @change="selectDraftCountry" />
+          <div v-else class="readonly-country">{{ draft.name }}<span class="country-code">{{ draft.id }}</span></div>
+          <div v-if="submitted && !draft.id" class="field-error">请选择国家</div>
+        </div>
+        <div><span class="field-label" id="enabled-label">启用城市折算</span>
+          <div class="enabled-control">
+            <a-switch v-model:checked="draft.enabled" aria-labelledby="enabled-label" />
+            <span>{{ draft.enabled ? '已启用' : '未启用' }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-section">
+        <h2 class="section-title">档位系数与适用城市</h2>
+        <a-button type="link" size="small" @click="ruleOpen = true">规则说明</a-button>
+      </div>
+      <table class="tier-table">
+        <thead><tr><th scope="col">城市档位</th><th scope="col"><span style="color:#c42a32">*</span> 折算系数</th><th scope="col">适用城市</th></tr></thead>
+        <tbody>
+          <tr v-for="tier in tierKeys" :key="tier">
+            <td><span class="tier-label">{{ tier }} 档</span></td>
+            <td>
+              <a-input-number v-model:value="draft.tiers[tier].factor" :step="0.01" placeholder="请输入"
+                :aria-label="tier + '档折算系数'" :disabled="!draft.id" :status="submitted && draft.id && !validFactor(draft.tiers[tier].factor) ? 'error' : undefined" />
+              <div v-if="submitted && draft.id && !validFactor(draft.tiers[tier].factor)" class="field-error">请输入大于 0 的系数</div>
+            </td>
+            <td>
+              <!-- 对应多选下拉 a-select；按当前国家筛选工作城市 -->
+              <a-select v-model:value="draft.tiers[tier].cities" mode="multiple" show-search allow-clear
+                :aria-label="tier + '档适用城市'" :disabled="!draft.id" option-filter-prop="label" :placeholder="draft.id ? '请选择适用城市' : '请先选择国家'"
+                :options="cityOptions(tier)" />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <a-alert v-if="submitted && draft.enabled && missingBudgetCities.length" class="form-error" type="error" show-icon
+        :message="'以下参与测算的城市尚未归类：' + missingBudgetCities.join('、')" />
+    </a-modal>
+
+    <a-drawer v-model:open="ruleOpen" title="城市折算规则说明" :width="360" :z-index="1200">
+      <p>编制工作城市决定城市档位。同一国家的不同职级、职类共用一套城市档位和系数。</p>
+      <p>同一个城市只能归入一档。调整档位时，先从原档移除，再选入目标档。</p>
+      <p>启用城市折算后，参与测算的空编城市需要完成归类。</p>
+      <div class="example">
+        <strong>折算示例</strong>
+        <p style="margin:8px 0 0">某国月薪基准 4,000 欧元，B 档系数为 0.90，该城市月薪标准为 3,600 欧元。</p>
+      </div>
+    </a-drawer>
+  </a-config-provider>
+</script>
+<script>
+  dayjs.locale('zh-cn');
+
+  // 原型说明: antd 的 UMD 包不导出 locales，中文文案在此内联
+  const zhCN = {
+    locale: 'zh-cn',
+    global: { placeholder: '请选择', loading: '加载中', emptyText: '暂无数据' },
+    Pagination: { items_per_page: '条/页', jump_to: '跳至', page: '页', prev_page: '上一页', next_page: '下一页', total: '共 {{total}} 条' },
+    Select: { placeholder: '请选择', notFoundContent: '无数据' },
+    Table: { emptyText: '暂无数据', filterConfirm: '确定', filterReset: '重置', selectAll: '全选' },
+    Modal: { okText: '确定', cancelText: '取消' },
+    Empty: { description: '暂无数据' },
+    Popconfirm: { ok_text: '确定', cancel_text: '取消' },
+    Descriptions: { emptyText: '暂无数据' },
+    Form: { optional: '（可选）', defaultValidateMessages: { required: '请输入${label}' } }
+  };
+
+  // 原型说明: 国家、城市与系数均为演示数据。覆盖校验只检查模拟的参算城市。
+  const tierKeys = ['A', 'B', 'C', 'D'];
+  const cityCatalog = [
+    { id: 'DE', name: '德国', cities: ['柏林', '慕尼黑', '法兰克福', '汉堡', '莱比锡', '德累斯顿', '不来梅'], budgetCities: ['柏林', '慕尼黑', '法兰克福', '汉堡', '莱比锡'] },
+    { id: 'FR', name: '法国', cities: ['巴黎', '里昂', '马赛', '里尔', '南特', '图卢兹'], budgetCities: ['巴黎', '里昂', '马赛', '里尔'] },
+    { id: 'GB', name: '英国', cities: ['伦敦', '曼彻斯特', '伯明翰', '利兹', '布里斯托'], budgetCities: ['伦敦', '曼彻斯特'] },
+    { id: 'ES', name: '西班牙', cities: ['马德里', '巴塞罗那', '瓦伦西亚', '塞维利亚'], budgetCities: ['马德里', '巴塞罗那'] },
+    { id: 'IT', name: '意大利', cities: ['米兰', '罗马', '都灵', '博洛尼亚'], budgetCities: ['米兰', '罗马'] },
+    { id: 'NL', name: '荷兰', cities: ['阿姆斯特丹', '鹿特丹', '海牙', '乌得勒支'], budgetCities: ['阿姆斯特丹', '鹿特丹'] }
+  ];
+  const initialRules = {
+    DE: { enabled: true, tiers: { A: { factor: 1, cities: ['慕尼黑'] }, B: { factor: 0.90, cities: ['柏林', '法兰克福'] }, C: { factor: 0.80, cities: ['汉堡'] }, D: { factor: 0.70, cities: ['莱比锡'] } } },
+    FR: { enabled: true, tiers: { A: { factor: 1, cities: ['巴黎'] }, B: { factor: 0.92, cities: ['里昂'] }, C: { factor: 0.84, cities: ['马赛'] }, D: { factor: 0.76, cities: ['里尔'] } } }
+  };
+  const storageKey = 'hrone-prototype-city-salary-rules-v1';
+  function readRules() {
+    try {
+      return JSON.parse(localStorage.getItem(storageKey)) || initialRules;
+    } catch {
+      return initialRules;
+    }
+  }
+
+  const app = Vue.createApp({
+    template: '#page-tpl',
+    data() {
+      return {
+        zhCN, tierKeys, rules: readRules(), ruleOpen: false,
+        theme: { token: { colorPrimary: '#0E66FB', colorSuccess: '#00b259', fontSize: 12, controlHeight: 30, borderRadius: 6 } },
+        filters: {}, appliedFilters: {}, page: 1, draft: null, isAdding: false, submitted: false,
+        columns: [
+          { title: '国家', key: 'country', width: 150 },
+          { title: '启用状态', key: 'status', width: 120 },
+          ...tierKeys.map(tier => ({ title: tier + ' 档系数', key: tier, align: 'right', width: 104 })),
+          { title: '操作', key: 'action', align: 'center', width: 80 }
+        ],
+        countryOptions: cityCatalog.map(country => ({ label: country.name, value: country.id })),
+        statusOptions: [{ label: '已启用', value: 'enabled' }, { label: '未启用', value: 'disabled' }]
+      };
+    },
+    computed: {
+      visibleCountries() {
+        const { country, status } = this.appliedFilters;
+        return cityCatalog.filter(item => this.rules[item.id])
+          .map(item => ({ ...item, ...this.rules[item.id] }))
+          .filter(item => (!country || item.id === country) &&
+            (!status || item.enabled === (status === 'enabled')));
+      },
+      newCountryOptions() {
+        return this.countryOptions.filter(option => !this.rules[option.value]);
+      },
+      pagination() {
+        return { current: this.page, pageSize: 5, showSizeChanger: false, showTotal: total => '共 ' + total + ' 个国家' };
+      },
+      missingBudgetCities() {
+        const assigned = new Set(Object.values(this.draft.tiers).flatMap(tier => tier.cities));
+        return this.draft.budgetCities.filter(city => !assigned.has(city));
+      }
+    },
+    methods: {
+      search() {
+        this.appliedFilters = { ...this.filters };
+        this.page = 1;
+      },
+      reset() {
+        this.filters = {};
+        this.search();
+      },
+      pageChanged(pagination) {
+        this.page = pagination.current;
+      },
+      formatFactor(factor) {
+        return factor == null ? '--' : factor.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 12 });
+      },
+      validFactor(factor) {
+        return Number.isFinite(factor) && factor > 0;
+      },
+      openNewRule() {
+        this.isAdding = true;
+        this.submitted = false;
+        this.draft = {
+          id: undefined, cities: [], budgetCities: [], enabled: false,
+          tiers: Object.fromEntries(tierKeys.map(tier => [tier, { factor: null, cities: [] }]))
+        };
+      },
+      selectDraftCountry(id) {
+        const country = cityCatalog.find(item => item.id === id);
+        Object.assign(this.draft, country);
+        for (const tier of tierKeys) this.draft.tiers[tier].cities = [];
+      },
+      openEditor(country) {
+        this.isAdding = false;
+        this.submitted = false;
+        this.draft = JSON.parse(JSON.stringify(country));
+      },
+      cityOptions(tier) {
+        const usedElsewhere = new Map();
+        for (const otherTier of tierKeys) {
+          if (otherTier === tier) continue;
+          for (const city of this.draft.tiers[otherTier].cities) usedElsewhere.set(city, otherTier);
+        }
+        return this.draft.cities.map(city => ({
+          value: city,
+          label: usedElsewhere.has(city) ? city + '（已归 ' + usedElsewhere.get(city) + ' 档）' : city,
+          disabled: usedElsewhere.has(city)
+        }));
+      },
+      save() {
+        this.submitted = true;
+        const { id, enabled, tiers } = this.draft;
+        if (!id || tierKeys.some(tier => !this.validFactor(tiers[tier].factor))) return;
+        if (enabled && this.missingBudgetCities.length) return;
+        const updatedRules = { ...this.rules, [id]: { enabled, tiers } };
+        try {
+          localStorage.setItem(storageKey, JSON.stringify(updatedRules));
+        } catch {
+          antd.message.error('浏览器无法保存配置');
+          return;
+        }
+        this.rules = updatedRules;
+        if (this.isAdding) {
+          this.reset();
+          const index = this.visibleCountries.findIndex(country => country.id === id);
+          this.page = Math.floor(index / this.pagination.pageSize) + 1;
+        }
+        this.draft = null;
+        antd.message.success('城市折算规则已保存');
+      }
+    }
+  });
+  const TABLE_SLOTS = ['bodyCell', 'headerCell', 'customFilterDropdown', 'customFilterIcon', 'emptyText', 'expandedRowRender', 'expandedRow', 'summary'];
+  app.component('proto-table', {
+    inheritAttrs: false,
+    setup(_, { attrs, slots }) {
+      const norm = {};
+      Object.keys(slots).forEach(k => { norm[k] = slots[k]; });
+      TABLE_SLOTS.forEach(name => {
+        const lower = name.toLowerCase();
+        if (slots[lower] && !norm[name]) norm[name] = slots[lower];
+      });
+      const Table = antd.Table;
+      return () => Vue.h(Table, Object.assign({ size: 'small' }, attrs), norm);
+    }
+  });
+
+  // 原型说明: @ant-design/icons-vue 没有可用的 UMD 产物（unpkg 上不存在 dist/index.umd.min.js），
+  // 因此图标统一用内联 SVG 实现；path 数据取自 node_modules/@ant-design/icons-svg 与 bootstrap-icons
+  const ICONS = {
+    // @ant-design/icons-svg/es/asn/FilterOutlined.js（查询条件卡片标题左侧漏斗）
+    'i-filter': ['64 64 896 896', '<path d="M880 112H144c-17.7 0-32 14.3-32 32v120.5c0 16.5 7.7 32.2 20.9 42.3L400 507.3V848c0 16.7 8.7 32.2 23 40.7l120 71.4c19.7 11.7 45-2.5 45-25.3V507.3l267.1-200.5c13.2-10.1 20.9-25.8 20.9-42.3V144c0-17.7-14.3-32-32-32z"/>'],
+    // @ant-design/icons-svg/es/asn/SettingOutlined.js
+    'i-setting': ['64 64 896 896', '<path d="M924.8 625.7l-65.5-56c3.1-19 4.7-38.4 4.7-57.8s-1.6-38.8-4.7-57.8l65.5-56a32.03 32.03 0 009.3-35.2l-.9-2.6a443.74 443.74 0 00-79.7-137.9l-1.8-2.1a32.12 32.12 0 00-35.1-9.5l-81.3 28.9c-30-24.6-63.5-44-99.7-57.6l-15.7-85a32.05 32.05 0 00-25.8-25.7l-2.7-.5c-52.1-9.4-106.9-9.4-159 0l-2.7.5a32.05 32.05 0 00-25.8 25.7l-15.8 85.4a351.86 351.86 0 00-99 57.4l-81.9-29.1a32 32 0 00-35.1 9.5l-1.8 2.1a446.02 446.02 0 00-79.7 137.9l-.9 2.6c-4.5 12.5-.8 26.5 9.3 35.2l66.3 56.6c-3.1 18.8-4.6 38-4.6 57.1 0 19.2 1.5 38.4 4.6 57.1L99 625.5a32.03 32.03 0 00-9.3 35.2l.9 2.6c18.1 50.4 44.9 96.9 79.7 137.9l1.8 2.1a32.12 32.12 0 0035.1 9.5l81.9-29.1c29.8 24.5 63.1 43.9 99 57.4l15.8 85.4a32.05 32.05 0 0025.8 25.7l2.7.5a449.4 449.4 0 00159 0l2.7-.5a32.05 32.05 0 0025.8-25.7l15.7-85a350 350 0 0099.7-57.6l81.3 28.9a32 32 0 0035.1-9.5l1.8-2.1c34.8-41.1 61.6-87.5 79.7-137.9l.9-2.6c4.5-12.3.8-26.3-9.3-35zM788.3 465.9c2.5 15.1 3.8 30.6 3.8 46.1s-1.3 31-3.8 46.1l-6.6 40.1 74.7 63.9a370.03 370.03 0 01-42.6 73.6L721 702.8l-31.4 25.8c-23.9 19.6-50.5 35-79.3 45.8l-38.1 14.3-17.9 97a377.5 377.5 0 01-85 0l-17.9-97.2-37.8-14.5c-28.5-10.8-55-26.2-78.7-45.7l-31.4-25.9-93.4 33.2c-17-22.9-31.2-47.6-42.6-73.6l75.5-64.5-6.5-40c-2.4-14.9-3.7-30.3-3.7-45.5 0-15.3 1.2-30.6 3.7-45.5l6.5-40-75.5-64.5c11.3-26.1 25.6-50.7 42.6-73.6l93.4 33.2 31.4-25.9c23.7-19.5 50.2-34.9 78.7-45.7l37.9-14.3 17.9-97.2c28.1-3.2 56.8-3.2 85 0l17.9 97 38.1 14.3c28.7 10.8 55.4 26.2 79.3 45.8l31.4 25.8 92.8-32.9c17 22.9 31.2 47.6 42.6 73.6L781.8 426l6.5 39.9zM512 326c-97.2 0-176 78.8-176 176s78.8 176 176 176 176-78.8 176-176-78.8-176-176-176zm79.2 255.2A111.6 111.6 0 01512 614c-29.9 0-58-11.7-79.2-32.8A111.6 111.6 0 01400 502c0-29.9 11.7-58 32.8-79.2C454 401.6 482.1 390 512 390c29.9 0 58 11.6 79.2 32.8A111.6 111.6 0 01624 502c0 29.9-11.7 58-32.8 79.2z"/>'],
+    // DeleteOutlined
+    'i-delete': ['64 64 896 896', '<path d="M360 184h-8c4.4 0 8-3.6 8-8v8h304v-8c0 4.4 3.6 8 8 8h-8v72h72v-80c0-35.3-28.7-64-64-64H352c-35.3 0-64 28.7-64 64v80h72v-72zm504 72H160c-17.7 0-32 14.3-32 32v32c0 4.4 3.6 8 8 8h60.4l24.7 523c1.6 34.1 29.8 61 63.9 61h454c34.2 0 62.3-26.8 63.9-61l24.7-523H888c4.4 0 8-3.6 8-8v-32c0-17.7-14.3-32-32-32zM731.3 840H292.7l-24.2-512h487l-24.2 512z"/>'],
+    // EyeOutlined
+    'i-eye': ['64 64 896 896', '<path d="M942.2 486.2C847.4 286.5 704.1 186 512 186c-192.2 0-335.4 100.5-430.2 300.3a60.3 60.3 0 000 51.5C176.6 737.5 319.9 838 512 838c192.2 0 335.4-100.5 430.2-300.3 7.7-16.2 7.7-35 0-51.5zM512 766c-161.3 0-279.4-81.8-362.7-254C232.6 339.8 350.7 258 512 258c161.3 0 279.4 81.8 362.7 254C791.5 684.2 673.4 766 512 766zm-4-430c-97.2 0-176 78.8-176 176s78.8 176 176 176 176-78.8 176-176-78.8-176-176-176zm0 288c-61.9 0-112-50.1-112-112s50.1-112 112-112 112 50.1 112 112-50.1 112-112 112z"/>'],
+    // EditOutlined（操作列平铺位：编辑）
+    'i-edit': ['64 64 896 896', '<path d="M257.7 752c2 0 4-.2 6-.5L431.9 722c2-.4 3.9-1.3 5.3-2.8l423.9-423.9a9.96 9.96 0 000-14.1L694.9 114.9c-1.9-1.9-4.4-2.9-7.1-2.9s-5.2 1-7.1 2.9L256.8 538.8c-1.5 1.5-2.4 3.3-2.8 5.3l-29.5 168.2a33.5 33.5 0 009.4 29.8c6.6 6.4 14.9 9.9 23.8 9.9zm67.4-174.4L687.8 215l73.3 73.3-362.7 362.6-88.9 15.7 15.6-89zM880 836H144c-17.7 0-32 14.3-32 32v36c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-36c0-17.7-14.3-32-32-32z"/>'],
+    // EllipsisOutlined（操作列「更多」下拉触发图标）
+    'i-ellipsis': ['64 64 896 896', '<path d="M176 511a56 56 0 10112 0 56 56 0 10-112 0zm280 0a56 56 0 10112 0 56 56 0 10-112 0zm280 0a56 56 0 10112 0 56 56 0 10-112 0z"/>'],
+    // DragOutlined（列设置排序）
+    'i-drag': ['64 64 896 896', '<path d="M909.3 506.3L781.7 405.6a7.23 7.23 0 00-11.7 5.7V476H548V254h64.8c6 0 9.4-7 5.7-11.7L517.7 114.7a7.14 7.14 0 00-11.3 0L405.6 242.3a7.23 7.23 0 005.7 11.7H476v222H254v-64.8c0-6-7-9.4-11.7-5.7L114.7 506.3a7.14 7.14 0 000 11.3l127.5 100.8c4.7 3.7 11.7.4 11.7-5.7V548h222v222h-64.8c-6 0-9.4 7-5.7 11.7l100.8 127.5c2.9 3.7 8.5 3.7 11.3 0l100.8-127.5c3.7-4.7.4-11.7-5.7-11.7H548V548h222v64.8c0 6 7 9.4 11.7 5.7l127.5-100.8a7.3 7.3 0 00.1-11.4z"/>'],
+    // PlusOutlined
+    'i-plus': ['64 64 896 896', '<path d="M482 152h60q8 0 8 8v704q0 8-8 8h-60q-8 0-8-8V160q0-8 8-8z"/><path d="M192 474h672q8 0 8 8v60q0 8-8 8H160q-8 0-8-8v-60q0-8 8-8z"/>'],
+    // DownloadOutlined
+    'i-download': ['64 64 896 896', '<path d="M505.7 661a8 8 0 0012.6 0l112-141.7c4.1-5.2.4-12.9-6.3-12.9h-74.1V168c0-4.4-3.6-8-8-8h-60c-4.4 0-8 3.6-8 8v338.3H400c-6.7 0-10.4 7.7-6.3 12.9l112 141.8zM878 626h-60c-4.4 0-8 3.6-8 8v154H214V634c0-4.4-3.6-8-8-8h-60c-4.4 0-8 3.6-8 8v198c0 17.7 14.3 32 32 32h684c17.7 0 32-14.3 32-32V634c0-4.4-3.6-8-8-8z"/>'],
+    // ReloadOutlined
+    'i-reload': ['64 64 896 896', '<path d="M909.1 209.3l-56.4 44.1C775.8 155.1 656.2 92 521.9 92 290 92 102.3 279.5 102 511.5 101.7 743.7 289.8 932 521.9 932c181.3 0 335.5-115.8 394.6-276.3l-71.9-33.7C799.3 755.1 673.3 839 521.9 839c-183.1 0-332.1-149-332.1-332.1 0-183.1 149-332.1 332.1-332.1 108.6 0 204.5 52.4 265.2 133.1l-68.4 53.5c-8.5 6.7-4.1 20.4 7 20.8l187.7 7.2c7.5.3 13.7-5.9 13.4-13.4l-7.2-187.7c-.3-11-14.1-15.4-20.9-6.9z"/>'],
+    // SearchOutlined
+    'i-search': ['64 64 896 896', '<path d="M909.6 854.5L649.9 594.8C690.2 542.7 712 479 712 412c0-80.2-31.3-155.4-88.1-212.1C567.1 143 491.7 112 411.6 112c-80.1 0-155.5 31-212.2 87.9C142.6 256.6 112 331.8 112 412c0 80.1 30.6 155.3 87.4 212.1 56.7 56.8 132.1 87.9 212.2 87.9 66.7 0 130.4-21.8 182.5-62.1l259.6 259.6c7.7 7.7 20.3 7.7 28 0l28-28c7.8-7.7 7.8-20.3.1-28zM411.6 663.6c-138.8 0-251.6-112.8-251.6-251.6S272.8 160.4 411.6 160.4 663.2 273.2 663.2 412 550.4 663.6 411.6 663.6z"/>'],
+    // bootstrap-icons/icons/nut.svg（系统里「导出设置」用 bi bi-nut）
+    'i-nut': ['0 0 16 16', '<path d="m11.42 2 3.428 6-3.428 6H4.58L1.152 8 4.58 2zM4.58 1a1 1 0 0 0-.868.504l-3.428 6a1 1 0 0 0 0 .992l3.428 6A1 1 0 0 0 4.58 15h6.84a1 1 0 0 0 .868-.504l3.429-6a1 1 0 0 0 0-.992l-3.429-6A1 1 0 0 0 11.42 1z"/><path d="M6.848 5.933a2.5 2.5 0 1 0 2.5 4.33 2.5 2.5 0 0 0-2.5-4.33m-1.78 3.915a3.5 3.5 0 1 1 6.061-3.5 3.5 3.5 0 0 1-6.062 3.5z"/>'],
+    // bootstrap-icons/icons/sd-card.svg（系统里「保存查询方案」用 bi bi-sd-card）
+    'i-sdcard': ['0 0 16 16', '<path d="M6.25 3.5a.75.75 0 0 0-1.5 0v2a.75.75 0 0 0 1.5 0zm2 0a.75.75 0 0 0-1.5 0v2a.75.75 0 0 0 1.5 0zm2 0a.75.75 0 0 0-1.5 0v2a.75.75 0 0 0 1.5 0zm2 0a.75.75 0 0 0-1.5 0v2a.75.75 0 0 0 1.5 0z"/><path fill-rule="evenodd" d="M5.914 0H12.5A1.5 1.5 0 0 1 14 1.5v13a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 14.5V3.914c0-.398.158-.78.44-1.06L4.853.439A1.5 1.5 0 0 1 5.914 0M13 1.5a.5.5 0 0 0-.5-.5H5.914a.5.5 0 0 0-.353.146L3.146 3.561A.5.5 0 0 0 3 3.914V14.5a.5.5 0 0 0 .5.5h9a.5.5 0 0 0 .5-.5z"/>']
+  };
+  Object.keys(ICONS).forEach(name => {
+    const [viewBox, inner] = ICONS[name];
+    app.component(name, { template: '<svg viewBox="' + viewBox + '" width="1em" height="1em" aria-hidden="true">' + inner + '</svg>' });
+  });
+
+  app.use(antd).mount('#app');
+</script>
+
+</body>
+</html>
