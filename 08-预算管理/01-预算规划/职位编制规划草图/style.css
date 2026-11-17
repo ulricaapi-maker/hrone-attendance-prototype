@@ -115,3 +115,42 @@ dialog button.primary,#manager-add-position,#copy-existing-position{background:#
 
 /* Keep navigation, centered steps and global actions on separate compact rows. */
 .steps{padding:12px 0 8px}.planning-page-heading{min-height:32px;justify-content:flex-end;margin-bottom:10px;gap:0}.planning-page-heading .buttons{margin-left:auto}footer #save[hidden]{display:none}footer{padding-top:10px;padding-bottom:10px}@media(max-width:700px){.planning-page-heading{gap:0;flex-wrap:nowrap}.planning-page-heading .buttons{justify-content:flex-end}.steps{padding:10px 0 8px}}
+
+#stop-position-dialog .stop-scroll{margin-top:0}
+#stop-position-dialog .stop-scroll table{width:100%;table-layout:fixed}
+#stop-position-dialog :is(th,td):first-child{width:46px}
+#stop-position-dialog th:nth-child(2){width:26%}
+#stop-position-dialog th:nth-child(3){width:13%}
+#stop-position-dialog th:nth-child(5){width:14.5%}
+#stop-position-dialog th:nth-child(6){width:17%}
+#stop-people-list.with-department th:nth-child(3){width:12%}
+#stop-people-list.with-department th:nth-child(4){width:17%}
+#stop-people-list.with-department th:nth-child(5),#stop-people-list.with-department th:nth-child(6){width:12%}
+#stop-org-hint{margin:0 0 6px;line-height:1.5}
+#stop-position-dialog .stop-scroll td{white-space:normal;overflow-wrap:anywhere}
+#stop-position-dialog .stop-tabs button{height:46px}
+.retirement-impact{margin:0 0 14px;padding:9px 12px;border-radius:4px;background:#fff8e8;color:#78551c;line-height:1.5}
+#stop-edit-dialog{width:min(520px,calc(100vw - 36px))}
+#stop-edit-dialog.retirement-batch{width:min(960px,calc(100vw - 36px))}
+#stop-edit-summary{display:grid;grid-template-columns:1fr 1fr;gap:14px 24px;margin-bottom:20px}
+#stop-edit-summary:empty,#stop-edit-error:empty,#stop-error:empty{display:none}
+#stop-edit-summary div{min-width:0}
+#stop-edit-summary small,#stop-edit-summary strong{display:block;overflow-wrap:anywhere}
+#stop-edit-summary small{color:#6e7785;margin-bottom:4px}
+#stop-edit-summary strong{font-weight:500}
+#stop-edit-dialog .target-label em{font-style:normal;color:#cf3434}
+#stop-edit-dialog .target-label :is(input,select){width:100%;margin-top:6px}
+#stop-edit-dialog .retirement-fields{max-width:530px}
+.retirement-modes{min-width:0;border:0;margin:14px 0;padding:0;display:flex;gap:18px;flex-wrap:wrap}
+.retirement-modes legend{margin-bottom:7px}
+.retirement-modes label{display:inline-flex;align-items:center;gap:5px}
+#stop-edit-dialog .retirement-modes input{width:auto;height:auto;margin:0;accent-color:#0e66fb}
+#stop-edit-mappings{overflow:auto;margin-bottom:12px}
+#stop-edit-mappings table{table-layout:fixed;width:100%;min-width:0}
+#stop-edit-mappings th:last-child{width:46%}
+#stop-edit-mappings td{white-space:normal;overflow-wrap:anywhere}
+#stop-edit-mappings td small{display:block;color:#6e7785;margin-top:4px}
+#stop-edit-mappings select{width:100%;min-width:0}
+#stop-edit-note{margin-top:10px;margin-bottom:0}
+.organization-personnel-frame{background:transparent}
+.organization-personnel-frame > :not(dialog):not(#toast){display:none!important}

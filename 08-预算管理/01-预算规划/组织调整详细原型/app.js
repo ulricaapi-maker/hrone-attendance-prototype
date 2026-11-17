@@ -54,20 +54,70 @@ function handleAction(op,id){
  if(op==='toggle'){collapsed.has(id)?collapsed.delete(id):collapsed.add(id);render();}
  if(op==='add')edit(null,id);
  if(op==='edit')edit(id);
- if(op==='stop'){plan.stop(id);render();}
+ if(op==='stop')openOrganizationPersonnelAction('orgStop',id);
  if(op==='restore'){
   try{plan.restore(id);render();toast('已取消停用');}catch(e){toast(e.message);}
  }
  if(op==='remove'){
   if(plan.descendants(id).length){confirmAction('无法取消新增','<p>该组织下还有下级组织，请先调整下级归属或取消下级新增。</p>','知道了',()=>{});return;}
-  let staffing;
-  try{staffing=JSON.parse(localStorage.getItem('hrone-staffing-sketch-v1'));}catch{toast('无法读取人员编制草稿，请重新保存后再试。');return;}
-  const related=(staffing?.records||[]).filter(row=>row.org===id);
-  if(related.some(row=>row.person)){toast('该组织下还有人员，请先调整人员去向，再撤销新增。');return;}
-  if(related.some(row=>!row.personOnly&&!row.deleted)){toast('该组织下还有有效编制，请先停用编制，再撤销新增。');return;}
-  confirmAction('取消新增',`<p>确认取消新增“${esc(n.name)}”？</p><p class="muted">该组织将从本次规划中移除。</p>`,'确认取消新增',()=>{plan.removeNew(id);render();toast('已取消新增');});
+  openOrganizationPersonnelAction('orgRemove',id);
  }
 }
+
+const organizationPersonnelDialog = document.createElement('dialog');
+organizationPersonnelDialog.id = 'organization-personnel-dialog';
+organizationPersonnelDialog.setAttribute('aria-label','组织人员调整');
+const organizationPersonnelFrame = document.createElement('iframe');
+organizationPersonnelFrame.title = '组织人员调整';
+organizationPersonnelDialog.appendChild(organizationPersonnelFrame);
+document.body.appendChild(organizationPersonnelDialog);
+let pendingOrgAction = null;
+organizationPersonnelDialog.addEventListener('close', () => {
+ if (organizationPersonnelDialog.open) return;
+ pendingOrgAction = null;
+ organizationPersonnelFrame.removeAttribute('src');
+});
+
+function openOrganizationPersonnelAction(kind,id) {
+ pendingOrgAction = {kind,id};
+ organizationPersonnelFrame.src = '../职位编制规划草图/index.html?organization-personnel=1';
+ organizationPersonnelDialog.showModal();
+}
+
+window.organizationPersonnelAction = source => {
+ if (source !== organizationPersonnelFrame.contentWindow || !pendingOrgAction) throw Error('组织操作已失效。');
+ const {kind,id} = pendingOrgAction;
+ return {
+  kind,
+  id,
+  nodes:structuredClone(plan.nodes),
+  close:() => organizationPersonnelDialog.close(),
+  commit:staffing => {
+   if (!organizationPersonnelDialog.open || pendingOrgAction?.id !== id) throw Error('组织操作已失效。');
+   const next = new OrgPlan(plan.nodes);
+   if (kind === 'orgStop') next.stop(id);
+   else next.removeNew(id);
+
+   const staffingKey = 'hrone-staffing-sketch-v1';
+   const previousStaffing = localStorage.getItem(staffingKey);
+   const time = new Date().toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false});
+   localStorage.setItem(staffingKey,staffing);
+   try {
+    localStorage.setItem(key,JSON.stringify({nodes:next.nodes,time}));
+   } catch (error) {
+    if (previousStaffing === null) localStorage.removeItem(staffingKey);
+    else localStorage.setItem(staffingKey,previousStaffing);
+    throw Error('无法保存本次规划，请检查浏览器存储空间。');
+   }
+   plan = next;
+   saved = {time};
+   persisted = JSON.stringify(plan.nodes);
+   organizationPersonnelDialog.close();
+   render();
+   toast(kind === 'orgStop' ? '组织已停用' : '已取消新增组织');
+  }
+ };
+};
 $('#org-rows').addEventListener('click',e=>{const b=e.target.closest('[data-op]');if(b)handleAction(b.dataset.op,b.dataset.id);});
 document.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>filterPopover(b));
 document.addEventListener('click',e=>{if(!e.target.closest('#filter-popover,[data-filter]'))closeFilter();const b=e.target.closest('[data-close]');if(b)document.getElementById(b.dataset.close).close();});

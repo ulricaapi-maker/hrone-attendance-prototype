@@ -1,91 +1,331 @@
-/* Position retirement interactions. Binding uses the compact form in planning-views.js. */
-const stopBody=$('#stop-position-dialog .modal-body');
-stopBody.innerHTML=`<div class="planning-tabs stop-tabs" role="tablist" aria-label="停用职位安排"><button id="stop-people-tab" role="tab">人员</button><button id="stop-hcs-tab" role="tab">编制</button></div><div class="stop-tab-toolbar"><button id="stop-batch-person" class="primary" hidden>批量人员调整</button><button id="stop-batch-hc" hidden>批量编辑</button><button id="stop-batch-retire" hidden>批量停用</button><span id="stop-selected-count" class="muted"></span></div><div class="stop-scroll"><table id="stop-tab-table"><thead id="stop-tab-head"></thead><tbody id="stop-tab-body"></tbody></table></div><p id="stop-error" class="error" role="alert"></p>`;
-$('#confirm-position-stop').textContent='确认停用职位';
-const stopEdit=document.createElement('dialog');stopEdit.id='stop-edit-dialog';stopEdit.setAttribute('aria-labelledby','stop-edit-title');stopEdit.innerHTML=`<div class="modal-header"><h2 id="stop-edit-title">人员调整</h2><button class="close" data-close="stop-edit-dialog" aria-label="关闭本次安排">×</button></div><div class="modal-body"><p id="stop-edit-summary"></p><label class="target-label" id="stop-edit-mode-label">编制处理<select id="stop-edit-mode"><option value="carry">携带原编制</option><option value="target">使用目标部门编制</option></select></label><label class="target-label">目标部门 <select id="stop-edit-dept"></select></label><label class="target-label" id="stop-edit-target-label">目标职位<select id="stop-edit-target"></select></label><div id="stop-edit-mappings"></div><button class="text" id="stop-edit-new-position">新增目标职位</button><p class="small muted" id="stop-edit-note"></p><p class="error" id="stop-edit-error" role="alert"></p></div><div class="modal-footer"><button data-close="stop-edit-dialog">取消</button><button class="primary" id="stop-save-edit">确定</button></div>`;document.body.appendChild(stopEdit);
-let stopTab='people',stopSelected=new Set(),stopEditing=null;
-function stopRowRecord(row){return records.find(r=>r.id===row.id);}
-function stopHcFree(row){return !row.person||row.personPlan?.mode==='target';}
-function stopHcDone(row){return row.personPlan?.mode==='carry'||!!row.hcPlan;}
-function stopResult(row,people){
- const plan=people?row.personPlan:row.personPlan?.mode==='carry'?row.personPlan:row.hcPlan;
- if(!plan)return people?'尚未安排':stopHcFree(row)?'尚未安排':'请先调整人员';
- if(plan.mode==='stop')return '将停用';
- const target=plan.mode==='target'?records.find(r=>r.id===plan.target):positions.concat(stopState.newPositions).find(p=>p.id===plan.target);
- return plan.mode==='target'?`${formatOrg(plan.dept)} / ${target?.code||''}`:`${formatOrg(plan.dept)} / ${target?.name||''}`;
-}
-openPositionStop=function(id){
- const p=positions.find(p=>p.id===id);if(!p||p.disabled||!activeOrg(p.org))return;
- const rows=records.filter(r=>!r.deleted&&r.org===p.org&&r.job===p.name);
- if(!rows.some(r=>r.person)){const before=snapshot();rows.forEach(r=>r.deleted=true);p.disabled=true;recordAction('停用职位',before);render();if($('#position-list').open)renderPositions();notify('职位已停用');return;}
- stopState={positionId:id,newPositions:[],rows:rows.map(r=>({id:r.id,person:r.person||null,personPlan:null,hcPlan:null}))};stopTab='people';stopEditing=null;stopSelected.clear();
- $('#stop-position-title').textContent='停用职位 · '+p.name;$('#stop-error').textContent='';renderStopRows();open('stop-position-dialog');
-};
-renderStopRows=function(){
- if(!stopState)return;stopTab='people';$('#stop-hcs-tab').hidden=true;const p=positions.find(p=>p.id===stopState.positionId),people=stopState.rows.filter(r=>r.person),rows=stopTab==='people'?people:stopState.rows;
+/* Stage personnel arrangements before confirming a position or organization action. */
+const stopDialog = $('#stop-position-dialog');
+stopDialog.querySelector('.modal-body').innerHTML = `
+ <p id="stop-org-hint" class="muted" hidden>请先处理该组织下的员工</p>
+ <div class="planning-tabs stop-tabs" role="tablist" aria-label="人员"><button id="stop-people-tab" class="active" role="tab" aria-selected="true" aria-controls="stop-people-list">人员（0）</button></div>
+ <div class="stop-tab-toolbar" id="stop-toolbar"><button id="stop-batch-person">批量人员调整</button></div>
+ <div class="stop-scroll" id="stop-people-list"><table><thead><tr>
+ <th><input type="checkbox" id="stop-tab-all" aria-label="全选员工"></th>
+ <th>员工</th><th>员工工号</th><th id="stop-org-column" hidden>部门</th><th>编制</th><th>当前职级</th><th>操作</th>
+ </tr></thead><tbody id="stop-tab-body"></tbody></table></div>
+ <p id="stop-error" class="error" role="alert"></p>`;
+$('#confirm-position-stop').classList.remove('primary');
 
- for(const [id,tab,count]of [['stop-people-tab','people',people.length],['stop-hcs-tab','hcs',stopState.rows.length]]){const el=$('#'+id);el.textContent=(tab==='people'?'人员':'编制')+'（'+count+'）';el.classList.toggle('active',stopTab===tab);el.setAttribute('aria-selected',String(stopTab===tab));}
- const picked=rows.filter(r=>stopSelected.has(r.id));$('.stop-tab-toolbar').hidden=false;$('#stop-batch-person').hidden=stopTab!=='people';$('#stop-batch-person').disabled=!picked.length;$('#stop-batch-hc').hidden=true;$('#stop-batch-hc').disabled=!picked.length;$('#stop-batch-retire').hidden=stopTab!=='hcs';$('#stop-batch-retire').disabled=!picked.length;$('#stop-selected-count').textContent=picked.length?`已选${picked.length}条`:'';
- const headers=stopTab==='people'?['员工','员工工号','编制','当前职级','操作']:['编制编码','员工','编制职级','编制工作地点','安排结果','操作'];
- $('#stop-tab-head').innerHTML='<tr><th><input type="checkbox" id="stop-tab-all" aria-label="全选当前安排列表"></th>'+headers.map(h=>'<th>'+h+'</th>').join('')+'</tr>';
- $('#stop-tab-body').innerHTML=rows.map(row=>{const r=stopRowRecord(row),person=STAFF_DEMO.find(p=>p.id===row.person),editable=stopTab==='people'||stopHcFree(row);
- const values=stopTab==='people'?[person?.name,person?.no,r.code,person?.grade]:[r.code,stopHcFree(row)?'空编':person?.name,r.grade,r.place];
- const actions=stopTab==='people'?`<button class="text" data-stage-person="${row.id}">人员调整</button>${row.personPlan?`<button class="text" data-stage-undo-person="${row.id}">取消调整</button>`:''}`:row.hcPlan?.mode==='stop'?`<button class="text" data-stage-undo-hc="${row.id}">取消停用</button>`:editable?`<button class="text" data-stage-stop="${row.id}">停用</button>${row.hcPlan?`<button class="text" data-stage-undo-hc="${row.id}">${row.hcPlan.mode==='stop'?'取消停用':'取消调整'}</button>`:''}`:`<span class="muted">${row.personPlan?.mode==='carry'?'随人员调整':'从人员页签调整'}</span>`;
- return `<tr class="${row.hcPlan?.mode==='stop'&&stopTab==='hcs'?'stage-stopped':''}"><td><input type="checkbox" data-stage-select="${row.id}" aria-label="勾选${esc(stopTab==='people'?person?.name:r.code)}" ${editable&&!(stopTab==='hcs'&&row.hcPlan?.mode==='stop')?'':'disabled'} ${stopSelected.has(row.id)?'checked':''}></td>${values.map(v=>`<td><span class="cell-text" title="${esc(v)}">${esc(v)||'—'}</span></td>`).join('')}${stopTab==='people'?'':`<td><span class="cell-text ${((stopTab==='people'?row.personPlan:stopHcDone(row))?'stage-ready':'muted')}" title="${esc(stopResult(row,stopTab==='people'))}">${esc(stopResult(row,stopTab==='people'))}</span></td>}`}<td><div class="actions">${actions}</div></td></tr>`;}).join('')||`<tr><td colspan="${headers.length+1}" class="empty">该职位下没有${stopTab==='people'?'人员':'编制'}</td></tr>`;
- const selectable=rows.filter(r=>stopTab==='people'||stopHcFree(r)&&r.hcPlan?.mode!=='stop');$('#stop-tab-all').checked=!!selectable.length&&selectable.every(r=>stopSelected.has(r.id));
-};
-function switchStopTab(tab){stopTab=tab;stopSelected.clear();$('#stop-error').textContent='';renderStopRows();}
-$('#stop-people-tab').onclick=()=>switchStopTab('people');$('#stop-hcs-tab').onclick=()=>switchStopTab('hcs');
-$('#stop-tab-table').onchange=e=>{if(e.target.id==='stop-tab-all'){stopState.rows.filter(r=>(stopTab==='people'?r.person:stopHcFree(r)&&r.hcPlan?.mode!=='stop')).forEach(r=>e.target.checked?stopSelected.add(r.id):stopSelected.delete(r.id));}else if(e.target.dataset.stageSelect){e.target.checked?stopSelected.add(e.target.dataset.stageSelect):stopSelected.delete(e.target.dataset.stageSelect);}renderStopRows();};
-function openStopEditor(ids,kind){
- stopEditing={ids,kind};const row=stopState.rows.find(r=>r.id===ids[0]),old=kind==='people'?row.personPlan:row.hcPlan;
- $('#stop-edit-title').textContent=(ids.length>1?'批量':'')+(kind==='people'?'人员调整':'编辑编制');$('#stop-edit-summary').textContent=kind==='people'?`已选${ids.length}名员工`:`已选${ids.length}份空编`;
- $('#stop-edit-mode-label').hidden=kind!=='people';$('#stop-edit-mode').value=kind==='people'&&old?.mode==='target'?'target':'carry';$('#stop-edit-dept').innerHTML='<option value="">请选择目标部门</option>'+orgOptions();$('#stop-edit-dept').value=old?.dept||'';$('#stop-edit-error').textContent='';fillStopEditor(old?.target);open('stop-edit-dialog');
-}
-function fillStopEditor(value){
- if(!stopEditing||!stopState)return;const mode=stopEditing.kind==='people'?$('#stop-edit-mode').value:'move',dept=$('#stop-edit-dept').value,using=mode==='target';
- $('#stop-edit-target-label').hidden=using;$('#stop-edit-mappings').hidden=!using;$('#stop-edit-new-position').hidden=using;
- $('#stop-edit-target').innerHTML=stopChoiceOptions('carry',dept);$('#stop-edit-target').value=value||'';
- if(using){const reserved=new Set(stopState.rows.filter(r=>!stopEditing.ids.includes(r.id)&&r.personPlan?.mode==='target').map(r=>r.personPlan.target));
- $('#stop-edit-mappings').innerHTML=stopEditing.ids.map(id=>{const row=stopState.rows.find(r=>r.id===id),person=STAFF_DEMO.find(p=>p.id===row.person);return `<label class="target-label">${esc(person?.name)}的目标编制<select data-stage-target="${id}" aria-label="${esc(person?.name)}的目标编制"><option value="">请选择空编</option>${stopVacancies(dept).filter(h=>!reserved.has(h.id)).map(h=>`<option value="${h.id}">${esc(h.code)} · ${esc(h.job)} · ${esc(h.grade)}</option>`).join('')}</select></label>`;}).join('');
- for(const id of stopEditing.ids){const plan=stopState.rows.find(r=>r.id===id).personPlan;if(plan?.dept===dept&&plan.mode==='target')$(`[data-stage-target="${id}"]`).value=plan.target;}
- }
- $('#stop-edit-note').hidden=true;$('#stop-edit-note').textContent='';
-}
-$('#stop-edit-dept').onchange=()=>fillStopEditor();$('#stop-edit-mode').onchange=()=>fillStopEditor();
-$('#stop-edit-new-position').onclick=()=>{const dept=$('#stop-edit-dept').value;if(!activeOrg(dept)){notify('请先选择目标部门');return;}openPosition(dept,'stop');};
-fillStopBulk=function(){};fillSimpleStopTarget=function(value){if(stopEditing)fillStopEditor(value);};
-$('#stop-save-edit').onclick=()=>{
- const dept=$('#stop-edit-dept').value,mode=stopEditing.kind==='people'?$('#stop-edit-mode').value:'move',target=$('#stop-edit-target').value;
- const fail=t=>{$('#stop-edit-error').textContent=t;};if(!activeOrg(dept))return fail('请选择有效目标部门。');
- const planned=stopEditing.ids.map(id=>({id,mode,dept,target:mode==='target'?$(`[data-stage-target="${id}"]`).value:target}));
- const reserved=new Set(stopState.rows.filter(r=>!stopEditing.ids.includes(r.id)&&r.personPlan?.mode==='target').map(r=>r.personPlan.target));
- for(const plan of planned){if(mode==='target'){if(!stopVacancies(dept).some(h=>h.id===plan.target)||reserved.has(plan.target))return fail('每位员工请选择不同的有效空编。');reserved.add(plan.target);}else if(!stopPositions(dept).some(p=>p.id===plan.target))return fail('请选择有效目标职位。');}
- for(const plan of planned){const row=stopState.rows.find(r=>r.id===plan.id);if(stopEditing.kind==='people'){row.personPlan=plan;row.hcPlan=null;}else row.hcPlan=plan;}
- $('#stop-edit-dialog').close();stopSelected.clear();$('#stop-error').textContent='';renderStopRows();
-};
-$('#stop-tab-body').onclick=e=>{const d=e.target.closest('button')?.dataset;if(!d)return;
- if(d.stagePerson)openStopEditor([d.stagePerson],'people');if(d.stageHc)openStopEditor([d.stageHc],'hcs');
- if(d.stageStop){stopState.rows.find(r=>r.id===d.stageStop).hcPlan={mode:'stop'};stopSelected.delete(d.stageStop);renderStopRows();}
- if(d.stageUndoPerson){const row=stopState.rows.find(r=>r.id===d.stageUndoPerson);row.personPlan=null;row.hcPlan=null;renderStopRows();}
- if(d.stageUndoHc){stopState.rows.find(r=>r.id===d.stageUndoHc).hcPlan=null;renderStopRows();}
-};
-$('#stop-batch-person').onclick=()=>openStopEditor([...stopSelected],'people');$('#stop-batch-hc').onclick=()=>openStopEditor([...stopSelected],'hcs');$('#stop-batch-retire').onclick=()=>{stopState.rows.filter(r=>stopSelected.has(r.id)&&stopHcFree(r)).forEach(r=>r.hcPlan={mode:'stop'});stopSelected.clear();renderStopRows();};
-$('#confirm-position-stop').onclick=()=>{
- if(!stopState)return;const p=positions.find(p=>p.id===stopState.positionId),current=records.filter(r=>!r.deleted&&r.org===p.org&&r.job===p.name),fail=t=>{$('#stop-error').textContent=t;};
- if(current.length!==stopState.rows.length||current.some(r=>!stopState.rows.some(row=>row.id===r.id&&row.person===(r.person||null))))return fail('关联数据已变化，请关闭后重新安排。');
- if(stopState.rows.some(r=>r.person&&!r.personPlan)){switchStopTab('people');return fail('请先完成全部人员安排。');}
- const used=new Set();for(const row of stopState.rows){for(const plan of [row.personPlan,row.hcPlan].filter(Boolean)){if(plan.mode==='stop')continue;if(!activeOrg(plan.dept))return fail('目标部门已不可用。');if(plan.mode==='target'){if(used.has(plan.target)||!stopVacancies(plan.dept).some(h=>h.id===plan.target))return fail('目标空编不可用或被重复安排。');used.add(plan.target);}else if(!stopPositions(plan.dept).some(p=>p.id===plan.target))return fail('目标职位已不可用。');}}
- const before=snapshot();positions.push(...clone(stopState.newPositions));
- for(const row of stopState.rows){const r=stopRowRecord(row),plan=row.personPlan;if(plan?.mode==='target'){const target=records.find(h=>h.id===plan.target);target.person=r.person;if(r.plannedTransferDate)target.plannedTransferDate=r.plannedTransferDate;else delete target.plannedTransferDate;delete r.plannedTransferDate;if(r.assignmentType)target.assignmentType=r.assignmentType;else delete target.assignmentType;delete r.assignmentType;r.person=null;}else if(plan?.mode==='carry'){const target=positions.find(p=>p.id===plan.target);Object.assign(r,{org:target.org,job:target.name});}
- if(plan?.mode!=='carry')r.deleted=true;
- }
- p.disabled=true;recordAction('停用职位',before);$('#stop-position-dialog').close();stopSelected.clear();render();if($('#position-list').open)renderPositions();notify('职位已停用，人员已调整');stopState=null;
+const stopEdit = document.createElement('dialog');
+stopEdit.id = 'stop-edit-dialog';
+stopEdit.setAttribute('aria-labelledby', 'stop-edit-title');
+stopEdit.innerHTML = `
+ <div class="modal-header"><h2 id="stop-edit-title">人员调整</h2><button class="close" data-close="stop-edit-dialog" aria-label="关闭人员调整">×</button></div>
+ <div class="modal-body">
+ <div id="stop-edit-summary" class="info-grid"></div>
+ <div class="retirement-fields">
+ <label class="target-label"><span><em>*</em> 计划调动日期</span><input type="date" id="stop-edit-date" required></label>
+ <label class="target-label"><span><em>*</em> 目标部门</span><select id="stop-edit-dept" required></select></label>
+ <fieldset class="retirement-modes"><legend>编制处理</legend>
+ <label><input type="radio" name="stop-edit-mode" value="carry" checked> 携带原编制</label>
+ <label><input type="radio" name="stop-edit-mode" value="target"> 使用目标部门编制</label>
+ </fieldset></div>
+ <label class="target-label" id="stop-edit-target-label"><span><em>*</em> 目标职位</span><select id="stop-edit-target"></select></label>
+ <div id="stop-edit-mappings"></div>
+ <button class="text" id="stop-edit-new-position">新增目标职位</button>
+ <p id="stop-edit-note" class="retirement-impact">员工使用目标编制后，原编制自计划调动月份起自动停用。</p>
+ <p class="error" id="stop-edit-error" role="alert"></p></div>
+ <div class="modal-footer"><button data-close="stop-edit-dialog">取消</button><button class="primary" id="stop-save-edit">确认调整</button></div>`;
+document.body.appendChild(stopEdit);
+
+const stopSelected = new Set();
+let stopEditing = null;
+let orgActionBridge = null;
+
+const stopActionLabels = {
+ positionStop: {title:'停用职位', confirm:'确认停用职位', done:'职位已停用'},
+ positionRemove: {title:'取消新增职位', confirm:'确认取消新增', done:'已取消新增职位'},
+ orgStop: {title:'停用组织', confirm:'确认', done:'组织已停用'},
+ orgRemove: {title:'取消新增组织', confirm:'确认取消新增', done:'已取消新增组织'}
 };
 
-// Retain field constraints and real consequences, remove repeated operation explanations.
-$('#transfer-note').hidden=true;
-const mappingsBeforeCleanup=renderMappings;
-renderMappings=function(){mappingsBeforeCleanup();$('#transfer-note').hidden=true;};
-rangeInfo=function(){$('#hc-range').textContent='';$('#hc-range').hidden=true;};
+function stopActionRecords(state) {
+ if (state.orgId) return records.filter(r => !r.deleted && state.orgIds.has(r.org));
+ const p = positions.find(item => item.id === state.positionId);
+ return p ? records.filter(r => !r.deleted && r.org === p.org && r.job === p.name) : [];
+}
+
+function beginStopAction(kind, id) {
+ const isOrg = kind.startsWith('org');
+ const item = isOrg ? orgPlan.get(id) : positions.find(p => p.id === id);
+ if (!item || item.disabled || (!isOrg && !activeOrg(item.org))) return false;
+ if (kind === 'positionRemove' && originalPositionIds.has(id)) return false;
+ if (kind === 'orgRemove' && (orgPlan.original(id) || orgPlan.descendants(id).length)) return false;
+ stopState = {kind, positionId:isOrg ? null : id, orgId:isOrg ? id : null,
+  orgIds:new Set(isOrg ? [id, ...orgPlan.descendants(id).map(n => n.id)] : []), newPositions:[], rows:[]};
+ stopState.rows = stopActionRecords(stopState).map(r => ({id:r.id, person:r.person || null, personPlan:null}));
+ stopSelected.clear();
+ stopEditing = null;
+ const labels = stopActionLabels[kind];
+ $('#stop-position-title').textContent = labels.title + ' · ' + item.name;
+ $('#confirm-position-stop').textContent = labels.confirm;
+ $('#stop-error').textContent = '';
+ renderStopRows();
+ open(stopDialog.id);
+ return true;
+}
+
+openPositionStop = id => beginStopAction('positionStop', id);
+const positionActionBeforePersonnel = handlePositionAction;
+handlePositionAction = function(action) {
+ if (!action.cancelPosition) return positionActionBeforePersonnel(action);
+ beginStopAction('positionRemove', action.cancelPosition);
+ return true;
+};
+
+stopPositions = function(org) {
+ if (!activeOrg(org) || stopState.orgIds.has(org)) return [];
+ return positions.concat(stopState.newPositions).filter(p => p.org === org && !p.disabled && p.id !== stopState.positionId);
+};
+stopVacancies = function(org) {
+ const availableJobs = new Set(stopPositions(org).map(p => p.name));
+ const sourceIds = new Set(stopState.rows.map(r => r.id));
+ return records.filter(r => r.org === org && !r.person && !r.deleted && !sourceIds.has(r.id)
+  && !pending(r) && availableJobs.has(r.job));
+};
+
+renderStopRows = function() {
+ if (!stopState) return;
+ const people = stopState.rows.filter(r => r.person);
+ const isOrgStop = stopState.kind === 'orgStop';
+ $('#stop-people-tab').textContent = `人员（${people.length}）`;
+ $('#stop-org-hint').hidden = !isOrgStop || !people.length;
+ $('#stop-org-column').hidden = !isOrgStop;
+ $('#stop-people-list').classList.toggle('with-department', isOrgStop);
+ $('#stop-batch-person').disabled = !stopSelected.size;
+ $('#stop-tab-all').disabled = !people.length;
+ $('#stop-tab-all').checked = !!people.length && people.every(r => stopSelected.has(r.id));
+ $('#stop-tab-all').indeterminate = stopSelected.size > 0 && stopSelected.size < people.length;
+ $('#stop-tab-body').innerHTML = people.map(row => {
+  const r = records.find(item => item.id === row.id);
+  const person = staff(r);
+  return `<tr><td><input type="checkbox" data-stage-select="${esc(row.id)}" aria-label="勾选${esc(person?.name || r.code)}" ${stopSelected.has(row.id) ? 'checked' : ''}></td>
+    <td>${esc(person?.name || row.person)}</td><td>${esc(person?.no || '—')}</td>${isOrgStop ? `<td>${esc(formatOrg(r.org))}</td>` : ''}<td>${esc(r.code)}</td><td>${esc(person?.grade || '—')}</td>
+    <td><div class="actions"><button class="text" data-stage-person="${esc(row.id)}">人员调整</button>
+    ${row.personPlan ? `<button class="text" data-stage-undo-person="${esc(row.id)}">取消调整</button>` : ''}</div></td></tr>`;
+ }).join('');
+};
+
+function stopEditorMode() {
+ return stopEdit.querySelector('input[name="stop-edit-mode"]:checked').value;
+}
+
+function openStopEditor(ids, batch = false) {
+ if (!ids.length) return;
+ stopEditing = {ids, batch};
+ const r = records.find(item => item.id === ids[0]);
+ const person = staff(r);
+ const old = batch ? null : stopState.rows.find(row => row.id === r.id).personPlan;
+ stopEdit.classList.toggle('retirement-batch', batch);
+ $('#stop-edit-title').textContent = batch ? '批量人员调整' : '人员调整';
+ const sourceDept = orgPlan.path(person?.org, orgPlan.baseline) || formatOrg(r.org);
+ $('#stop-edit-summary').innerHTML = batch ? '' : [['姓名',person?.name],['工号',person?.no],['任职部门',sourceDept],['任职职位',person?.job || r.job]].map(([key,val]) =>
+  `<div><small>${key}</small><strong>${esc(val || '—')}</strong></div>`).join('');
+ $('#stop-edit-date').value = old?.date || '';
+ stopEdit.querySelector(`input[name="stop-edit-mode"][value="${old?.mode || 'carry'}"]`).checked = true;
+ $('#stop-edit-dept').innerHTML = '<option value="">请选择目标部门</option>' + orgPlan.nodes
+  .filter(n => activeOrg(n.id) && !stopState.orgIds.has(n.id))
+  .map(n => `<option value="${esc(n.id)}">${esc(orgPlan.path(n.id))}</option>`).join('');
+ $('#stop-edit-dept').value = old?.dept || '';
+ fillStopEditor(old?.target, old);
+ open(stopEdit.id);
+}
+
+function fillStopEditor(position, previousPlan) {
+ if (!stopEditing || !stopState) return;
+ const mode = stopEditorMode();
+ const dept = $('#stop-edit-dept').value;
+ const useTarget = mode === 'target';
+ const showMappings = stopEditing.batch || useTarget;
+ $('#stop-edit-error').textContent = '';
+ $('#stop-edit-target-label').hidden = showMappings;
+ $('#stop-edit-target').disabled = !dept;
+ $('#stop-edit-target').innerHTML = '<option value="">请选择目标职位</option>' +
+  stopPositions(dept).map(p => `<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('');
+ $('#stop-edit-target').value = position || '';
+ $('#stop-edit-new-position').hidden = useTarget;
+ $('#stop-edit-new-position').disabled = !dept;
+ $('#stop-edit-mappings').hidden = !showMappings;
+ $('#stop-edit-note').hidden = !useTarget;
+ if (!showMappings) return;
+
+ const reserved = new Set(stopState.rows.filter(r => !stopEditing.ids.includes(r.id) && r.personPlan?.mode === 'target')
+  .map(r => r.personPlan.target));
+ const options = useTarget
+  ? stopVacancies(dept).filter(r => !reserved.has(r.id)).map(r => [r.id, `${r.code} · ${r.job} · ${r.grade}`])
+  : stopPositions(dept).map(p => [p.id,p.name]);
+ const optionHtml = '<option value="">请选择' + (useTarget ? '目标部门空编制' : '目标职位') + '</option>' +
+  options.map(([id,label]) => `<option value="${esc(id)}">${esc(label)}</option>`).join('');
+ $('#stop-edit-mappings').innerHTML = `<table><thead><tr><th>员工</th><th>原职位</th><th>${useTarget ? '目标编制' : '目标职位'}</th></tr></thead><tbody>${
+  stopEditing.ids.map(id => {
+   const r = records.find(item => item.id === id);
+   const person = staff(r);
+   return `<tr><td><strong>${esc(person?.name || r.person)}</strong><small>${esc(person?.no || '—')} / ${esc(r.code)}</small></td>
+    <td>${esc(r.job)}</td><td><select data-stage-target="${esc(id)}" aria-label="${esc(person?.name || r.code)}的${useTarget ? '目标编制' : '目标职位'}" ${dept ? '' : 'disabled'}>${optionHtml}</select></td></tr>`;
+  }).join('')}</tbody></table>`;
+ for (const select of stopEdit.querySelectorAll('[data-stage-target]')) {
+  if (previousPlan?.dept === dept && previousPlan.mode === mode) select.value = previousPlan.target;
+ }
+}
+
+$('#stop-edit-dept').onchange = () => fillStopEditor();
+stopEdit.querySelector('.retirement-modes').onchange = () => fillStopEditor();
+$('#stop-edit-new-position').onclick = () => {
+ const dept = $('#stop-edit-dept').value;
+ if (activeOrg(dept) && !stopState.orgIds.has(dept)) openPosition(dept, 'stop');
+};
+fillStopBulk = function() {};
+fillSimpleStopTarget = function(value) {
+ if (!stopEditing) return;
+ const prior = new Map([...stopEdit.querySelectorAll('[data-stage-target]')].map(select => [select.dataset.stageTarget, select.value]));
+ fillStopEditor(value);
+ for (const select of stopEdit.querySelectorAll('[data-stage-target]')) select.value = prior.get(select.dataset.stageTarget) || value;
+};
+
+function validateStopPlan(plan, reserved) {
+ if (!plan?.date) return '请填写计划调动日期。';
+ if (!activeOrg(plan.dept) || stopState.orgIds.has(plan.dept)) return '请选择有效目标部门。';
+ if (plan.mode === 'target') {
+  if (reserved.has(plan.target) || !stopVacancies(plan.dept).some(r => r.id === plan.target)) return '请为每位员工选择不同的有效空编制。';
+  reserved.add(plan.target);
+ } else if (!stopPositions(plan.dept).some(p => p.id === plan.target)) return '请选择有效目标职位。';
+ return '';
+}
+
+$('#stop-save-edit').onclick = () => {
+ const date = $('#stop-edit-date').value;
+ const dept = $('#stop-edit-dept').value;
+ const mode = stopEditorMode();
+ const planned = stopEditing.ids.map(id => {
+  const mapping = [...stopEdit.querySelectorAll('[data-stage-target]')].find(select => select.dataset.stageTarget === id);
+  return {id, date, dept, mode, target:mode === 'target' || stopEditing.batch ? mapping?.value : $('#stop-edit-target').value};
+ });
+ const used = new Set(stopState.rows.filter(row => !stopEditing.ids.includes(row.id) && row.personPlan?.mode === 'target')
+  .map(row => row.personPlan.target));
+ for (const plan of planned) {
+  const error = validateStopPlan(plan, used);
+  if (error) { $('#stop-edit-error').textContent = error; return; }
+ }
+ for (const plan of planned) stopState.rows.find(r => r.id === plan.id).personPlan = plan;
+ stopEdit.close();
+ stopSelected.clear();
+ $('#stop-error').textContent = '';
+ renderStopRows();
+};
+
+$('#stop-tab-all').onchange = event => {
+ stopSelected.clear();
+ if (event.target.checked) stopState.rows.filter(r => r.person).forEach(r => stopSelected.add(r.id));
+ renderStopRows();
+};
+$('#stop-tab-body').onchange = event => {
+ const id = event.target.dataset.stageSelect;
+ if (!id) return;
+ if (event.target.checked) stopSelected.add(id);
+ else stopSelected.delete(id);
+ renderStopRows();
+};
+$('#stop-tab-body').onclick = event => {
+ const data = event.target.closest('button')?.dataset;
+ if (data?.stagePerson) openStopEditor([data.stagePerson]);
+ if (data?.stageUndoPerson) {
+  stopState.rows.find(r => r.id === data.stageUndoPerson).personPlan = null;
+  renderStopRows();
+ }
+};
+$('#stop-batch-person').onclick = () => openStopEditor([...stopSelected], true);
+
+function applyStopAction() {
+ const state = stopState;
+ const fail = message => { $('#stop-error').textContent = message; };
+ const current = stopActionRecords(state);
+ if (current.length !== state.rows.length || current.some(r => !state.rows.some(row => row.id === r.id && row.person === (r.person || null)))) {
+  return fail('关联数据已变化，请关闭后重新安排。');
+ }
+ const people = state.rows.filter(row => row.person);
+ if (people.some(row => !row.personPlan)) return fail('请先完成全部人员调整。');
+ const used = new Set();
+ for (const row of people) {
+  const error = validateStopPlan(row.personPlan, used);
+  if (error) return fail(error);
+ }
+ const before = snapshot();
+ const kind = state.kind;
+ const labels = stopActionLabels[kind];
+ const stagedPositions = new Set(people.filter(row => row.personPlan.mode === 'carry').map(row => row.personPlan.target));
+ positions.push(...state.newPositions.filter(p => stagedPositions.has(p.id)));
+ for (const row of state.rows) {
+  const r = records.find(item => item.id === row.id);
+  const plan = row.personPlan;
+  if (plan?.mode === 'carry') {
+   const target = positions.find(p => p.id === plan.target);
+   Object.assign(r, {org: target.org, job: target.name, plannedTransferDate:plan.date});
+   continue;
+  }
+  if (plan?.mode === 'target') {
+   const target = records.find(item => item.id === plan.target);
+   target.person = r.person;
+   target.plannedTransferDate = plan.date;
+   for (const field of ['assignmentType', 'plannedEntryDate']) {
+    if (r[field]) target[field] = r[field];
+    else delete target[field];
+    delete r[field];
+   }
+   r.person = null;
+   delete r.plannedTransferDate;
+   r.transferStopDate = plan.date;
+   r.deleted = true;
+  } else if (kind !== 'orgStop') {
+   r.deleted = true;
+  }
+ }
+ if (kind === 'positionStop') positions.find(p => p.id === state.positionId).disabled = true;
+ if (kind === 'positionRemove') positions = positions.filter(p => p.id !== state.positionId);
+ if (kind === 'orgRemove') positions = positions.filter(p => !state.orgIds.has(p.org));
+
+ if (state.orgId) {
+  try {
+   const nextSelectedOrg = kind === 'orgRemove' && state.orgIds.has(selectedOrg)
+    ? orgPlan.get(state.orgId).parent : selectedOrg;
+   orgActionBridge.commit(JSON.stringify({records, positions, selectedOrg:nextSelectedOrg,
+    bindingTransfers, staffingView, adjustmentHistory}));
+  } catch (error) {
+   records = before.records;
+   positions = before.positions;
+   return fail(error.message);
+  }
+  return;
+ }
+ recordAction(labels.title, before);
+ stopSelected.clear();
+ stopDialog.close();
+ render();
+ if ($('#position-list').open) renderPositions();
+ notify(labels.done);
+}
+
+$('#confirm-position-stop').onclick = applyStopAction;
+
+if (new URLSearchParams(location.search).has('organization-personnel')) {
+ document.body.classList.add('organization-personnel-frame');
+ try {
+  orgActionBridge = parent.organizationPersonnelAction(window);
+  orgPlan.nodes = orgActionBridge.nodes;
+  stopDialog.addEventListener('close', orgActionBridge.close);
+  if (!beginStopAction(orgActionBridge.kind, orgActionBridge.id)) orgActionBridge.close();
+ } catch (error) {
+  document.body.classList.remove('organization-personnel-frame');
+  notify(error.message);
+ }
+}
+
+$('#transfer-note').hidden = true;
+const mappingsBeforeCleanup = renderMappings;
+renderMappings = function() { mappingsBeforeCleanup(); $('#transfer-note').hidden = true; };
+rangeInfo = function() { $('#hc-range').textContent = ''; $('#hc-range').hidden = true; };
 render();
