@@ -371,7 +371,7 @@
         </div>
         <section class="scenario-section"><div class="scenario-head"><strong>同一职位下的四类员工</strong><span class="proposal-note">交互评审稿 · 模拟数据</span><a-button size="small" @click="reset">重置演示</a-button></div><p class="scenario-description">杭州销售部拟取消新增「渠道专员」职位。下列员工放在同一个弹窗内，分别点击「人员调整」即可演示。</p><proto-table :columns="exampleColumns" :data-source="employees" row-key="empNo" :pagination="false"><template #bodyCell="{column,record}"><span v-if="column.key==='explain'">{{explain(record)}}</span></template></proto-table></section>
         <div class="prototype-divider"><strong>页面交互</strong><span>职位管理 → 取消新增 → 逐人人员调整</span></div>
-        <div class="card-shadow work-card"><div class="work-head"><strong>2027年度组织编制规划</strong><span>编辑中</span></div><div class="workspace"><aside class="org-panel"><b>拟定组织树</b><p>集团</p><button class="chosen">　杭州销售部</button><button v-if="movedEmployees.length">　南京销售部</button></aside><section class="list-panel"><div class="work-head"><strong>杭州销售部</strong><a-button v-if="!deleted" @click="positionsOpen=true">职位管理</a-button></div><a-tabs v-model:activeKey="panel"><a-tab-pane key="hc" tab="编制列表"/><a-tab-pane key="people" tab="人员列表"/></a-tabs><proto-table :columns="mainColumns" :data-source="activeEmployees" row-key="empNo" :pagination="false" :scroll="{x:1000}"><template #bodyCell="{column,record}"><template v-if="column.key==='action'"><a-space><template v-if="panel==='hc'"><a-button type="link" @click="unbind(record)">解绑</a-button></template><template v-else><a-button type="link" @click="openAdjustment(record,false)">人员调整</a-button><a-button v-if="record.state==='adjusted'" type="link" @click="cancelEmployeeOperation(record)">取消调整</a-button><a-button v-if="record.state==='migrated'" type="link" @click="cancelEmployeeOperation(record)">取消迁出</a-button></template></a-space></template></template></proto-table><a-alert v-if="lastResult" :message="lastResult" type="success" show-icon style="margin-top:16px"/></section></div></div>
+        <div class="card-shadow work-card"><div class="work-head"><strong>2027年度组织编制规划</strong><span>编辑中</span></div><div class="workspace"><aside class="org-panel"><b>拟定组织树</b><p>集团</p><button class="chosen">　杭州销售部</button><button v-if="movedEmployees.length">　南京销售部</button></aside><section class="list-panel"><div class="work-head"><strong>杭州销售部</strong><a-button v-if="!deleted" @click="positionsOpen=true">职位管理</a-button></div><a-tabs v-model:activeKey="panel"><a-tab-pane key="hc" tab="编制列表"/><a-tab-pane key="people" tab="人员列表"/></a-tabs><proto-table :columns="mainColumns" :data-source="activeEmployees" row-key="empNo" :pagination="false" :scroll="{x:1000}"><template #bodyCell="{column,record}"><template v-if="column.key==='action'"><a-space><template v-if="panel==='hc'"><a-button type="link" @click="unbind(record)">解绑</a-button></template><template v-else><a-button type="link" @click="openAdjustment(record,false)">人员调整</a-button><a-button v-if="record.state==='adjusted'" type="link" @click="cancelEmployeeOperation(record)">取消调整</a-button><a-button v-if="record.state==='migrated'" type="link" @click="cancelEmployeeOperation(record)">取消移出</a-button></template></a-space></template></template></proto-table><a-alert v-if="lastResult" :message="lastResult" type="success" show-icon style="margin-top:16px"/></section></div></div>
         <a-modal v-model:open="positionsOpen" title="职位管理" :width="960" :footer="null"><proto-table :columns="positionColumns" :data-source="deleted?[]:[{name:'渠道专员'}]" row-key="name" :pagination="false"><template #bodyCell="{column,record}"><span v-if="column.key==='name'">{{record.name}} <a-tag color="green">新增</a-tag></span><a-button v-if="column.key==='action'" type="link" danger @click="positionsOpen=false;cancelOpen=true">取消新增</a-button></template></proto-table><div class="modal-actions"><a-button @click="positionsOpen=false">关闭</a-button></div></a-modal>
         <a-modal v-model:open="cancelOpen" title="取消新增职位 · 渠道专员" :width="1080" :footer="null" class="employee-process-modal" @cancel="discardPlans">
           <a-alert type="warning" show-icon message="取消新增该职位，将一并取消其下仍保留的新增编制。请先安排下列员工的去向。"/>
@@ -456,12 +456,12 @@
       },
       explain(row){
         if(row.state==='adjusted')return '已从集团人力资源部调入：可以继续人员调整，新方案覆盖原方案，取消调整仍恢复首次调整前安排。';
-        if(row.state==='migrated')return '已计划7月迁出：点击人员调整时，提示先到人员列表取消迁出。';
+        if(row.state==='migrated')return '已计划7月迁出：点击人员调整时，提示先到人员列表取消移出。';
         if(row.hc==='--')return '未绑定编制：可以调整；携带原编制禁用，使用目标部门编制。';
         return '普通绑定：可以调整，携带原编制或使用目标部门空编。';
       },
       openAdjustment(row,fromCancel=true){
-        if(row.state==='migrated'){antd.message.warning({content:'该员工已计划迁出，不能进行人员调整。请前往「人员列表」，对该员工执行「取消迁出」。',duration:6,key:'employee-action'});return}
+        if(row.state==='migrated'){antd.message.warning({content:'该员工已计划移出，不能进行人员调整。请前往「人员列表」，对该员工执行「取消移出」。',duration:6,key:'employee-action'});return}
         antd.message.destroy('employee-action');this.editingEmployee=row;this.editingFromCancel=fromCancel;
         const p=this.plans[row.empNo];
         this.form={date:p?dayjs(p.date):(row.state==='adjusted'?dayjs('2027-04-01'):null),org:p?.org,mode:p?.mode||(row.hc==='--'?'target':'carry'),position:p?.position,target:p?.mode==='target'?p.hc:undefined};
@@ -484,14 +484,14 @@
       discardPlans(){this.plans={};this.cancelOpen=false},
       unbind(row){
         if(row.state==='adjusted'){antd.message.warning({content:'该员工已进行人员调整，不能直接解绑。请前往「人员列表」，对该员工执行「取消调整」。',duration:6,key:'employee-action'});return}
-        if(row.state==='migrated'){antd.message.warning({content:'该员工已计划迁出，不能直接解绑。请前往「人员列表」，对该员工执行「取消迁出」。',duration:6,key:'employee-action'});return}
+        if(row.state==='migrated'){antd.message.warning({content:'该员工已计划移出，不能直接解绑。请前往「人员列表」，对该员工执行「取消移出」。',duration:6,key:'employee-action'});return}
         if(row.hc==='--'){antd.message.info('该员工未绑定编制。');return}
         antd.Modal.confirm({title:'解除绑定',content:'确认解除'+row.person+'与编制'+row.hc+'的绑定？',okText:'确认解绑',cancelText:'取消',onOk:()=>{row.hc='--';antd.message.success('已解除绑定。')}});
       },
       cancelEmployeeOperation(row){
         const moved=row.state==='migrated';
-        antd.Modal.confirm({title:moved?'取消迁出':'取消调整',content:moved?'取消后，'+row.person+'将恢复迁出前的任职期间，可重新进行人员调整。':'取消后，'+row.person+'将恢复「'+row.sourceOrg+'／'+row.sourcePosition+'」的任职和编制'+row.sourceHc+'，不再占用当前职位。',okText:moved?'确认取消迁出':'确认取消调整',cancelText:'返回',onOk:()=>{
-          if(moved){row.state='normal';antd.message.success('已取消迁出，可以重新进行人员调整。')}
+        antd.Modal.confirm({title:moved?'取消移出':'取消调整',content:moved?'取消后，'+row.person+'将恢复移出前的任职期间，可重新进行人员调整。':'取消后，'+row.person+'将恢复「'+row.sourceOrg+'／'+row.sourcePosition+'」的任职和编制'+row.sourceHc+'，不再占用当前职位。',okText:moved?'确认取消移出':'确认取消调整',cancelText:'返回',onOk:()=>{
+          if(moved){row.state='normal';antd.message.success('已取消移出，可以重新进行人员调整。')}
           else{row.removed=true;delete this.plans[row.empNo];this.lastResult=row.person+'已恢复集团人力资源部原安排。';antd.message.success(this.lastResult)}
         }});
       },
