@@ -154,3 +154,18 @@ dialog button.primary,#manager-add-position,#copy-existing-position{background:#
 #stop-edit-note{margin-top:10px;margin-bottom:0}
 .organization-personnel-frame{background:transparent}
 .organization-personnel-frame > :not(dialog):not(#toast){display:none!important}
+
+/* Budget explanation sits beside the calculation button. */
+.budget-calc-control{display:inline-flex;align-items:center;gap:6px;flex:0 0 auto}
+.workspace>.dept-heading>.budget-calc-control{margin-left:auto}
+.budget-help{position:relative;display:inline-flex;align-items:center}
+.budget-help .budget-help-trigger{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;min-width:16px;padding:0;border:1px solid #929cab;border-radius:50%;background:transparent;color:#7a8696;font-size:11px;line-height:1;cursor:help}
+.budget-help .budget-help-trigger:focus-visible{outline:2px solid #0e66fb;outline-offset:3px}
+.budget-help-tooltip{display:none;position:absolute;right:0;top:calc(100% + 8px);z-index:40;width:290px;max-width:calc(100vw - 48px);padding:10px 12px;border-radius:4px;background:#344154;color:#fff;box-shadow:0 4px 12px #0002;font-size:12px;line-height:1.8;white-space:normal;font-weight:400;text-align:left}
+.budget-help:hover .budget-help-tooltip,.budget-help:focus-within .budget-help-tooltip{display:block}
+.budget-summary-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.budget-summary-row .budget-band-values{margin:0;gap:20px;flex-wrap:nowrap}
+.budget-summary-row .budget-band-values>span{white-space:nowrap}
+.budget-summary-row .budget-band-values b{margin:0 6px}
+.budget-summary-row .budget-download-actions{margin-left:auto;gap:12px;flex-wrap:nowrap}
+.budget-result-status{margin:8px 0 0}

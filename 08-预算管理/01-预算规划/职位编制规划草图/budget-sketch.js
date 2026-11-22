@@ -1,5 +1,14 @@
 /* Budget interaction sketch. Fictional cost standards; no real payroll or server writes. */
 const budgetButton=document.createElement('button');budgetButton.id='open-budget-scope';budgetButton.textContent='测算预算';$('#preview-plan').before(budgetButton);
+const budgetControl=document.createElement('span');
+budgetControl.className='budget-calc-control';
+budgetButton.before(budgetControl);
+budgetControl.appendChild(budgetButton);
+const budgetHelp=document.createElement('span');
+budgetHelp.className='budget-help';
+budgetHelp.innerHTML='<button type="button" class="budget-help-trigger" aria-label="预算测算说明" aria-describedby="budget-scope-tooltip">?</button><span id="budget-scope-tooltip" class="budget-help-tooltip" role="tooltip">点击「测算预算」，按当前用户的组织权限，测算所选组织及其下级组织的预算。</span>';
+budgetControl.appendChild(budgetHelp);
+// 原型按示例数据演示范围；实际组织权限由服务端校验并过滤。
 const budgetBand=document.createElement('section');budgetBand.id='budget-band';budgetBand.hidden=true;$('#planning-tabs').after(budgetBand);
 let trialBudget=null;
 const existingBudgetUrl='https://test2-hrms.eminxing.com/hc/budget/budgetPlan/test/25?status=1';
@@ -14,7 +23,17 @@ budgetButton.onclick=()=>{if(!activeOrg(selectedOrg)){notify('请先选择有效
 function calculateBudget(ids){const rows=budgetActiveRows(ids),sourceIds=new Set([selectedOrg,...orgPlan.descendants(selectedOrg).map(n=>n.id)]);for(const r of records)if(r.person&&r.plannedExitDate&&sourceIds.has(r.org)&&!rows.some(row=>row.id===r.id))rows.push(r);const items=rows.map(r=>{const monthly={'P1':1,'P2':1.5,'P3':2,'P4':3}[r.grade?.slice(0,2)];const month=r.person?1:Number(r.arrival?.slice(5,7)),year=r.person?2027:Number(r.arrival?.slice(0,4));let error='';if(!activeOrg(r.org)||!positions.some(p=>p.org===r.org&&p.name===r.job&&!p.disabled))error='组织或职位已停用，需确认存量成本归属';else if(!monthly)error='缺少成本标准';else if(!r.person&&(!r.arrival||!month))error='缺少预计到岗时间';const first=year<2027?1:year>2027?13:month;const cost=monthly*(r.overseas?1.5:1),exitYear=Number(r.plannedExitDate?.slice(0,4)),end=r.person&&r.plannedExitDate?(exitYear<2027?1:exitYear>2027?13:Number(r.plannedExitDate.slice(5,7))):13,months=error?0:Math.max(0,end-first);return {id:r.id,code:r.code,org:r.org,dept:formatOrg(r.org),person:!!r.person,name:staff(r)?.name||'空编',grade:r.grade,monthly:cost,first,months,exitDate:r.plannedExitDate||'',error,total:error?null:cost*months};});return {scopeOrg:selectedOrg,ids:[...ids],all:ids.size===budgetNodes().length,label:budgetScopeLabel(ids),fingerprint:budgetFingerprint(ids),time:new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'}),items,total:items.reduce((n,r)=>n+(r.total||0),0),occupied:items.filter(r=>r.person).reduce((n,r)=>n+(r.total||0),0),vacant:items.filter(r=>!r.person).reduce((n,r)=>n+(r.total||0),0),errors:items.filter(r=>r.error).length};}
 
 let budgetCollapsed=false;
-function renderBudgetBand(){if(!trialBudget||trialBudget.scopeOrg!==selectedOrg){budgetBand.hidden=true;return;}budgetBand.hidden=false;const r=trialBudget,stale=budgetIsStale(r);budgetBand.innerHTML=`<div class="budget-band-head"><div><strong title="${esc(r.label)}">预算测算</strong>${stale?'<b class="budget-stale">待重新测算</b>':r.errors?`<b class="budget-stale">${r.errors}份编制未计入</b>`:''}</div><div class="budget-download-actions"><button id="download-budget-detail" ${stale?'disabled title="请先重新测算"':''}>下载测算明细</button><a id="open-cost-detail" class="budget-detail-link" href="${esc(existingBudgetUrl)}" target="_blank" rel="noopener">查看测算明细 ↗</a><button id="toggle-budget-band" class="text" aria-expanded="${!budgetCollapsed}">${budgetCollapsed?'展开':'收起'}</button></div></div><div class="budget-band-values" ${budgetCollapsed?'hidden':''}><span>增量成本<b>${budgetMoney(r.vacant)}</b>万元</span><span>存量成本<b>${budgetMoney(r.occupied)}</b>万元</span><span>成本合计<b>${budgetMoney(r.total)}</b>万元</span></div>`;$('#download-budget-detail').onclick=downloadBudgetDetail;$('#toggle-budget-band').onclick=()=>{budgetCollapsed=!budgetCollapsed;renderBudgetBand();};}
+function renderBudgetBand(){
+ if(!trialBudget||trialBudget.scopeOrg!==selectedOrg){budgetBand.hidden=true;return;}
+ budgetBand.hidden=false;
+ const result=trialBudget;
+ const stale=budgetIsStale(result);
+ const status=stale?'待重新测算':result.errors?`${result.errors}份编制未计入`:'';
+ budgetBand.innerHTML=`<div class="budget-summary-row"><div class="budget-band-values" ${budgetCollapsed?'hidden':''}><span>增量成本<b>${budgetMoney(result.vacant)}</b>万元</span><span>存量成本<b>${budgetMoney(result.occupied)}</b>万元</span><span>成本合计<b>${budgetMoney(result.total)}</b>万元</span></div><div class="budget-download-actions"><button id="download-budget-detail" ${stale?'disabled title="请先重新测算"':''}>下载预算明细</button><a id="open-cost-detail" class="budget-detail-link" href="${esc(existingBudgetUrl)}" target="_blank" rel="noopener">查看预算明细 ↗</a><button id="toggle-budget-band" class="text" aria-expanded="${!budgetCollapsed}" aria-controls="budget-cost-values">${budgetCollapsed?'展开':'收起'}</button></div></div>${status?`<p class="budget-result-status budget-stale" role="status">${status}</p>`:''}`;
+ budgetBand.querySelector('.budget-band-values').id='budget-cost-values';
+ $('#download-budget-detail').onclick=downloadBudgetDetail;
+ $('#toggle-budget-band').onclick=()=>{budgetCollapsed=!budgetCollapsed;renderBudgetBand();};
+}
 
 
 const renderBeforeBudgetSketch=render;render=function(){renderBeforeBudgetSketch();renderBudgetBand();};
