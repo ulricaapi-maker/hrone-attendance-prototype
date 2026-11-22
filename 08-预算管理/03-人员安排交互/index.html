@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>预算人员安排交互</title>
+  <link rel="stylesheet" href="https://unpkg.com/ant-design-vue@4.2.6/dist/reset.css" />
+  <script src="https://unpkg.com/vue@3.5.13/dist/vue.global.prod.js"></script>
+  <script src="https://unpkg.com/dayjs@1.11.13/dayjs.min.js"></script>
+  <script src="https://unpkg.com/dayjs@1.11.13/locale/zh-cn.js"></script>
+  <!-- 原型说明: antd 的 UMD 包在全局分支下依赖下列 dayjs 插件全局变量，缺失会导致 antd is not defined；顺序不可调整 -->
+  <script src="https://unpkg.com/dayjs@1.11.13/plugin/advancedFormat.js"></script>
+  <script src="https://unpkg.com/dayjs@1.11.13/plugin/customParseFormat.js"></script>
+  <script src="https://unpkg.com/dayjs@1.11.13/plugin/localeData.js"></script>
+  <script src="https://unpkg.com/dayjs@1.11.13/plugin/quarterOfYear.js"></script>
+  <script src="https://unpkg.com/dayjs@1.11.13/plugin/weekOfYear.js"></script>
+  <script src="https://unpkg.com/dayjs@1.11.13/plugin/weekYear.js"></script>
+  <script src="https://unpkg.com/dayjs@1.11.13/plugin/weekday.js"></script>
+  <script src="https://unpkg.com/ant-design-vue@4.2.6/dist/antd.min.js"></script>
+  <style>
+    /* ===== 系统风格基线令牌（来源：baseline/系统风格基线.md，原始出处 hrms-hc-web/src/docs/系统风格基线.md） ===== */
+    :root {
+      /* 色彩 */
+      --primary: #0E66FB;
+      --primary-hover: #036dde;
+      --primary-bg: #EEF2FF;
+      --success: #00b259;
+      --success-bg: #e0f7ea;
+      --warning: #FAAD14;
+      --error: #FF4D4F;
+      --error-bg: #fff0f0;
+      --bg-light: #f5f7fd;
+      --secondary: #2f3640;
+      --text: #333;
+      --text-title: rgba(0, 0, 0, 0.84);
+      --text-2: #666;
+      --text-3: #888;
+      --border: #eee;
+      --summary-bg: #FFF8E8;
+      --tabs-bg: #f9fafc;
+      /* 尺寸 */
+      --font-size-base: 12px;
+      --height-base: 30px;
+      --radius: 8px;
+      --header: 52px;
+      --side: 220px;
+      --side-collapsed: 80px;
+      --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      --box-shadow: 0 0 6px rgba(0, 0, 0, 0.07);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; height: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--text); background: var(--bg-light);
+      font-size: var(--font-size-base); line-height: 27px;
+    }
+    #app { height: 100%; }
+    .flex { display: flex; }
+    .flex-1 { flex: 1; min-width: 0; }
+
+    /* ===== 全局控件尺寸对齐系统（global.less） =====
+       原型说明: 系统靠 line-height 让文字居中；这里统一改成 inline-flex + align-items:center，
+       同时覆盖 antd 默认的 padding: 4px 15px / 4px 11px，
+       否则中文/多语言字号变化时文字会偏下，出现「文字掉到下沿」的问题。 */
+    .ant-btn {
+      height: var(--height-base); line-height: 1; font-size: 12px;
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 0 10px;
+    }
+    .ant-btn-sm { height: 24px; padding: 0 7px; }
+    .ant-btn.ant-btn-link, .ant-btn.ant-btn-icon-only { padding: 0; }
+    .ant-btn > span { display: inline-flex; align-items: center; }
+    .ant-btn > svg + span, .ant-btn > span + svg, .ant-btn > .anticon + span { margin-inline-start: 4px; }
+    /* 原型说明: 内联 SVG 替代 @ant-design/icons-vue（UMD 包不导出图标），需要手动继承当前文字颜色 */
+    .ant-btn > svg, .table-icon-btn > svg, .search-config svg, .search-card-title svg { fill: currentColor; }
+
+    /* 输入类控件：flex 居中 + 去掉 antd 默认的上下内边距 */
+    .ant-input:not(textarea), .ant-input-affix-wrapper, .ant-input-number, .ant-picker {
+      height: var(--height-base); display: inline-flex; align-items: center; padding: 0 11px; line-height: 1;
+    }
+    .ant-input-affix-wrapper > input.ant-input { height: auto; padding: 0; line-height: 1; }
+    .ant-input-affix-wrapper .ant-input-prefix,
+    .ant-input-affix-wrapper .ant-input-suffix { display: inline-flex; align-items: center; }
+    .ant-select-single .ant-select-selector {
+      height: var(--height-base) !important; display: flex; align-items: center; padding: 0 11px;
+    }
+    .ant-select-single .ant-select-selector .ant-select-selection-item,
+    .ant-select-single .ant-select-selector .ant-select-selection-placeholder {
+      line-height: 1; display: flex; align-items: center; overflow: hidden;
+    }
+    .ant-form-item-label > label { font-size: 12px; }
+    .ant-form .ant-form-item { margin-bottom: 19px; }
+    .ant-typography, .ant-col { font-size: 12px; }
+    .ant-modal-title { font-size: 14px; }
+    .ant-picker { width: 100%; }
+    .ant-input-number { width: 100%; }
+    div .reqs { color: #f20; }
+    div .ant-btn > span + .anticon { margin-inline-start: 2px; }
+
+    /* ===== 顶栏 52px（layout.less .layout-header） ===== */
+    .layout-header {
+      height: var(--header); background: #fff; padding: 0 15px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-left, .header-right { display: flex; align-items: center; flex-shrink: 0; }
+    .layout-logo { display: flex; align-items: center; height: 24px; margin-right: 20px; padding-left: 12px; }
+    .layout-logo .logo-text { font-size: 18px; font-weight: 700; line-height: 24px; color: var(--primary); letter-spacing: 0.5px; }
+    .header-icon-btn {
+      width: 32px; height: 32px; border: 0 none; border-radius: 50%;
+      background: transparent; color: var(--text-3); cursor: pointer; font-size: 14px; line-height: 30px;
+    }
+    .header-icon-btn:hover { background: #f2f3f5; color: var(--primary); }
+    .header-all-menu {
+      height: 30px; margin-left: 10px; padding: 0 10px; font-size: 12px; cursor: pointer;
+      border: 1px solid #e5e5e5; border-radius: 6px; background: #fff; color: var(--text);
+    }
+    /* 打开态：手动加 .is-open，或用 a-dropdown 包裹后由 antd 自动加 .ant-dropdown-open */
+    .header-all-menu.is-open, .header-all-menu.ant-dropdown-open { color: var(--primary); border-color: #C7D7FE; background: #F0F5FF; }
+    .header-history { flex: 1; min-width: 0; display: flex; align-items: center; overflow: hidden; margin: 0 15px; }
+    .history-tag { height: 52px; line-height: 52px; padding: 0 12px; font-size: 12px; white-space: nowrap; cursor: pointer; }
+    .history-tag:hover { background: #F0F5FF; }
+    .history-tag.is-active { background: var(--primary); color: #fff; }
+    .layout-shortcuts-select { width: 200px; margin-right: 15px; }
+    /* 收起态宽 28px（layout.less） */
+    .layout-shortcuts-select.is-collapsed { width: 28px; }
+    .layout-shortcuts-select .ant-select-selector { border-radius: 16px !important; box-shadow: var(--box-shadow); }
+    /* 待办 / 通知徽标底色（layout.less #F74C4C） */
+    .layout-header .ant-badge-count { background: #F74C4C; box-shadow: none; }
+    .header-user { display: flex; align-items: center; margin-left: 15px; font-size: 12px; cursor: pointer; }
+    .header-user .ant-avatar { margin-right: 6px; }
+
+    /* ===== 左菜单 220px / 折叠 80px（layout.less .layout-menu） ===== */
+    .layout-content { display: flex; height: calc(100vh - var(--header)); }
+    .layout-left {
+      width: var(--side); flex-shrink: 0; background: #fff;
+      display: flex; flex-direction: column; transition: width 0.2s ease;
+      border-right: 1px solid #f6f6f6;
+    }
+    .layout-left.is-collapsed { width: var(--side-collapsed); }
+    .layout-menu { flex: 1; min-height: 0; overflow-y: auto; padding: 6px 8px; }
+    .menu-group-title { padding: 8px; font-size: 12px; color: var(--text-3); }
+    .menu-item {
+      display: block; width: 100%; height: 38px; line-height: 38px; padding: 0 12px;
+      border: 0; border-radius: 6px; background: transparent; color: var(--text-2);
+      font-size: 14px; text-align: left; cursor: pointer;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .menu-item:hover, .menu-item.is-active { background: var(--primary-bg); color: var(--primary); }
+    .layout-menu-footer {
+      flex-shrink: 0; padding: 6px 12px; text-align: right;
+      border-top: 1px solid #f6f6f6; background: #fff; color: var(--text-3); cursor: pointer;
+    }
+
+    /* ===== 内容区（layout.less .layout-right / .layout-view / .layout-tabs） ===== */
+    .layout-right {
+      flex: 1; min-width: 0; background: var(--bg-light);
+      padding: 5px 10px 10px; overflow: auto;
+      scrollbar-width: none; -ms-overflow-style: none;
+    }
+    .layout-right::-webkit-scrollbar { display: none; width: 0; height: 0; }
+    .layout-view { border-radius: var(--radius); overflow: hidden; box-shadow: var(--card-shadow); margin-bottom: 10px; }
+    .layout-view-main { flex: 1; }
+
+    .layout-tabs .ant-tabs-nav { margin-bottom: 0; background: var(--tabs-bg); }
+    .layout-tabs .ant-tabs-nav::before { border-bottom: 0 none !important; }
+    .layout-tabs .ant-tabs-tab {
+      margin-left: 0 !important; border-radius: 0 !important; background-color: transparent !important;
+      border-left: 0 none !important; border-top: 0 none !important; border-right: 0 none !important;
+      border-bottom-width: 2px; border-bottom-color: transparent;
+    }
+    .layout-tabs .ant-tabs-tab-btn { font-size: 12px; }
+    .layout-tabs .ant-tabs-tab-active { background-color: transparent !important; border-bottom-color: var(--primary) !important; }
+    .layout-tab-title { display: inline-flex; align-items: center; max-width: 300px; }
+    .layout-tab-title-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* ===== 列表页结构（table-public.vue） ===== */
+    .card-shadow { border-radius: var(--radius); box-shadow: var(--card-shadow); }
+    .pulic-table-box {
+      max-height: calc(100vh - 116px); overflow: auto;
+      scrollbar-width: none; -ms-overflow-style: none;
+    }
+    .pulic-table-box::-webkit-scrollbar { display: none; width: 0; height: 0; }
+    .pulic-table-search-form { margin-bottom: 10px; }
+    .pulic-table-search-form .ant-card-body { padding-top: 2px !important; }
+    .pulic-table-search-form .ant-card-head { min-height: 40px; padding: 0 12px; }
+    .pulic-table-search-form .ant-card-head-title { font-size: 14px; font-weight: 500; }
+    .search-card-title { display: inline-flex; align-items: center; gap: 5px; }
+    .search-card-title svg { fill: var(--primary); }
+    .table-main { background: #fff; padding: 0; border-radius: var(--radius); overflow: hidden; }
+    .table-toolBox { display: flex; justify-content: space-between; align-items: center; padding: 0 10px; margin: 10px 0; }
+    .table-main .baseTableElement { padding: 0 10px; }
+    .toolBox-left, .toolBox-right { display: flex; align-items: center; }
+    .toolBox-right { gap: 5px; }
+    .table-header-search { width: 140px; }
+    /* 列设置触发图标（column-setting.vue 的 <SettingOutlined />） */
+    .column-setting-trigger { cursor: pointer; color: var(--text-2); display: inline-flex; align-items: center; font-size: 14px; }
+    .column-setting-trigger:hover { color: var(--primary); }
+    .column-setting-trigger > svg, .column-setting-body svg { fill: currentColor; }
+    .column-setting-title { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+    .column-setting-body { max-height: 400px; overflow: auto; }
+    .column-setting-item { display: flex; align-items: center; padding: 4px 16px 8px 0; }
+    .column-setting-item .drag-icon { color: #bfbfbf; margin-right: 6px; cursor: move; }
+    .column-setting-item .drag-icon.is-fixed { cursor: default; }
+
+    /* 查询条件（index.less .my-search-form.vertical）：label 与控件上下结构，一行 4 项、每项 25% */
+    .my-search-form.vertical { text-align: left; padding-top: 2px; }
+    /* 原型说明: 系统用 inline-block + 25% 实现一行 4 项；原型改用 flex 保证 4 项精确占满一行 */
+    .my-search-form.vertical .item-group-down,
+    .my-search-form.vertical .item-group-up { display: flex; flex-wrap: wrap; }
+    .my-search-form.vertical .item-group-down { height: 67px; overflow: hidden; }
+    .my-search-form.vertical .item-group-down .ant-form-item { margin-bottom: 10px; }
+    .my-search-form.vertical .ant-form-item {
+      flex: 0 0 25%; width: 25%; padding: 0 6px; margin-bottom: 2px; vertical-align: top;
+    }
+    .my-search-form.vertical .ant-form-item-label { padding: 0 0 3px; }
+    .my-search-form.vertical .ant-form-item-label > label { height: 22px; line-height: 22px; color: var(--text-2); }
+    /* 查询条件卡片右上角配置区（search-plan-config.vue） */
+    .search-config { display: flex; align-items: center; }
+    .search-config .plan-select { width: 120px; }
+    .search-config .ant-btn { margin-left: 5px; color: var(--text-3); }
+    .search-action { display: flex; justify-content: space-between; align-items: center; margin-top: 5px; padding: 0 6px 6px; }
+    .search-action .action { display: flex; align-items: center; }
+    .search-action .action button { margin-right: 5px; }
+
+    /* ===== 表格（layout.less .ant-table-tbody） ===== */
+    .ant-table-summary,
+    .ant-table-summary .ant-table-cell-fix-right,
+    .ant-table-summary .ant-table-cell-fix-left { background-color: var(--summary-bg) !important; }
+    .ant-table-tbody .ant-table-cell { white-space: pre-line; }
+    .ant-table-tbody .ant-table-cell .ant-tag { margin-right: 0; border-radius: 11px; white-space: pre-wrap; }
+    .ant-table-tbody .ant-table-cell button.ant-btn { padding: 0 !important; height: 26px !important; line-height: 26px !important; }
+    .ant-table-tbody .ant-table-cell.ant-table-cell-fix-right .ant-btn-link { margin-right: 5px; }
+    /* 长数字/连续英文用 .table-cell-link 包裹才换行截断 */
+    .table-cell-link { display: inline-block; max-width: 100%; vertical-align: top; color: var(--primary); cursor: pointer; }
+    .table-cell-link:hover { color: var(--primary-hover); }
+    .ellip-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; max-width: 100%; vertical-align: top; }
+
+    /* 表格内 26×26 图标按钮（layout.less） */
+    .table-icon-btn {
+      width: 26px; height: 26px !important; min-width: 26px; padding: 0 !important;
+      border: 0 none; border-radius: 6px; background: var(--bg-light); color: var(--primary);
+      margin-right: 5px; line-height: 26px !important; box-shadow: none;
+    }
+    .table-icon-btn:hover { background: var(--primary-bg); color: var(--primary); }
+    .table-icon-btn.is-danger { background: var(--error-bg); color: var(--error); }
+    .table-icon-btn.is-success { background: var(--success-bg); color: #10b981; }
+    .table-icon-btn.is-more { background: var(--bg-light); color: var(--text-2); }
+    .table-icon-btn[disabled], .table-icon-btn.is-disabled {
+      background: #f1f1f1 !important; color: var(--text-3) !important; border: 0 none;
+    }
+    .table-cell-dropdown .ant-btn { width: 100%; padding: 0 !important; border: 0 none; text-align: left; }
+
+    /* ===== 区块标题（layout.less .basic-title） ===== */
+    .basic-title { font-size: 14px; font-weight: 500; line-height: 26px; color: var(--text-title); }
+    .basic-title::before {
+      content: ''; display: inline-block; vertical-align: middle;
+      margin: -3px 5px 0 0; width: 4px; height: 22px; background: #197aff;
+    }
+
+    /* ===== 弹窗（index.less .custom-modal / .table-modal / .full-modal） ===== */
+    .custom-modal .ant-modal-content { padding: 0; border-radius: var(--radius); overflow: hidden; }
+    .custom-modal .ant-modal-header { padding: 17px 20px; margin-bottom: 0; background: var(--primary-bg); border-radius: 0; }
+    .custom-modal .ant-modal-title { color: var(--primary); font-size: 14px; }
+    .custom-modal .ant-modal-body { padding: 10px 20px; max-height: calc(100vh - 200px); overflow: auto; }
+    .custom-modal .ant-modal-footer { padding: 10px 20px; margin-top: 0; border-top: 1px solid var(--border); }
+    .table-modal .ant-modal-content { width: calc(100vw - 160px); }
+    .full-modal .ant-modal-content { top: 0; }
+    .full-modal .ant-modal-body { height: calc(100vh - 106px); overflow: auto; }
+    .ant-modal-confirm .ant-modal-content { padding: 16px 18px; }
+    .ant-modal-confirm .ant-modal-confirm-title,
+    .ant-modal-confirm .ant-modal-confirm-content { font-size: 12px; }
+    .ant-modal-confirm .ant-modal-confirm-btns button { height: var(--height-base) !important; }
+
+    /* ===== 其它系统组件 ===== */
+    .form-footer {
+      display: flex; justify-content: center; align-items: center;
+      background: #fff; padding: 20px; border-radius: 6px;
+    }
+    .form-footer .ant-btn { margin: 0 5px; }
+    .ant-radio-group-solid {
+      background: var(--primary-bg); padding: 3px; border-radius: 15px; display: inline-flex;
+    }
+    .ant-radio-group-solid .ant-radio-button-wrapper {
+      height: 24px; line-height: 24px; padding: 0 8px; border: 0 none;
+      border-radius: 12px !important; background: transparent; font-size: 12px;
+    }
+    .ant-radio-group-solid .ant-radio-button-wrapper::before { display: none; }
+    .ant-radio-group-solid .ant-radio-button-wrapper-checked { background: var(--primary); color: #fff; }
+    .white-collapse { background-color: transparent; }
+    .white-collapse .ant-collapse-header { font-size: 16px !important; font-weight: bold; color: #000819; padding-left: 35px; }
+    .white-collapse .ant-collapse-item { background: #fff; border-bottom: 0 none; border-radius: 8px; margin-bottom: 10px; }
+    .ant-steps { border-radius: 8px; padding: 10px 15px; }
+    .ant-steps-item-title { font-size: 12px !important; }
+    .ant-steps .ant-steps-item-process .ant-steps-item-title { color: var(--primary); }
+    .ant-descriptions-small { margin: 10px 0; }
+    .ant-descriptions-small .ant-descriptions-title { font-size: 14px; }
+    /* ===== 其它系统组件（layout.less） ===== */
+    /* 提示条：div div.ant-alert */
+    div div.ant-alert { padding: 6px; border-radius: 6px; }
+    div div.ant-alert .ant-alert-message { font-size: 12px; font-weight: bold; }
+    /* 抽屉：宽 36vw（用 :width="'36vw'"），body 底 #fafbfc，遮罩 rgba(0, 8, 25, 0.4) */
+    .ant-drawer .ant-drawer-body { background: #fafbfc; }
+    .ant-drawer-mask { background: rgba(0, 8, 25, 0.4) !important; }
+    .ant-tooltip-inner { white-space: pre-line; }
+  
+.layout-header{background:#fff;}
+.demo-bar{display:flex;align-items:center;gap:12px;margin-bottom:12px}.demo-bar>span{color:#996500;margin-right:auto}.case-card,.work-card{background:#fff;border-radius:8px;padding:20px;margin-bottom:12px}.case-card p,.muted{color:#666;margin:8px 0 16px}.state-table{width:100%;border-collapse:collapse;font-size:12px}.state-table th{text-align:left;background:#f7f8fa;color:#666;font-weight:500}.state-table td,.state-table th{padding:12px;border-bottom:1px solid #eee}.state-table small{display:block;color:#999;margin-top:4px}.work-head{display:flex;align-items:center;gap:12px;justify-content:space-between;margin-bottom:16px}.work-head>span{color:#0e66fb}.workspace{display:flex;gap:20px;min-height:370px}.org-panel{width:210px;border-right:1px solid #eee;padding-right:15px;flex-shrink:0}.org-panel p{margin-top:20px}.org-panel button{display:block;width:100%;text-align:left;background:white;border:0;padding:12px 4px;cursor:pointer;border-radius:4px}.org-panel .chosen{background:#eef2ff;color:#0e66fb}.list-panel{min-width:0;flex:1}.modal-actions{display:flex;justify-content:flex-end;gap:8px;border-top:1px solid #eee;padding-top:16px;margin-top:24px}.assignment-card{padding:16px;background:#f7f9fd;margin-top:16px}.assignment-card p{margin:8px 0}.assignment-card span,.list-total{color:#888}.list-total{text-align:right;margin-top:18px}.ant-modal-title{color:#0e66fb!important}.ant-btn{display:inline-flex;align-items:center;justify-content:center}.ant-modal-header{margin-bottom:20px!important}@media(max-width:1100px){.layout-left{display:none}.org-panel{width:160px}.case-card,.work-card{padding:14px}}
+.field-grid{display:grid;gap:0 24px}.field-grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}.field-grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}.read-fields{margin:16px 0 24px}.read-fields>div{min-width:0;margin-bottom:18px}.read-fields label{display:block;color:#999;margin-bottom:7px}.read-fields span{display:block;color:#333;overflow-wrap:anywhere}.section-label{display:inline-block;background:#eef2ff;color:#0e66fb;padding:5px 10px;font-size:12px;margin:4px 0 12px}.field-grid .ant-form-item{min-width:0}.table-tools{padding-bottom:12px;color:#666}.ant-table-cell{white-space:nowrap}.list-panel .ant-table-wrapper{max-width:100%}.org-panel{width:200px}.work-card{padding:18px}.review-context{background:#f5f7fd}.layout-right{min-width:0}.workspace{min-width:0}.header{background:#fff}
+.scenario-section{padding:20px;background:#fff;border:1px solid #e6e9f0;border-radius:8px;margin-bottom:20px}.scenario-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}.scenario-head>button{margin-left:auto}.proposal-note{font-size:12px;color:#996500}.scenario-picker{display:flex;flex-wrap:wrap;gap:8px}.scenario-picker .ant-radio-button-wrapper{border:1px solid #d9d9d9;border-radius:4px!important}.scenario-picker .ant-radio-button-wrapper:before{display:none!important}.scenario-description{margin:16px 0;color:#666}.scenario-guidance{display:flex;gap:14px;margin-top:16px;padding:12px;background:#f5f7fd;border-radius:4px}.scenario-guidance b{white-space:nowrap;font-weight:500}.prototype-divider{display:flex;align-items:center;gap:12px;margin:0 0 12px}.prototype-divider span{color:#999;font-size:12px}
+.single-adjust-modal .ant-modal-content,.employee-process-modal .ant-modal-content{padding:0!important;overflow:hidden}.single-adjust-modal .ant-modal-header,.employee-process-modal .ant-modal-header{background:#eef2ff;padding:18px 22px;margin:0!important}.single-adjust-modal .ant-modal-body{padding:14px 20px 8px}.employee-process-modal .ant-modal-body{padding:20px}.single-adjust-modal .ant-modal-footer{margin:0;padding:14px 20px;border-top:1px solid #eee}.single-adjust-modal .ant-modal-close{top:14px;right:14px}.identity-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 24px;margin-bottom:24px}.identity-grid label{display:block;color:#999;margin-bottom:7px}.identity-grid span{display:block;color:#333}.single-adjust-modal .ant-form-item{margin-bottom:22px}.single-adjust-modal .ant-picker{width:100%}.single-adjust-modal .ant-form-item-explain-error{font-size:12px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<!-- 原型说明: 页面模板必须放在 x-template 中。若直接写在 <div id="app"> 里，浏览器会先解析 HTML，
+     自闭合的组件标签（<a-select ... />）会被当成未闭合的开标签，把后面的兄弟节点吞成它的子节点，
+     slot 名也会被小写化（#bodyCell → #bodycell）。x-template 内容是纯文本，可避免这两类问题。 -->
+<script type="text/x-template" id="page-tpl">
+  <a-config-provider :locale="zhCN" :theme="theme">
+    <!-- ===== 顶栏 52px ===== -->
+    <header class="layout-header">
+      <div class="header-left">
+        <div class="layout-logo"><span class="logo-text">HRONE</span></div>
+        <button class="header-icon-btn" title="首页">⌂</button>
+        <button class="header-all-menu">全部菜单 ⌄</button>
+      </div>
+      <!-- 历史页签：与页签栏内容保持一致 -->
+      <div class="header-history">
+        <span class="history-tag is-active">组织编制规划</span>
+      </div>
+      <div class="header-right">
+        <a-select class="layout-shortcuts-select" placeholder="搜索菜单" :options="[]" :show-search="true" />
+        <button class="header-icon-btn" title="语言">中</button>
+        <a-badge :count="2" class="notice-badge"><button class="header-icon-btn" title="通知">铃</button></a-badge>
+        <div class="header-user">
+          <a-avatar :size="24">张</a-avatar>张伟
+        </div>
+      </div>
+    </header>
+
+    <div class="layout-content">
+      <!-- ===== 左菜单 220px / 折叠 80px ===== -->
+      <aside class="layout-left" :class="{ 'is-collapsed': collapsed }">
+        <div class="layout-menu">
+          <template v-if="!collapsed">
+            <div class="menu-group-title">预算管理</div>
+          </template>
+          <button class="menu-item is-active" :title="'当前页面'">{{ collapsed ? '页' : '组织编制规划' }}</button>
+          <button class="menu-item" :title="'预算任务'">{{ collapsed ? '它' : '预算任务' }}</button>
+        </div>
+        <div class="layout-menu-footer" @click="collapsed = !collapsed">{{ collapsed ? '»' : '«' }}</div>
+      </aside>
+
+      <!-- ===== 内容区 ===== -->
+      <div class="layout-right">
+        <!-- 页签栏 -->
+        <div class="layout-view">
+          <a-tabs class="layout-tabs" size="small" type="editable-card" hide-add :active-key="activeTab" @change="onTabChange">
+            <a-tab-pane key="current">
+              <template #tab>
+                <a-tooltip title="组织编制规划" placement="top">
+                  <span class="layout-tab-title"><span class="layout-tab-title-text">组织编制规划</span></span>
+                </a-tooltip>
+              </template>
+            </a-tab-pane>
+          </a-tabs>
+        </div>
+        <section class="scenario-section"><div class="scenario-head"><strong>同一职位下的四类员工</strong><span class="proposal-note">交互评审稿 · 模拟数据</span><a-button size="small" @click="reset">重置演示</a-button></div><p class="scenario-description">杭州销售部拟取消新增「渠道专员」职位。下列员工放在同一个弹窗内，分别点击「人员调整」即可演示。</p><proto-table :columns="exampleColumns" :data-source="employees" row-key="empNo" :pagination="false"><template #bodyCell="{column,record}"><span v-if="column.key==='explain'">{{explain(record)}}</span></template></proto-table></section>
+        <div class="prototype-divider"><strong>页面交互</strong><span>职位管理 → 取消新增 → 逐人人员调整</span></div>
+        <div class="card-shadow work-card"><div class="work-head"><strong>2027年度组织编制规划</strong><span>编辑中</span></div><div class="workspace"><aside class="org-panel"><b>拟定组织树</b><p>集团</p><button class="chosen">　杭州销售部</button><button v-if="movedEmployees.length">　南京销售部</button></aside><section class="list-panel"><div class="work-head"><strong>杭州销售部</strong><a-button v-if="!deleted" @click="positionsOpen=true">职位管理</a-button></div><a-tabs v-model:activeKey="panel"><a-tab-pane key="hc" tab="编制列表"/><a-tab-pane key="people" tab="人员列表"/></a-tabs><proto-table :columns="mainColumns" :data-source="activeEmployees" row-key="empNo" :pagination="false" :scroll="{x:1000}"><template #bodyCell="{column,record}"><template v-if="column.key==='action'"><a-space><template v-if="panel==='hc'"><a-button type="link" @click="unbind(record)">解绑</a-button></template><template v-else><a-button type="link" @click="openAdjustment(record,false)">人员调整</a-button><a-button v-if="record.state==='adjusted'" type="link" @click="cancelEmployeeOperation(record)">取消调整</a-button><a-button v-if="record.state==='migrated'" type="link" @click="cancelEmployeeOperation(record)">取消迁出</a-button></template></a-space></template></template></proto-table><a-alert v-if="lastResult" :message="lastResult" type="success" show-icon style="margin-top:16px"/></section></div></div>
+        <a-modal v-model:open="positionsOpen" title="职位管理" :width="960" :footer="null"><proto-table :columns="positionColumns" :data-source="deleted?[]:[{name:'渠道专员'}]" row-key="name" :pagination="false"><template #bodyCell="{column,record}"><span v-if="column.key==='name'">{{record.name}} <a-tag color="green">新增</a-tag></span><a-button v-if="column.key==='action'" type="link" danger @click="positionsOpen=false;cancelOpen=true">取消新增</a-button></template></proto-table><div class="modal-actions"><a-button @click="positionsOpen=false">关闭</a-button></div></a-modal>
+        <a-modal v-model:open="cancelOpen" title="取消新增职位 · 渠道专员" :width="1080" :footer="null" class="employee-process-modal" @cancel="discardPlans">
+          <a-alert type="warning" show-icon message="取消新增该职位，将一并取消其下仍保留的新增编制。请先安排下列员工的去向。"/>
+          <proto-table style="margin-top:16px" :columns="employeeColumns" :data-source="activeEmployees" row-key="empNo" :pagination="false" :scroll="{x:960}"><template #bodyCell="{column,record}"><template v-if="column.key==='action'"><a-space :size="12"><a-button type="link" @click="openAdjustment(record,true)">{{plans[record.empNo]?'修改调整':'人员调整'}}</a-button><a-button v-if="plans[record.empNo]" type="link" @click="delete plans[record.empNo]">取消调整</a-button></a-space></template><template v-else-if="column.key==='plan'"><span v-if="plans[record.empNo]">{{plans[record.empNo].org}} / {{plans[record.empNo].position}}</span><span v-else>--</span></template></template></proto-table>
+          <p class="muted" style="margin-top:14px">共 {{activeEmployees.length}} 位员工，已安排 {{Object.keys(plans).length}} 位。</p><div class="modal-actions"><a-button @click="discardPlans">取消</a-button><a-button type="primary" @click="finishCancellation">确认取消新增</a-button></div>
+        </a-modal>
+        <a-modal v-model:open="adjustOpen" title="人员调整" :width="560" ok-text="确认调整" cancel-text="取消" @ok="saveAdjustment" class="single-adjust-modal" :confirm-loading="saving">
+          <template v-if="editingEmployee"><div class="identity-grid"><div><label>姓名</label><span>{{editingEmployee.person}}</span></div><div><label>工号</label><span>{{editingEmployee.empNo}}</span></div><div><label>任职部门</label><span>{{editingEmployee.sourceOrg||editingEmployee.org}}</span></div><div><label>任职职位</label><span>{{editingEmployee.currentPosition}}</span></div></div>
+          <a-form ref="adjustForm" :model="form" :rules="formRules" layout="vertical">
+          <a-form-item label="计划调动日期" name="date"><a-date-picker class="my-date-components" v-model:value="form.date" placeholder="请选择日期" format="YYYY-MM-DD" style="width:100%"/></a-form-item>
+          <a-form-item label="目标部门" name="org"><a-tree-select class="org-tree" v-model:value="form.org" :tree-data="destinationTree" tree-default-expand-all allow-clear style="width:100%" @change="changeDepartment"/></a-form-item>
+          <a-form-item label="编制处理"><a-radio-group v-model:value="form.mode" @change="changeMode"><a-tooltip :title="hasSourceEstablishment?'':'该员工未绑定编制，不能携带原编制'"><a-radio value="carry" :disabled="!hasSourceEstablishment">携带原编制</a-radio></a-tooltip><a-radio value="target">使用目标部门编制</a-radio></a-radio-group></a-form-item>
+          <a-form-item v-if="form.mode==='carry'" label="目标职位" name="position"><a-select class="my-select" v-model:value="form.position" :disabled="!form.org" :options="targetPositions" style="width:100%"/></a-form-item>
+          <a-form-item v-else label="目标空编" name="target"><a-select class="my-select" v-model:value="form.target" :disabled="!form.org" :options="targetVacancies" style="width:100%"/></a-form-item>
+          <a-alert v-if="form.mode==='target' && hasSourceEstablishment" type="warning" show-icon message="员工使用目标编制后，原编制自计划调动月份起自动停用"/>
+          </a-form></template>
+        </a-modal>
+              </div>
+    </div>
+  </a-config-provider>
+</script>
+<script>
+  dayjs.locale('zh-cn');
+
+  // 原型说明: antd 的 UMD 包不导出 locales，中文文案在此内联
+  const zhCN = {
+    locale: 'zh-cn',
+    global: { placeholder: '请选择', loading: '加载中', emptyText: '暂无数据' },
+    Pagination: { items_per_page: '条/页', jump_to: '跳至', page: '页', prev_page: '上一页', next_page: '下一页', total: '共 {{total}} 条' },
+    DatePicker: {
+      placeholder: '请选择日期', yearPlaceholder: '请选择年份', monthPlaceholder: '请选择月份',
+      weekPlaceholder: '请选择周', rangePlaceholder: ['开始日期', '结束日期'],
+      today: '今天', now: '此刻', ok: '确定', clear: '清除'
+    },
+    Select: { placeholder: '请选择', notFoundContent: '无数据' },
+    Table: { emptyText: '暂无数据', filterConfirm: '确定', filterReset: '重置', selectAll: '全选' },
+    Modal: { okText: '确定', cancelText: '取消' },
+    Empty: { description: '暂无数据' },
+    Upload: { removeFile: '删除文件', uploadError: '上传错误', previewFile: '预览文件', downloadFile: '下载文件' },
+    Popconfirm: { ok_text: '确定', cancel_text: '取消' },
+    Descriptions: { emptyText: '暂无数据' },
+    Form: { optional: '（可选）', defaultValidateMessages: { required: '请输入${label}' } }
+  };
+
+  const { createApp } = Vue;
+  const app = createApp({
+    template:'#page-tpl',
+    data(){return {
+      zhCN,theme:{token:{colorPrimary:'#0E66FB',colorSuccess:'#00b259',fontSize:12,borderRadius:6}},
+      collapsed:false,activeTab:'current',panel:'hc',positionsOpen:false,cancelOpen:false,adjustOpen:false,deleted:false,saving:false,
+      employees:[],movedEmployees:[],plans:{},editingEmployee:null,editingFromCancel:true,lastResult:'',
+      form:{date:null,org:undefined,mode:'carry',position:undefined,target:undefined},
+      formRules:{date:[{required:true,message:'必填项不能为空',trigger:'change'}],org:[{required:true,message:'必填项不能为空',trigger:'change'}],position:[{required:true,message:'必填项不能为空',trigger:'change'}],target:[{required:true,message:'必填项不能为空',trigger:'change'}]},
+      destinationTree:[{title:'集团',value:'集团',selectable:false,children:[{title:'南京销售部',value:'南京销售部'},{title:'杭州客户服务部',value:'杭州客户服务部'}]}],
+      exampleColumns:[{title:'员工',dataIndex:'person',width:90},{title:'编制',dataIndex:'hc',width:90},{title:'场景及点击后的结果',key:'explain'}],
+      positionColumns:[{title:'职位名称',dataIndex:'name',key:'name'},{title:'职类',customRender:()=> '销售类'},{title:'最低职级',customRender:()=> 'P1-1'},{title:'最高职级',customRender:()=> 'P4-2'},{title:'成本分类',customRender:()=> '营销类'},{title:'操作',key:'action',width:120}],
+      employeeColumns:[{title:'员工',dataIndex:'person',width:100},{title:'员工工号',dataIndex:'empNo',width:120},{title:'编制',dataIndex:'hc',width:90},{title:'当前职位',dataIndex:'currentPosition',width:130},{title:'当前职级',dataIndex:'grade',width:90},{title:'调整去向',key:'plan',width:210},{title:'操作',key:'action',width:190}]
+    }},
+    mounted(){this.reset()},
+    computed:{
+      activeEmployees(){return this.deleted?[]:this.employees.filter(row=>!row.removed)},
+      mainColumns(){return [{title:'员工',dataIndex:'person',width:100},{title:'员工工号',dataIndex:'empNo',width:110},{title:'编制部门',dataIndex:'org',width:150},{title:'编制编码',dataIndex:'hc',width:100},{title:'编制职位',dataIndex:'currentPosition',width:130},{title:'职级',dataIndex:'grade',width:90},{title:'操作',key:'action',width:220}]},
+      sourceEstablishment(){return this.editingEmployee?.state==='adjusted'?this.editingEmployee.sourceHc:this.editingEmployee?.hc},
+      hasSourceEstablishment(){return !!this.sourceEstablishment&&this.sourceEstablishment!=='--'},
+      targetPositions(){return [{label:this.form.org==='南京销售部'?'大客户经理':'客户服务专员',value:this.form.org==='南京销售部'?'大客户经理':'客户服务专员'}]},
+      targetVacancies(){
+        if(!this.form.org)return [];
+        const prefix=this.form.org==='南京销售部'?'05':'06';
+        return [0,1,2,3].map(i=>({value:prefix+i,label:prefix+i+' / '+this.targetPositions[0].label+' / P2-1',disabled:Object.entries(this.plans).some(([id,p])=>id!==this.editingEmployee?.empNo&&p.org===this.form.org&&p.hc===prefix+i)||this.movedEmployees.some(p=>p.org===this.form.org&&p.hc===prefix+i)}));
+      }
+    },
+    methods:{
+      onTabChange(key){this.activeTab=key},
+      reset(){
+        this.employees=[
+          {person:'赵六',empNo:'A1004',hc:'040',state:'normal',org:'杭州销售部',currentPosition:'渠道专员',grade:'P2-1'},
+          {person:'李四',empNo:'A1002',hc:'020',state:'adjusted',org:'杭州销售部',currentPosition:'HR专员',grade:'P2-1',sourceOrg:'集团人力资源部',sourcePosition:'HR专员',sourceHc:'010'},
+          {person:'王五',empNo:'A1003',hc:'030',state:'migrated',org:'杭州销售部',currentPosition:'渠道专员',grade:'P2-1'},
+          {person:'陈静',empNo:'A1005',hc:'--',state:'normal',org:'杭州销售部',currentPosition:'渠道专员',grade:'P2-1'}
+        ];
+        this.plans={};this.movedEmployees=[];this.editingEmployee=null;this.deleted=false;this.positionsOpen=false;this.cancelOpen=false;this.adjustOpen=false;this.lastResult='';this.panel='hc';
+      },
+      explain(row){
+        if(row.state==='adjusted')return '已从集团人力资源部调入：可以继续人员调整，新方案覆盖原方案，取消调整仍恢复首次调整前安排。';
+        if(row.state==='migrated')return '已计划7月迁出：点击人员调整时，提示先到人员列表取消迁出。';
+        if(row.hc==='--')return '未绑定编制：可以调整；携带原编制禁用，使用目标部门编制。';
+        return '普通绑定：可以调整，携带原编制或使用目标部门空编。';
+      },
+      openAdjustment(row,fromCancel=true){
+        if(row.state==='migrated'){antd.message.warning({content:'该员工已计划迁出，不能进行人员调整。请前往「人员列表」，对该员工执行「取消迁出」。',duration:6,key:'employee-action'});return}
+        antd.message.destroy('employee-action');this.editingEmployee=row;this.editingFromCancel=fromCancel;
+        const p=this.plans[row.empNo];
+        this.form={date:p?dayjs(p.date):(row.state==='adjusted'?dayjs('2027-04-01'):null),org:p?.org,mode:p?.mode||(row.hc==='--'?'target':'carry'),position:p?.position,target:p?.mode==='target'?p.hc:undefined};
+        this.adjustOpen=true;
+        this.$nextTick(()=>this.$refs.adjustForm?.clearValidate());
+      },
+      changeDepartment(){this.form.position=undefined;this.form.target=undefined;this.$refs.adjustForm?.clearValidate(['position','target'])},
+      changeMode(){this.form.position=undefined;this.form.target=undefined;this.$refs.adjustForm?.clearValidate(['position','target'])},
+      async saveAdjustment(){
+        try{await this.$refs.adjustForm.validate()}catch{return}
+        const row=this.editingEmployee;
+        if(this.form.mode==='carry'&&!this.hasSourceEstablishment){antd.message.warning('该员工未绑定编制，请选择「使用目标部门编制」。');return}
+        const hc=this.form.mode==='carry'?this.sourceEstablishment:this.form.target;
+        if(Object.entries(this.plans).some(([id,p])=>id!==row.empNo&&p.org===this.form.org&&p.hc===hc)||this.movedEmployees.some(p=>p.org===this.form.org&&p.hc===hc)){antd.message.warning('目标编制已被占用，请重新选择。');return}
+        const plan={person:row.person,empNo:row.empNo,org:this.form.org,position:this.form.mode==='carry'?this.form.position:this.targetPositions[0].value,hc,date:this.form.date.format('YYYY-MM-DD'),mode:this.form.mode};
+        if(this.editingFromCancel){this.plans[row.empNo]=plan;antd.message.success({content:'已设置'+row.person+'的调整去向。',key:'plan-saved'})}
+        else{this.movedEmployees.push(plan);row.removed=true;this.lastResult=row.person+'已调整至「'+plan.org+'／'+plan.position+'」。';antd.message.success(this.lastResult)}
+        this.adjustOpen=false;
+      },
+      discardPlans(){this.plans={};this.cancelOpen=false},
+      unbind(row){
+        if(row.state==='adjusted'){antd.message.warning({content:'该员工已进行人员调整，不能直接解绑。请前往「人员列表」，对该员工执行「取消调整」。',duration:6,key:'employee-action'});return}
+        if(row.state==='migrated'){antd.message.warning({content:'该员工已计划迁出，不能直接解绑。请前往「人员列表」，对该员工执行「取消迁出」。',duration:6,key:'employee-action'});return}
+        if(row.hc==='--'){antd.message.info('该员工未绑定编制。');return}
+        antd.Modal.confirm({title:'解除绑定',content:'确认解除'+row.person+'与编制'+row.hc+'的绑定？',okText:'确认解绑',cancelText:'取消',onOk:()=>{row.hc='--';antd.message.success('已解除绑定。')}});
+      },
+      cancelEmployeeOperation(row){
+        const moved=row.state==='migrated';
+        antd.Modal.confirm({title:moved?'取消迁出':'取消调整',content:moved?'取消后，'+row.person+'将恢复迁出前的任职期间，可重新进行人员调整。':'取消后，'+row.person+'将恢复「'+row.sourceOrg+'／'+row.sourcePosition+'」的任职和编制'+row.sourceHc+'，不再占用当前职位。',okText:moved?'确认取消迁出':'确认取消调整',cancelText:'返回',onOk:()=>{
+          if(moved){row.state='normal';antd.message.success('已取消迁出，可以重新进行人员调整。')}
+          else{row.removed=true;delete this.plans[row.empNo];this.lastResult=row.person+'已恢复集团人力资源部原安排。';antd.message.success(this.lastResult)}
+        }});
+      },
+      finishCancellation(){
+        const unresolved=this.activeEmployees.filter(row=>!this.plans[row.empNo]);
+        if(unresolved.length){antd.message.warning({content:'尚有'+unresolved.length+'位员工未完成人员调整，请先处理后再确认。',duration:6,key:'employee-action'});return}
+        antd.Modal.confirm({title:'确认取消新增职位',content:'将按已设置的去向调整员工，并取消新增「渠道专员」职位。已携带移出的编制保留。',okText:'确认取消新增',cancelText:'返回',onOk:()=>{this.movedEmployees.push(...Object.values(this.plans));this.plans={};this.deleted=true;this.cancelOpen=false;this.lastResult='员工已调整，新增渠道专员职位已取消。';antd.message.success(this.lastResult)}});
+      }
+    }
+  });
+
+  // 原型说明: HTML 解析器会把 inline 模板里的插槽属性名小写化（#bodyCell → #bodycell），
+  // 因此这里把插槽名归一化后再交给 a-table，直开 HTML 时 #bodyCell 才生效
+  const TABLE_SLOTS = ['bodyCell', 'headerCell', 'customFilterDropdown', 'customFilterIcon', 'emptyText', 'expandedRowRender', 'expandedRow', 'summary'];
+  app.component('proto-table', {
+    inheritAttrs: false,
+    setup(_, { attrs, slots }) {
+      const norm = {};
+      Object.keys(slots).forEach(k => { norm[k] = slots[k]; });
+      TABLE_SLOTS.forEach(name => {
+        const lower = name.toLowerCase();
+        if (slots[lower] && !norm[name]) norm[name] = slots[lower];
+      });
+      const Table = antd.Table;
+      return () => Vue.h(Table, Object.assign({ size: 'small' }, attrs), norm);
+    }
+  });
+
+  app.use(antd).mount('#app');
+</script>
+
+<!-- 原型说明: 组件查看器。右下角按钮切换「内联高亮 + 组件名标签」，用于看清页面用到了哪些组件。
+     映射规则优先命中 HRMS 自定义组件（EmployeeSelect / DeptTreeSelect / MyInput 等），
+     未命中时回退到 antd 原语名（a-table / a-select 等）。仅原型演示用，交付前可整段删除。 -->
+<script>
+(function () {
+  // 映射规则：数组顺序即优先级。命中自定义组件的 class 钩子优先，否则回退到 antd 原语名。
+  var RULES = [
+    ['.my-input-components', 'MyInput'],
+    ['.my-dict-select', 'DictSelect'],
+    ['.my-select', 'MySelect'],
+    ['.my-date-components', 'MyDatePicker'],
+    ['.org-tree', 'DeptTreeSelect'],
+    ['.staff-select', 'EmployeeSelect'],
+    ['.phone-input-group', 'MyPhoneInput'],
+    ['.table-main', 'dynamic-table'],
+    ['.search-config', 'search-plan-config'],
+    ['.column-setting-trigger', 'column-setting'],
+    ['.tooltip-button', 'TooltipButton'],
+    ['.dropdown-over', 'DropdownInputShell'],
+    ['.card-view-components', 'CardView'],
+    ['.svg-icon', 'SvgIcon'],
+    ['.process-preview', 'ProcessViewer'],
+    ['textarea.ant-input', 'a-textarea'],
+    ['.ant-input-affix-wrapper', 'a-input'],
+    ['.ant-input-number', 'a-input-number'],
+    ['.ant-tree-select', 'a-tree-select'],
+    ['.ant-cascader', 'a-cascader'],
+    ['.ant-select', 'a-select'],
+    ['.ant-picker', 'a-date-picker'],
+    ['.ant-input', 'a-input'],
+    ['.ant-checkbox-wrapper', 'a-checkbox'],
+    ['.ant-radio-button-wrapper', 'a-radio-button'],
+    ['.ant-radio-wrapper', 'a-radio'],
+    ['.ant-switch', 'a-switch'],
+    ['.ant-upload', 'a-upload'],
+    ['.ant-form-item', 'a-form-item'],
+    ['.ant-form', 'a-form'],
+    ['.ant-table', 'a-table'],
+    ['.ant-tag', 'a-tag'],
+    ['.ant-card', 'a-card'],
+    ['.ant-tabs', 'a-tabs'],
+    ['.ant-modal', 'a-modal'],
+    ['.ant-drawer', 'a-drawer'],
+    ['.ant-tree', 'a-tree'],
+    ['.ant-badge', 'a-badge'],
+    ['.ant-avatar', 'a-avatar'],
+    ['.ant-descriptions', 'a-descriptions'],
+    ['.ant-timeline', 'a-timeline'],
+    ['.ant-empty', 'a-empty'],
+    ['.ant-alert', 'a-alert'],
+    ['.ant-collapse', 'a-collapse'],
+    ['.ant-steps', 'a-steps'],
+    ['.ant-pagination', 'a-pagination'],
+    ['.ant-btn', 'a-button'],
+    ['.ant-dropdown', 'a-dropdown'],
+    ['.ant-tooltip', 'a-tooltip']
+  ];
+  var BTN_ID = 'hrms-insp-btn';
+  var LAYER_ID = 'hrms-insp-layer';
+  var STYLE_ID = 'hrms-insp-style';
+  var active = false, cached = [], rafP = 0, rafR = 0, observer = null, btnEl = null, labelEl = null;
+
+  function injectStyle() {
+    if (document.getElementById(STYLE_ID)) return;
+    var s = document.createElement('style');
+    s.id = STYLE_ID;
+    s.textContent = [
+      '#' + BTN_ID + '{position:fixed;right:16px;bottom:16px;z-index:2147483000;height:32px;padding:0 14px;border:0;border-radius:16px;',
+      'background:#0E66FB;color:#fff;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;',
+      'box-shadow:0 4px 12px rgba(14,102,251,.35);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;}',
+      '#' + BTN_ID + ':hover{background:#036dde;}',
+      '#' + BTN_ID + '.is-on{background:#2f3640;box-shadow:0 4px 12px rgba(47,54,64,.35);}',
+      '#' + LAYER_ID + '{position:fixed;left:0;top:0;right:0;bottom:0;pointer-events:none;z-index:2147482999;}',
+      '#' + LAYER_ID + ' .hrms-insp-box{position:absolute;border:1px solid rgba(14,102,251,.9);background:rgba(14,102,251,.06);border-radius:2px;}',
+      '#' + LAYER_ID + ' .hrms-insp-tag{position:absolute;background:#0E66FB;color:#fff;font-size:11px;line-height:16px;height:16px;padding:0 5px;',
+      'border-radius:3px;white-space:nowrap;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;}'
+    ].join('');
+    document.head.appendChild(s);
+  }
+
+  function buildButton() {
+    injectStyle();
+    btnEl = document.createElement('button');
+    btnEl.id = BTN_ID;
+    btnEl.type = 'button';
+    btnEl.title = '切换组件查看：高亮页面用到的组件并显示名称';
+    btnEl.innerHTML = '<svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor" aria-hidden="true"><path d="M2 2h5v5H2zM9 2h5v5H9zM2 9h5v5H2zM9 9h5v5H9z"/></svg><span>查看组件</span>';
+    labelEl = btnEl.querySelector('span');
+    btnEl.addEventListener('click', toggle);
+    document.body.appendChild(btnEl);
+  }
+
+  function refreshList() {
+    var list = [], seen = [];
+    for (var i = 0; i < RULES.length; i++) {
+      var els = document.body.querySelectorAll(RULES[i][0]);
+      for (var j = 0; j < els.length; j++) {
+        var el = els[j];
+        if (seen.indexOf(el) !== -1) continue;
+        seen.push(el);
+        list.push({ el: el, label: RULES[i][1] });
+      }
+    }
+    cached = list;
+  }
+
+  function paint() {
+    var layer = document.getElementById(LAYER_ID);
+    if (!layer) return;
+    var html = '';
+    for (var i = 0; i < cached.length; i++) {
+      var r = cached[i].el.getBoundingClientRect();
+      if (!r.width || !r.height) continue;
+      if (r.bottom < 0 || r.top > window.innerHeight || r.right < 0 || r.left > window.innerWidth) continue;
+      var left = Math.max(r.left, 0);
+      var tagTop = r.top, tf = 'translateY(-100%)';
+      if (r.top < 18) { tagTop = r.top; tf = 'none'; }
+      html += '<div class="hrms-insp-box" style="left:' + left + 'px;top:' + r.top + 'px;width:' + r.width + 'px;height:' + r.height + 'px"></div>';
+      html += '<div class="hrms-insp-tag" style="left:' + left + 'px;top:' + tagTop + 'px;transform:' + tf + '">' + cached[i].label + '</div>';
+    }
+    layer.innerHTML = html;
+  }
+
+  function paintSoon() {
+    if (rafP) return;
+    rafP = requestAnimationFrame(function () { rafP = 0; paint(); });
+  }
+  function refreshSoon() {
+    if (rafR) return;
+    rafR = requestAnimationFrame(function () { rafR = 0; refreshList(); paint(); });
+  }
+
+  function on() {
+    active = true;
+    injectStyle();
+    var layer = document.getElementById(LAYER_ID);
+    if (!layer) {
+      layer = document.createElement('div');
+      layer.id = LAYER_ID;
+      document.body.appendChild(layer);
+    }
+    window.addEventListener('scroll', paintSoon, true);
+    window.addEventListener('resize', paintSoon, true);
+    observer = new MutationObserver(function (muts) {
+      for (var i = 0; i < muts.length; i++) {
+        var t = muts[i].target;
+        if (t === layer) continue;
+        if (t.nodeType === 1 && t.closest && t.closest('#' + LAYER_ID)) continue;
+        refreshSoon();
+        return;
+      }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    if (btnEl) { btnEl.classList.add('is-on'); if (labelEl) labelEl.textContent = '退出组件视图'; }
+    refreshList();
+    paint();
+  }
+
+  function off() {
+    active = false;
+    window.removeEventListener('scroll', paintSoon, true);
+    window.removeEventListener('resize', paintSoon, true);
+    if (observer) { observer.disconnect(); observer = null; }
+    var layer = document.getElementById(LAYER_ID);
+    if (layer && layer.parentNode) layer.parentNode.removeChild(layer);
+    if (btnEl) { btnEl.classList.remove('is-on'); if (labelEl) labelEl.textContent = '查看组件'; }
+  }
+
+  function toggle() { if (active) off(); else on(); }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', buildButton);
+  else buildButton();
+})();
+</script>
+</body>
+</html>
