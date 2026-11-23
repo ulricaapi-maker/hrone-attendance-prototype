@@ -194,3 +194,27 @@ dialog button.primary,#manager-add-position,#copy-existing-position{background:#
 .pull-update-header{display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid #e6e6e8;margin:-4px 0 20px}
 .pull-update-header .pull-update-tabs{margin:0;border-bottom:0;min-width:0;flex:1}
 #export-pull-employees{display:inline-flex;align-items:center;gap:6px;height:32px;flex-shrink:0}
+
+/* Pull-preview pending personnel list and its staged adjustment editor. */
+.pull-pending-toolbar{display:flex;align-items:center;margin:0 0 12px}
+#pull-update-panel .pull-pending-table table{min-width:1170px;width:100%}
+#pull-update-panel .pull-pending-table th{width:auto}
+#pull-update-panel .pull-pending-table th:first-child{width:40px}
+#pull-update-panel .pull-pending-table th:nth-child(2){width:110px}
+#pull-update-panel .pull-pending-table :is(th,td):first-child{text-align:center}
+#pull-pending-editor{width:min(560px,calc(100vw - 32px))}
+#pull-pending-editor .modal-header{background:#eef2ff}
+#pull-pending-editor .modal-header h2{color:#0e66fb;font-size:14px}
+#pull-pending-editor .modal-body{max-height:calc(90vh - 130px);overflow:auto}
+#pull-pending-identity{display:grid;grid-template-columns:1fr 1fr;gap:18px 24px;margin-bottom:24px}
+#pull-pending-identity:empty{display:none}
+#pull-pending-identity small,#pull-pending-identity strong{display:block;overflow-wrap:anywhere}
+#pull-pending-identity small{color:#999ca3;margin-bottom:8px}
+#pull-pending-identity strong{font-weight:400}
+#pull-pending-editor .target-label{margin:0 0 24px}
+#pull-pending-editor .retirement-modes{margin:0 0 24px}
+#pull-pending-editor .retirement-modes label:has(input:disabled){color:#c3c5c9}
+#pull-pending-editor .error:empty{display:none}
+#pull-pending-editor .retirement-modes input[type=radio]{width:16px;height:16px;min-width:16px;margin:0;padding:0;flex:0 0 16px;accent-color:#0e66fb;box-shadow:none}
+#pull-pending-editor .retirement-modes label{white-space:nowrap}
+#pull-update-panel .pull-pending-table :is(th,td):last-child{position:sticky;right:0;z-index:1;box-shadow:-1px 0 #edf0f3}

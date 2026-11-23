@@ -67,6 +67,7 @@ function prepareStructureUpdate(plan){
   const existing=plan.nextPositions.find(p=>p.org===source.org&&p.name.trim()===source.name.trim());
   if(existing)plan.positionDuplicates.push({source:clone(source),existingId:existing.id,resolved:false});else {plan.nextPositions.push(clone(source));plan.positionAdded.push(clone(source));}
  }
+ plan.pendingEmployees=plan.next.filter(row=>pullPendingNeedsAdjustment(row,plan)).map(row=>clone(row));plan.pendingArrangements={};
  return plan;
 }
 const peoplePreview=document.createElement('dialog');peoplePreview.id='people-update-preview';peoplePreview.setAttribute('aria-labelledby','people-update-preview-title');peoplePreview.innerHTML=`<div class="modal-header"><h2 id="people-update-preview-title">拉取最新员工及编制</h2><button class="close" data-close="people-update-preview" aria-label="关闭拉取最新员工及编制">×</button></div><div class="modal-body" id="people-update-preview-body"></div><div class="modal-footer"><p id="people-update-preview-error" class="error" role="alert"></p><button data-close="people-update-preview">取消</button><button id="confirm-people-preview" class="primary">确认更新</button></div>`;document.body.appendChild(peoplePreview);
@@ -77,7 +78,7 @@ function renderPeopleUpdatePreview(){
  const employeeName=person=>`${person.name}(${person.no})`;
  const identity=item=>[employeeName(item.person),actualOrgName(item.person),item.person.job,item.person.grade||''];
  const personCount=plan.added.length+plan.departed.length+plan.moved.length+plan.out.length;
- const tabs=`<div class="pull-update-tabs" role="tablist" aria-label="拉取数据类型">${[['org','组织',plan.orgDuplicates.filter(d=>!d.resolved).length+plan.orgAdded.length+plan.orgStopped.length],['position','职位',plan.positionDuplicates.filter(d=>!d.resolved).length+plan.positionAdded.length+plan.positionStopped.length],['people','员工',personCount]].map(([key,label,count])=>`<button id="pull-tab-${key}" role="tab" aria-selected="${peopleUpdateTab===key}" aria-controls="pull-update-panel" data-pull-tab="${key}">${label}（${count}）</button>`).join('')}</div>`;
+ const tabs=`<div class="pull-update-tabs" role="tablist" aria-label="拉取数据类型">${[['org','组织',plan.orgDuplicates.filter(d=>!d.resolved).length+plan.orgAdded.length+plan.orgStopped.length],['position','职位',plan.positionDuplicates.filter(d=>!d.resolved).length+plan.positionAdded.length+plan.positionStopped.length],['people','变动员工',personCount],['pending','待调整员工',plan.pendingEmployees.length]].map(([key,label,count])=>`<button id="pull-tab-${key}" role="tab" aria-selected="${peopleUpdateTab===key}" aria-controls="pull-update-panel" data-pull-tab="${key}">${label}（${count}）</button>`).join('')}</div>`;
  let content='';
  if(peopleUpdateTab==='people'){
   content=table('新增员工',['员工','任职部门','任职职位','任职职级','编制'],plan.added,item=>[...identity(item),item.person.originalHc||''])+
@@ -85,6 +86,8 @@ function renderPeopleUpdatePreview(){
    table('离职员工',['员工','任职部门','任职职位','任职职级','编制'],plan.departed,item=>[...identity(item),item.oldCode]);
   if(!content)content='<div class="pull-empty">暂无员工变化</div>';
 
+ }else if(peopleUpdateTab==='pending'){
+  content=renderPullPendingEmployees();
  }else if(peopleUpdateTab==='position'){
   const remaining=plan.positionDuplicates.filter(item=>!item.resolved);
   const positionValues=source=>[orgPlan.path(source.org,plan.nextOrgs),source.sequence||'',source.family||'',source.name];
@@ -109,8 +112,9 @@ function renderPeopleUpdatePreview(){
 </svg>导出</button>`:'';
  $('#people-update-preview-body').innerHTML=`<div class="pull-update-header">${tabs}${exportButton}</div>`+`<div id="pull-update-panel" role="tabpanel" aria-labelledby="pull-tab-${peopleUpdateTab}">${content}</div>`;
 }
-function openPeopleUpdatePreview(plan){peoplePreviewPlan=prepareStructureUpdate(plan);peopleUpdateTab='org';$('#people-update-preview-error').textContent='';renderPeopleUpdatePreview();peoplePreview.showModal();$('#people-update-preview-body').scrollTop=0;}
+function openPeopleUpdatePreview(plan){pullPendingSelection.clear();peoplePreviewPlan=prepareStructureUpdate(plan);peopleUpdateTab='org';$('#people-update-preview-error').textContent='';renderPeopleUpdatePreview();peoplePreview.showModal();$('#people-update-preview-body').scrollTop=0;}
 $('#people-update-preview-body').onclick=e=>{
+ if(handlePullPendingClick(e))return;
  if(e.target.closest('#export-pull-employees')){exportPullEmployees();return;}
  const button=e.target.closest('[data-pull-tab]');if(!button)return;
  peopleUpdateTab=button.dataset.pullTab;$('#people-update-preview-error').textContent='';renderPeopleUpdatePreview();
@@ -153,9 +157,11 @@ function applyPullNameEdits(plan){
  }
  plan.nextOrgs=nextOrgs;plan.nextPositions=nextPositions;plan.next=nextRows;for(const item of resolved)item.resolved=true;return true;
 }
-function commitPeopleUpdate(plan){
+function commitPeopleUpdate(plan){return commitPeopleUpdateDraft(clone(plan));}
+function commitPeopleUpdateDraft(plan){
  if(JSON.stringify(snapshot())!==JSON.stringify(plan.before)||JSON.stringify(orgPlan.nodes)!==JSON.stringify(plan.orgBefore)){$('#people-update-preview-error').textContent='规划已发生变化，请关闭后重新拉取。';return false;}
  if(!applyPullNameEdits(plan))return false;
+ if(!applyPullPendingArrangements(plan))return false;
  const ids=plan.next.filter(r=>r.person&&!r.deleted).map(r=>r.person);if(new Set(ids).size!==ids.length){$('#people-update-preview-error').textContent='人员存在重复绑定，请重新拉取。';return false;}
  // Persist the organization and staffing drafts as one local operation.
  const orgKey='hrone-org-plan-demo-v1',staffKey='hrone-staffing-sketch-v1';let oldOrg,oldStaff;
