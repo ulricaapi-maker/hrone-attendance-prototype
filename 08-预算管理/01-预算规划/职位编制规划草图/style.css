@@ -169,3 +169,22 @@ dialog button.primary,#manager-add-position,#copy-existing-position{background:#
 .budget-summary-row .budget-band-values b{margin:0 6px}
 .budget-summary-row .budget-download-actions{margin-left:auto;gap:12px;flex-wrap:nowrap}
 .budget-result-status{margin:8px 0 0}
+
+/* Pull preview: full department paths and before/after employment columns. */
+#pull-update-panel .people-update-scroll table{table-layout:fixed;min-width:900px}
+#pull-update-panel .people-update-scroll th{width:auto}
+#pull-update-panel .people-update-scroll th:first-child{width:180px}
+#pull-update-panel .people-update-scroll th:nth-child(2){width:240px}
+#pull-update-panel .people-update-scroll:has(th:nth-child(9)) table{min-width:1660px}
+#pull-update-panel .people-update-scroll:has(th:nth-child(9)) th:nth-child(6){width:240px}
+#pull-update-panel .pull-position-table th:first-child{width:30%}
+#pull-update-panel .pull-position-table th:nth-child(2),#pull-update-panel .pull-position-table th:nth-child(3){width:13%}
+.pull-position-table input{width:100%;height:32px;padding:0 9px;border:1px solid #d9dce1;border-radius:4px;background:#fff;color:#333947}
+.pull-position-table input:focus{outline:none;border-color:#0e66fb}
+.pull-position-table input[aria-invalid="true"]{border-color:#e55353}
+.pull-group-empty{text-align:center!important;color:#999ca3;padding:24px!important}
+
+#pull-update-panel .pull-org-table th:first-child{width:18%}
+#pull-update-panel .pull-org-table th:nth-child(2){width:36%}
+#pull-update-panel .pull-org-table th:nth-child(3){width:23%}
+#pull-update-panel .pull-org-table th:nth-child(4){width:23%}

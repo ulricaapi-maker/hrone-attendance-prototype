@@ -31,15 +31,15 @@ for(const [suffix,name,no]of [['8','陈七','E0008'],['9','孙八','E0009']]){co
 // Preview all personnel changes before committing any of them.
 function updateHcAvailable(r,person,rows){return !!r&&!r.personOnly&&r.org===person.org&&!r.deleted&&activeOrg(r.org)&&positions.some(p=>p.org===r.org&&p.name===r.job&&!p.disabled)&&(!r.person||r.person===person.id);}
 function manuallyPlanned(personId){const current=records.find(r=>r.person===personId),baseline=baseRecords.find(r=>r.person===personId);if(current&&baseline&&(current.code!==baseline.code||current.org!==baseline.org||current.job!==baseline.job))return true;return adjustmentHistory.some(action=>!action.revoked&&(action.label.includes('人员调整')||action.label==='计划移出')&&action.records.some(c=>c.before?.person===personId||c.after?.person===personId));}
-function actualOrgName(p){return orgPlan.get(p.org)?formatOrg(p.org):p.orgName||'其他部门';}
+function actualOrgName(p){return orgPlan.get(p.org)?orgPlan.path(p.org):p.orgName||'其他部门';}
 function buildPeopleUpdate(){
  const before=snapshot(),next=clone(records),added=[],departed=[],moved=[],out=[],actuals=[],bindings=[],departedIds=new Set(actualDepartures.map(e=>e.person)),movementIds=new Set();
  const saveActual=(row,p)=>{row.actualPerson=clone(p);actuals.push(clone(p));};
  const release=row=>{row.person=null;delete row.plannedEntryDate;delete row.plannedExitDate;delete row.bindingTransferId;delete row.actualPerson;delete row.planningGrade;delete row.assignmentType;delete row.plannedTransferDate;};
  const place=(person,dates={})=>{const hc=next.find(r=>r.code===person.originalHc&&updateHcAvailable(r,person,next));if(hc){Object.assign(hc,{person:person.id},dates);saveActual(hc,person);return hc;}const row={id:'unbound-person-'+person.id,personOnly:true,code:'',person:person.id,org:person.org,job:person.job,grade:'',planningGrade:person.grade,...dates,actualPerson:clone(person)};const old=next.findIndex(r=>r.id===row.id);if(old>=0)next[old]=row;else next.push(row);actuals.push(clone(person));return row;};
- for(const exit of actualDepartures){const row=next.find(r=>r.person===exit.person);if(!row)continue;const p=STAFF_DEMO.find(p=>p.id===exit.person);departed.push({person:clone(p),oldCode:row.code||'',oldOrg:row.org});row.lastActualDeparture=clone(exit);release(row);}
- for(const change of actualMovements){if(departedIds.has(change.id)||movementIds.has(change.id))continue;movementIds.add(change.id);const row=next.find(r=>r.person===change.id),p={...STAFF_DEMO.find(p=>p.id===change.id),...change};if(!row){if(!change.outside){moved.push({person:clone(p),oldCode:'',oldOrg:null,protectedPlan:false});bindings.push({person:p,dates:{}});}continue;}const old=row.actualPerson||STAFF_DEMO.find(p=>p.id===change.id);const oldActualCode=old.originalHc||baseRecords.find(r=>r.person===p.id)?.code||'';if(['org','job','grade'].every(k=>p[k]===old[k])&&p.originalHc===oldActualCode)continue;
-  const protectedPlan=manuallyPlanned(p.id),item={person:clone(p),oldCode:old.originalHc||baseRecords.find(r=>r.person===p.id)?.code||row.code||'',oldOrg:row.org,protectedPlan};
+ for(const exit of actualDepartures){const row=next.find(r=>r.person===exit.person);if(!row)continue;const p=STAFF_DEMO.find(p=>p.id===exit.person);departed.push({person:clone(row.actualPerson||p),oldCode:row.code||'',oldOrg:row.org});row.lastActualDeparture=clone(exit);release(row);}
+ for(const change of actualMovements){if(departedIds.has(change.id)||movementIds.has(change.id))continue;movementIds.add(change.id);const row=next.find(r=>r.person===change.id),p={...STAFF_DEMO.find(p=>p.id===change.id),...change};if(!row){if(!change.outside){moved.push({person:clone(p),oldCode:'',oldOrg:null,oldPerson:null,protectedPlan:false});bindings.push({person:p,dates:{}});}continue;}const old=row.actualPerson||STAFF_DEMO.find(p=>p.id===change.id);const oldActualCode=old.originalHc||baseRecords.find(r=>r.person===p.id)?.code||'';if(['org','job','grade'].every(k=>p[k]===old[k])&&p.originalHc===oldActualCode)continue;
+  const protectedPlan=manuallyPlanned(p.id),item={person:clone(p),oldCode:old.originalHc||baseRecords.find(r=>r.person===p.id)?.code||row.code||'',oldOrg:old.org,oldPerson:clone(old),protectedPlan};
   if(change.outside){out.push(item);saveActual(row,p);if(!protectedPlan){row.lastActualTransfer=clone(p);release(row);}continue;}
   moved.push(item);const locationChanged=p.org!==old.org||p.job!==old.job||p.originalHc!==old.originalHc;
   if(protectedPlan){row.planningGrade??=old.grade;saveActual(row,p);continue;}
@@ -56,16 +56,16 @@ function buildPeopleUpdate(){
 const actualOrgAdditions=[{id:'actual-demo-project-org',parent:'a',name:'原项目组',code:'DEMO-ORG-101',owner:'李主管'}];
 const actualPositionAdditions=[{id:'actual-demo-project-position',org:'o',name:'项目专员',code:'DEMO-POS-101',min:'P1-1',max:'P4-3',sequence:'专业序列',family:'业务族',category:'业务支持类',costClass:'职能',collar:'白领'}];
 function prepareStructureUpdate(plan){
- plan.orgBefore=clone(orgPlan.nodes);plan.nextOrgs=clone(orgPlan.nodes);plan.nextPositions=clone(positions);plan.orgDuplicates=[];plan.positionDuplicates=[];
+ plan.orgBefore=clone(orgPlan.nodes);plan.nextOrgs=clone(orgPlan.nodes);plan.nextPositions=clone(positions);plan.orgDuplicates=[];plan.orgAdded=[];plan.orgStopped=[];plan.positionDuplicates=[];plan.positionAdded=[];plan.positionStopped=[];
  for(const source of actualOrgAdditions){
   if(plan.nextOrgs.some(n=>n.id===source.id)||!plan.nextOrgs.some(n=>n.id===source.parent&&!n.disabled))continue;
   const existing=plan.nextOrgs.find(n=>n.parent===source.parent&&n.name.trim()===source.name.trim());
-  if(existing)plan.orgDuplicates.push({source:clone(source),existingId:existing.id,resolved:false});else plan.nextOrgs.push(clone(source));
+  if(existing)plan.orgDuplicates.push({source:clone(source),existingId:existing.id,resolved:false});else {plan.nextOrgs.push(clone(source));plan.orgAdded.push(clone(source));}
  }
  for(const source of actualPositionAdditions){
   if(plan.nextPositions.some(p=>p.id===source.id)||!plan.nextOrgs.some(n=>n.id===source.org&&!n.disabled))continue;
   const existing=plan.nextPositions.find(p=>p.org===source.org&&p.name.trim()===source.name.trim());
-  if(existing)plan.positionDuplicates.push({source:clone(source),existingId:existing.id,resolved:false});else plan.nextPositions.push(clone(source));
+  if(existing)plan.positionDuplicates.push({source:clone(source),existingId:existing.id,resolved:false});else {plan.nextPositions.push(clone(source));plan.positionAdded.push(clone(source));}
  }
  return plan;
 }
@@ -74,20 +74,34 @@ let peoplePreviewPlan=null,peopleUpdateTab='org';
 function renderPeopleUpdatePreview(){
  const plan=peoplePreviewPlan;if(!plan)return;
  const table=(title,headers,items,values)=>items.length?`<section class="people-update-section"><h3>${title}（${items.length}）</h3><div class="people-update-scroll"><table><thead><tr>${headers.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${items.map(item=>`<tr>${values(item).map(value=>`<td><span title="${esc(value)}">${esc(value)}</span></td>`).join('')}</tr>`).join('')}</tbody></table></div></section>`:'';
- const identity=item=>[`${item.person.name}（${item.person.no}）`,actualOrgName(item.person),item.person.job];
- const result=item=>plan.next.find(r=>r.person===item.person.id);
+ const employeeName=person=>`${person.name}(${person.no})`;
+ const identity=item=>[employeeName(item.person),actualOrgName(item.person),item.person.job,item.person.grade||''];
  const personCount=plan.added.length+plan.departed.length+plan.moved.length+plan.out.length;
- const tabs=`<div class="pull-update-tabs" role="tablist" aria-label="拉取数据类型">${[['org','组织',plan.orgDuplicates.filter(d=>!d.resolved).length],['position','职位',plan.positionDuplicates.filter(d=>!d.resolved).length],['people','员工',personCount]].map(([key,label,count])=>`<button id="pull-tab-${key}" role="tab" aria-selected="${peopleUpdateTab===key}" aria-controls="pull-update-panel" data-pull-tab="${key}">${label}（${count}）</button>`).join('')}</div>`;
+ const tabs=`<div class="pull-update-tabs" role="tablist" aria-label="拉取数据类型">${[['org','组织',plan.orgDuplicates.filter(d=>!d.resolved).length+plan.orgAdded.length+plan.orgStopped.length],['position','职位',plan.positionDuplicates.filter(d=>!d.resolved).length+plan.positionAdded.length+plan.positionStopped.length],['people','员工',personCount]].map(([key,label,count])=>`<button id="pull-tab-${key}" role="tab" aria-selected="${peopleUpdateTab===key}" aria-controls="pull-update-panel" data-pull-tab="${key}">${label}（${count}）</button>`).join('')}</div>`;
  let content='';
  if(peopleUpdateTab==='people'){
-  content=table('新增人员',['员工','任职部门','任职职位','编制'],plan.added,item=>[...identity(item),result(item)?.code||''])+
-   table('调动人员',['员工','任职部门','任职职位','规划部门','编制'],[...plan.moved,...plan.out],item=>[...identity(item),result(item)?formatOrg(result(item).org):'',result(item)?.code||''])+
-   table('离职人员',['员工','离职前任职部门','离职前任职职位','原编制'],plan.departed,item=>[...identity(item),item.oldCode]);
-  if(!content)content='<div class="pull-empty">暂无人员变化</div>';
+  content=table('新增员工',['员工','任职部门','任职职位','任职职级','编制'],plan.added,item=>[...identity(item),item.person.originalHc||''])+
+   table('调动员工',['员工','调动前部门','调动前职位','调动前职级','编制','调动后部门','调动后职位','调动后职级','编制'],[...plan.moved,...plan.out],item=>[employeeName(item.person),item.oldPerson?actualOrgName(item.oldPerson):'',item.oldPerson?.job||'',item.oldPerson?.grade||'',item.oldCode||'',actualOrgName(item.person),item.person.job,item.person.grade||'',item.person.originalHc||''])+
+   table('离职员工',['员工','任职部门','任职职位','任职职级','编制'],plan.departed,item=>[...identity(item),item.oldCode]);
+  if(!content)content='<div class="pull-empty">暂无员工变化</div>';
+ }else if(peopleUpdateTab==='position'){
+  const remaining=plan.positionDuplicates.filter(item=>!item.resolved);
+  const positionValues=source=>[orgPlan.path(source.org,plan.nextOrgs),source.sequence||'',source.family||'',source.name];
+  const positionSection=(title,headers,items,row)=>`<section class="people-update-section"><h3>${title}（${items.length}）</h3><div class="people-update-scroll pull-position-table"><table><thead><tr>${headers.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${items.length?items.map(row).join(''):`<tr><td colspan="${headers.length}" class="pull-group-empty">暂无${title}</td></tr>`}</tbody></table></div></section>`;
+  const cells=source=>positionValues(source).map(value=>`<td><span title="${esc(value)}">${esc(value)}</span></td>`).join('');
+  const headers=['组织全称','职序','职族','实际职位名称'];
+  content=positionSection('名称重复',[...headers,'规划职位名称'],remaining,item=>{const existing=plan.nextPositions.find(p=>p.id===item.existingId);return `<tr>${cells(item.source)}<td><input aria-label="规划职位名称" data-pull-name="${plan.positionDuplicates.indexOf(item)}" value="${esc(item.proposedName??existing.name)}" maxlength="100"></td></tr>`;})+
+   positionSection('新增职位',headers,plan.positionAdded,source=>`<tr>${cells(source)}</tr>`)+
+   positionSection('停用职位',headers,plan.positionStopped,source=>`<tr>${cells(source)}</tr>`);
  }else{
-  const isOrg=peopleUpdateTab==='org',items=isOrg?plan.orgDuplicates:plan.positionDuplicates,collection=isOrg?plan.nextOrgs:plan.nextPositions;
-  const remaining=items.filter(d=>!d.resolved);
-  content=remaining.length?`<section class="people-update-section"><h3>名称重复（${remaining.length}）</h3><div class="people-update-scroll pull-duplicates"><table><thead><tr><th>${isOrg?'上级组织':'部门'}</th><th>${isOrg?'组织全称':'部门全称'}</th><th>${isOrg?'组织名称':'职位名称'}</th><th>规划${isOrg?'组织':'职位'}名称</th></tr></thead><tbody>${remaining.map(item=>{const index=items.indexOf(item),existing=collection.find(n=>n.id===item.existingId);const scopeId=isOrg?item.source.parent:item.source.org,scope=plan.nextOrgs.find(n=>n.id===scopeId),fullName=isOrg?orgPlan.path(scopeId,plan.nextOrgs)+' / '+item.source.name:orgPlan.path(scopeId,plan.nextOrgs);return `<tr><td><span title="${esc(scope?.name||'')}">${esc(scope?.name||'')}</span></td><td><span title="${esc(fullName)}">${esc(fullName)}</span></td><td><span title="${esc(item.source.name)}">${esc(item.source.name)}</span></td><td><input aria-label="规划${isOrg?'组织':'职位'}名称" data-pull-name="${index}" value="${esc(item.proposedName??existing.name)}" maxlength="100"></td></tr>`;}).join('')}</tbody></table></div></section>`:'<div class="pull-empty">暂无名称重复</div>';
+  const remaining=plan.orgDuplicates.filter(item=>!item.resolved);
+  const orgValues=source=>[plan.nextOrgs.find(n=>n.id===source.parent)?.name||'',(source.parent?orgPlan.path(source.parent,plan.nextOrgs)+' / ':'')+source.name,source.name];
+  const orgCells=source=>orgValues(source).map(value=>`<td><span title="${esc(value)}">${esc(value)}</span></td>`).join('');
+  const orgSection=(title,headers,items,row)=>`<section class="people-update-section"><h3>${title}（${items.length}）</h3><div class="people-update-scroll pull-org-table${title==='名称重复'?' pull-duplicates':''}"><table><thead><tr>${headers.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${items.length?items.map(row).join(''):`<tr><td colspan="${headers.length}" class="pull-group-empty">暂无${title}</td></tr>`}</tbody></table></div></section>`;
+  const headers=['上级组织','组织全称','组织名称'];
+  content=orgSection('名称重复',[...headers,'规划组织名称'],remaining,item=>{const existing=plan.nextOrgs.find(n=>n.id===item.existingId);return `<tr>${orgCells(item.source)}<td><input aria-label="规划组织名称" data-pull-name="${plan.orgDuplicates.indexOf(item)}" value="${esc(item.proposedName??existing.name)}" maxlength="100"></td></tr>`;})+
+   orgSection('新增组织',headers,plan.orgAdded,source=>`<tr>${orgCells(source)}</tr>`)+
+   orgSection('停用组织',headers,plan.orgStopped,source=>`<tr>${orgCells(source)}</tr>`);
  }
  $('#people-update-preview-body').innerHTML=tabs+`<div id="pull-update-panel" role="tabpanel" aria-labelledby="pull-tab-${peopleUpdateTab}">${content}</div>`;
 }
