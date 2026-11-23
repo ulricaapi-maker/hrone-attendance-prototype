@@ -188,3 +188,6 @@ dialog button.primary,#manager-add-position,#copy-existing-position{background:#
 #pull-update-panel .pull-org-table th:nth-child(2){width:36%}
 #pull-update-panel .pull-org-table th:nth-child(3){width:23%}
 #pull-update-panel .pull-org-table th:nth-child(4){width:23%}
+
+.pull-employee-tools{display:flex;justify-content:flex-end;margin:-8px 0 12px}
+.pull-employee-tools button{display:inline-flex;align-items:center;gap:6px;height:32px}

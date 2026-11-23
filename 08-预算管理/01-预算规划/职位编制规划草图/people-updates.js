@@ -84,6 +84,9 @@ function renderPeopleUpdatePreview(){
    table('调动员工',['员工','调动前部门','调动前职位','调动前职级','编制','调动后部门','调动后职位','调动后职级','编制'],[...plan.moved,...plan.out],item=>[employeeName(item.person),item.oldPerson?actualOrgName(item.oldPerson):'',item.oldPerson?.job||'',item.oldPerson?.grade||'',item.oldCode||'',actualOrgName(item.person),item.person.job,item.person.grade||'',item.person.originalHc||''])+
    table('离职员工',['员工','任职部门','任职职位','任职职级','编制'],plan.departed,item=>[...identity(item),item.oldCode]);
   if(!content)content='<div class="pull-empty">暂无员工变化</div>';
+  content=`<div class="pull-employee-tools"><button type="button" id="export-pull-employees" ${personCount?'':'disabled'}><svg width="14" height="14" viewBox="0 0 1030 1024" xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-hidden="true">
+  <path d="M140.8 1017.6c-38.4 0-70.4-12.8-96-38.4-25.6-25.6-38.4-57.6-38.4-96v-185.6c0-12.8 6.4-25.6 12.8-32s19.2-12.8 32-12.8 25.6 6.4 32 12.8 12.8 19.2 12.8 32v185.6c0 12.8 6.4 32 12.8 38.4 6.4 6.4 19.2 12.8 38.4 12.8h742.4c12.8 0 32-6.4 38.4-12.8 6.4-6.4 12.8-19.2 12.8-38.4v-185.6c0-12.8 6.4-25.6 12.8-32 6.4-6.4 19.2-12.8 32-12.8s25.6 6.4 32 12.8c6.4 6.4 12.8 19.2 12.8 32v185.6c0 38.4-12.8 70.4-38.4 96-25.6 25.6-57.6 38.4-96 38.4H140.8z m377.6-275.2c-12.8 0-25.6-6.4-32-12.8s-12.8-19.2-12.8-32V160s0-6.4-6.4-6.4h-6.4L313.6 313.6c-6.4 6.4-25.6 12.8-25.6 12.8-12.8 0-25.6-6.4-32-12.8-12.8-12.8-19.2-19.2-19.2-25.6 0-12.8 6.4-25.6 12.8-32L480 25.6c12.8-12.8 25.6-19.2 38.4-19.2 12.8 0 25.6 6.4 32 12.8L774.4 256c6.4 6.4 12.8 19.2 12.8 32s-6.4 25.6-12.8 32-19.2 12.8-32 12.8-19.2-12.8-25.6-19.2L563.2 153.6h-6.4s-6.4 0-6.4 6.4V704c0 12.8-6.4 25.6-12.8 32s-12.8 6.4-19.2 6.4z"/>
+</svg>导出</button></div>`+content;
  }else if(peopleUpdateTab==='position'){
   const remaining=plan.positionDuplicates.filter(item=>!item.resolved);
   const positionValues=source=>[orgPlan.path(source.org,plan.nextOrgs),source.sequence||'',source.family||'',source.name];
@@ -107,6 +110,7 @@ function renderPeopleUpdatePreview(){
 }
 function openPeopleUpdatePreview(plan){peoplePreviewPlan=prepareStructureUpdate(plan);peopleUpdateTab='org';$('#people-update-preview-error').textContent='';renderPeopleUpdatePreview();peoplePreview.showModal();$('#people-update-preview-body').scrollTop=0;}
 $('#people-update-preview-body').onclick=e=>{
+ if(e.target.closest('#export-pull-employees')){exportPullEmployees();return;}
  const button=e.target.closest('[data-pull-tab]');if(!button)return;
  peopleUpdateTab=button.dataset.pullTab;$('#people-update-preview-error').textContent='';renderPeopleUpdatePreview();
 };
@@ -116,6 +120,20 @@ $('#people-update-preview-body').oninput=e=>{
  items[Number(input.dataset.pullName)].proposedName=input.value;
  input.removeAttribute('aria-invalid');$('#people-update-preview-error').textContent='';
 };
+function exportPullEmployees(){
+ if(peopleUpdateTab!=='people'||!peoplePreviewPlan)return;
+ const rows=[];
+ for(const section of document.querySelectorAll('#pull-update-panel .people-update-section')){
+  if(rows.length)rows.push([]);
+  rows.push([section.querySelector('h3').textContent]);
+  for(const row of section.querySelectorAll('tr'))rows.push([...row.querySelectorAll('th,td')].map(cell=>cell.textContent));
+ }
+ if(!rows.length)return;
+ const csvCell=value=>{let text=String(value??'');if(/^[=+@-]/.test(text))text="'"+text;return '"'+text.replace(/"/g,'""')+'"';};
+ const content='\uFEFF'+rows.map(row=>row.map(csvCell).join(',')).join('\r\n');
+ const url=URL.createObjectURL(new Blob([content],{type:'text/csv;charset=utf-8;'})),link=document.createElement('a');
+ link.href=url;link.download='拉取最新员工-变化明细.csv';document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
 function applyPullNameEdits(plan){
  // Validate both tabs on copies, so an invalid name never partially changes the preview.
  const nextOrgs=clone(plan.nextOrgs),nextPositions=clone(plan.nextPositions),nextRows=clone(plan.next),resolved=[];
