@@ -84,9 +84,7 @@ function renderPeopleUpdatePreview(){
    table('调动员工',['员工','调动前部门','调动前职位','调动前职级','编制','调动后部门','调动后职位','调动后职级','编制'],[...plan.moved,...plan.out],item=>[employeeName(item.person),item.oldPerson?actualOrgName(item.oldPerson):'',item.oldPerson?.job||'',item.oldPerson?.grade||'',item.oldCode||'',actualOrgName(item.person),item.person.job,item.person.grade||'',item.person.originalHc||''])+
    table('离职员工',['员工','任职部门','任职职位','任职职级','编制'],plan.departed,item=>[...identity(item),item.oldCode]);
   if(!content)content='<div class="pull-empty">暂无员工变化</div>';
-  content=`<div class="pull-employee-tools"><button type="button" id="export-pull-employees" ${personCount?'':'disabled'}><svg width="14" height="14" viewBox="0 0 1030 1024" xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-hidden="true">
-  <path d="M140.8 1017.6c-38.4 0-70.4-12.8-96-38.4-25.6-25.6-38.4-57.6-38.4-96v-185.6c0-12.8 6.4-25.6 12.8-32s19.2-12.8 32-12.8 25.6 6.4 32 12.8 12.8 19.2 12.8 32v185.6c0 12.8 6.4 32 12.8 38.4 6.4 6.4 19.2 12.8 38.4 12.8h742.4c12.8 0 32-6.4 38.4-12.8 6.4-6.4 12.8-19.2 12.8-38.4v-185.6c0-12.8 6.4-25.6 12.8-32 6.4-6.4 19.2-12.8 32-12.8s25.6 6.4 32 12.8c6.4 6.4 12.8 19.2 12.8 32v185.6c0 38.4-12.8 70.4-38.4 96-25.6 25.6-57.6 38.4-96 38.4H140.8z m377.6-275.2c-12.8 0-25.6-6.4-32-12.8s-12.8-19.2-12.8-32V160s0-6.4-6.4-6.4h-6.4L313.6 313.6c-6.4 6.4-25.6 12.8-25.6 12.8-12.8 0-25.6-6.4-32-12.8-12.8-12.8-19.2-19.2-19.2-25.6 0-12.8 6.4-25.6 12.8-32L480 25.6c12.8-12.8 25.6-19.2 38.4-19.2 12.8 0 25.6 6.4 32 12.8L774.4 256c6.4 6.4 12.8 19.2 12.8 32s-6.4 25.6-12.8 32-19.2 12.8-32 12.8-19.2-12.8-25.6-19.2L563.2 153.6h-6.4s-6.4 0-6.4 6.4V704c0 12.8-6.4 25.6-12.8 32s-12.8 6.4-19.2 6.4z"/>
-</svg>导出</button></div>`+content;
+
  }else if(peopleUpdateTab==='position'){
   const remaining=plan.positionDuplicates.filter(item=>!item.resolved);
   const positionValues=source=>[orgPlan.path(source.org,plan.nextOrgs),source.sequence||'',source.family||'',source.name];
@@ -106,7 +104,10 @@ function renderPeopleUpdatePreview(){
    orgSection('新增组织',headers,plan.orgAdded,source=>`<tr>${orgCells(source)}</tr>`)+
    orgSection('停用组织',headers,plan.orgStopped,source=>`<tr>${orgCells(source)}</tr>`);
  }
- $('#people-update-preview-body').innerHTML=tabs+`<div id="pull-update-panel" role="tabpanel" aria-labelledby="pull-tab-${peopleUpdateTab}">${content}</div>`;
+ const exportButton=peopleUpdateTab==='people'?`<button type="button" id="export-pull-employees" ${personCount?'':'disabled'}><svg width="14" height="14" viewBox="0 0 1030 1024" xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-hidden="true">
+  <path d="M140.8 1017.6c-38.4 0-70.4-12.8-96-38.4-25.6-25.6-38.4-57.6-38.4-96v-185.6c0-12.8 6.4-25.6 12.8-32s19.2-12.8 32-12.8 25.6 6.4 32 12.8 12.8 19.2 12.8 32v185.6c0 12.8 6.4 32 12.8 38.4 6.4 6.4 19.2 12.8 38.4 12.8h742.4c12.8 0 32-6.4 38.4-12.8 6.4-6.4 12.8-19.2 12.8-38.4v-185.6c0-12.8 6.4-25.6 12.8-32 6.4-6.4 19.2-12.8 32-12.8s25.6 6.4 32 12.8c6.4 6.4 12.8 19.2 12.8 32v185.6c0 38.4-12.8 70.4-38.4 96-25.6 25.6-57.6 38.4-96 38.4H140.8z m377.6-275.2c-12.8 0-25.6-6.4-32-12.8s-12.8-19.2-12.8-32V160s0-6.4-6.4-6.4h-6.4L313.6 313.6c-6.4 6.4-25.6 12.8-25.6 12.8-12.8 0-25.6-6.4-32-12.8-12.8-12.8-19.2-19.2-19.2-25.6 0-12.8 6.4-25.6 12.8-32L480 25.6c12.8-12.8 25.6-19.2 38.4-19.2 12.8 0 25.6 6.4 32 12.8L774.4 256c6.4 6.4 12.8 19.2 12.8 32s-6.4 25.6-12.8 32-19.2 12.8-32 12.8-19.2-12.8-25.6-19.2L563.2 153.6h-6.4s-6.4 0-6.4 6.4V704c0 12.8-6.4 25.6-12.8 32s-12.8 6.4-19.2 6.4z"/>
+</svg>导出</button>`:'';
+ $('#people-update-preview-body').innerHTML=`<div class="pull-update-header">${tabs}${exportButton}</div>`+`<div id="pull-update-panel" role="tabpanel" aria-labelledby="pull-tab-${peopleUpdateTab}">${content}</div>`;
 }
 function openPeopleUpdatePreview(plan){peoplePreviewPlan=prepareStructureUpdate(plan);peopleUpdateTab='org';$('#people-update-preview-error').textContent='';renderPeopleUpdatePreview();peoplePreview.showModal();$('#people-update-preview-body').scrollTop=0;}
 $('#people-update-preview-body').onclick=e=>{

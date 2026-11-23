@@ -189,5 +189,6 @@ dialog button.primary,#manager-add-position,#copy-existing-position{background:#
 #pull-update-panel .pull-org-table th:nth-child(3){width:23%}
 #pull-update-panel .pull-org-table th:nth-child(4){width:23%}
 
-.pull-employee-tools{display:flex;justify-content:flex-end;margin:-8px 0 12px}
-.pull-employee-tools button{display:inline-flex;align-items:center;gap:6px;height:32px}
+.pull-update-header{display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid #e6e6e8;margin:-4px 0 20px}
+.pull-update-header .pull-update-tabs{margin:0;border-bottom:0;min-width:0;flex:1}
+#export-pull-employees{display:inline-flex;align-items:center;gap:6px;height:32px;flex-shrink:0}
