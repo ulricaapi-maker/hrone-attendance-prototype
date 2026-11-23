@@ -96,10 +96,10 @@ function renderPeopleUpdatePreview(){
    positionSection('停用职位',headers,plan.positionStopped,source=>`<tr>${cells(source)}</tr>`);
  }else{
   const remaining=plan.orgDuplicates.filter(item=>!item.resolved);
-  const orgValues=source=>[plan.nextOrgs.find(n=>n.id===source.parent)?.name||'',(source.parent?orgPlan.path(source.parent,plan.nextOrgs)+' / ':'')+source.name,source.name];
+  const orgValues=source=>[(source.parent?orgPlan.path(source.parent,plan.nextOrgs)+' / ':'')+source.name,source.name];
   const orgCells=source=>orgValues(source).map(value=>`<td><span title="${esc(value)}">${esc(value)}</span></td>`).join('');
   const orgSection=(title,headers,items,row)=>`<section class="people-update-section"><h3>${title}（${items.length}）</h3><div class="people-update-scroll pull-org-table${title==='名称重复'?' pull-duplicates':''}"><table><thead><tr>${headers.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${items.length?items.map(row).join(''):`<tr><td colspan="${headers.length}" class="pull-group-empty">暂无${title}</td></tr>`}</tbody></table></div></section>`;
-  const headers=['上级组织','组织全称','组织名称'];
+  const headers=['组织全称','实际组织名称'];
   content=orgSection('名称重复',[...headers,'规划组织名称'],remaining,item=>{const existing=plan.nextOrgs.find(n=>n.id===item.existingId);return `<tr>${orgCells(item.source)}<td><input aria-label="规划组织名称" data-pull-name="${plan.orgDuplicates.indexOf(item)}" value="${esc(item.proposedName??existing.name)}" maxlength="100"></td></tr>`;})+
    orgSection('新增组织',headers,plan.orgAdded,source=>`<tr>${orgCells(source)}</tr>`)+
    orgSection('停用组织',headers,plan.orgStopped,source=>`<tr>${orgCells(source)}</tr>`);

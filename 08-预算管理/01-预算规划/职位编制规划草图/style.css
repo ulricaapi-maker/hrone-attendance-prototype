@@ -184,10 +184,12 @@ dialog button.primary,#manager-add-position,#copy-existing-position{background:#
 .pull-position-table input[aria-invalid="true"]{border-color:#e55353}
 .pull-group-empty{text-align:center!important;color:#999ca3;padding:24px!important}
 
-#pull-update-panel .pull-org-table th:first-child{width:18%}
-#pull-update-panel .pull-org-table th:nth-child(2){width:36%}
-#pull-update-panel .pull-org-table th:nth-child(3){width:23%}
-#pull-update-panel .pull-org-table th:nth-child(4){width:23%}
+#pull-update-panel .pull-org-table table{min-width:0}
+#pull-update-panel .pull-org-table th:first-child{width:50%}
+#pull-update-panel .pull-org-table th:nth-child(2){width:25%}
+#pull-update-panel .pull-org-table th:nth-child(3){width:25%}
+#pull-update-panel .pull-org-table:not(.pull-duplicates) th:first-child{width:65%}
+#pull-update-panel .pull-org-table:not(.pull-duplicates) th:nth-child(2){width:35%}
 
 .pull-update-header{display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid #e6e6e8;margin:-4px 0 20px}
 .pull-update-header .pull-update-tabs{margin:0;border-bottom:0;min-width:0;flex:1}
