@@ -288,10 +288,10 @@
     .detail-tabs-card { background: #fff; padding: 10px 20px; }
     .detail-file-item { color: var(--text-3); }
   </style>
-<link rel="stylesheet" href="../../assets/unified-navigation.css"><link rel="stylesheet" href="style.css?v=20261128-import-menu"></head>
+<link rel="stylesheet" href="../../assets/unified-navigation.css"><link rel="stylesheet" href="style.css?v=20261128-column-filters"></head>
 <body data-unified-page="budget-plan" data-unified-root="../../">
 <div id="app"></div>
-<!-- 原型说明: 截图中的预算方案详情；组织仅支持列表头关键词筛选，不修改行内组织。 -->
+<!-- 原型说明: 截图中的预算方案详情；组织、职族、职类支持列表头关键词筛选，不修改行内组织。 -->
 <script type="text/x-template" id="page-tpl">
 <a-config-provider :locale="zhCN" :theme="theme">
   <header class="layout-header">
@@ -311,9 +311,9 @@
       </section>
       <section class="budget-table-card">
         <div class="table-heading"><div class="budget-tabs" role="tablist" aria-label="预算明细"><button v-for="item in tabs" :key="item.key" role="tab" :aria-selected="tab===item.key" :class="{selected:tab===item.key}" @click="tab=item.key">{{item.label}}</button></div><a-dropdown v-if="tab==='bonus'" :trigger="['click']" overlay-class-name="budget-import-menu"><a-button class="import-trigger" aria-label="导入" aria-haspopup="menu"><svg class="button-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 13V3m-4 4 4-4 4 4M4 12v5h12v-5"/></svg><span>导入</span><svg class="dropdown-chevron" viewBox="0 0 12 12" aria-hidden="true"><path d="m2 4 4 4 4-4"/></svg></a-button><template #overlay><a-menu @click="openImport"><a-menu-item key="bonus-import">导入奖金提成</a-menu-item></a-menu></template></a-dropdown></div>
-        <!-- 对应 dynamic-table；组织表头筛选对应 DropdownInputShell。 -->
-        <proto-table v-if="tab==='bonus'" class="bonus-table" :columns="bonusColumns" :data-source="filteredBonus" row-key="id" :pagination="false" :locale="{emptyText: orgFilter ? '未找到匹配的组织' : '暂无奖金提成数据'}">
-          <template #headerCell="{column}"><template v-if="column.key==='organization'"><span>组织</span><a-popover v-model:open="filterOpen" trigger="click" placement="bottomRight" overlay-class-name="organization-filter"><template #content><form class="filter-content" @submit.prevent="applyFilter"><label for="organization-query">组织</label><a-input id="organization-query" class="my-input-components" v-model:value="filterDraft" placeholder="请输入组织名称" allow-clear autocomplete="off" /><div class="filter-actions"><a-button @click="resetFilter">重置</a-button><a-button type="primary" html-type="submit">查询</a-button></div></form></template><button class="column-filter dropdown-over" :class="{active:orgFilter}" aria-label="筛选组织" :aria-expanded="filterOpen" title="筛选组织"><svg viewBox="0 0 16 16"><path d="M2 3h12L9.5 8.2v3.9l-3 1V8.2z"/></svg></button></a-popover></template></template>
+        <!-- 对应 dynamic-table；组织、职族、职类表头筛选对应 DropdownInputShell。 -->
+        <proto-table v-if="tab==='bonus'" class="bonus-table" :columns="bonusColumns" :data-source="filteredBonus" row-key="id" :pagination="false" :locale="{emptyText: hasFilters ? '未找到符合筛选条件的数据' : '暂无奖金提成数据'}">
+          <template #headerCell="{column}"><template v-if="filterKeys.includes(column.key)"><span>{{column.title}}</span><a-popover v-model:open="filterOpen[column.key]" trigger="click" placement="bottomRight" overlay-class-name="organization-filter"><template #content><form class="filter-content" @submit.prevent="applyFilter(column.key)"><label :for="column.key+'-query'">{{column.title}}</label><a-input :id="column.key+'-query'" class="my-input-components" v-model:value="filterDraft[column.key]" :placeholder="'请输入'+column.title+(column.key==='organization'?'名称':'')" allow-clear autocomplete="off" /><div class="filter-actions"><a-button @click="resetFilter(column.key)">重置</a-button><a-button type="primary" html-type="submit">查询</a-button></div></form></template><button class="column-filter dropdown-over" :class="{active:filters[column.key]}" :aria-label="'筛选'+column.title" :aria-expanded="filterOpen[column.key]" :title="'筛选'+column.title"><svg viewBox="0 0 16 16"><path d="M2 3h12L9.5 8.2v3.9l-3 1V8.2z"/></svg></button></a-popover></template></template>
           <template #bodyCell="{column,text}"><span v-if="column.key==='amount'" class="amount">{{money(text)}}</span></template>
         </proto-table>
         <proto-table v-else-if="tab==='nonlabor'" :columns="costColumns" :data-source="costRows" row-key="id" :pagination="false" :scroll="{x:1120}"><template #bodyCell="{column,text}"><span v-if="column.numeric">{{money(text)}}</span></template><template #summary><a-table-summary fixed><a-table-summary-row><a-table-summary-cell :col-span="3">小计</a-table-summary-cell><a-table-summary-cell v-for="key in ['total','culture','recruitment','training','benefits','other']" :key="key" style="text-align:right">{{money(costRows.reduce((n,r)=>n+r[key],0))}}</a-table-summary-cell></a-table-summary-row></a-table-summary></template></proto-table>
@@ -329,5 +329,5 @@
   </a-modal>
 </a-config-provider>
 </script>
-<script src="app.js"></script><script src="../../assets/unified-navigation.js?v=20261128-budget-plan"></script>
+<script src="app.js?v=20261128-column-filters"></script><script src="../../assets/unified-navigation.js?v=20261128-budget-plan"></script>
 </body></html>
