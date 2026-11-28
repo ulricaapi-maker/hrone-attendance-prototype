@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>预算方案详情 · HRONE</title>
+  <link rel="stylesheet" href="https://unpkg.com/ant-design-vue@4.2.6/dist/reset.css" />
+  <script src="https://unpkg.com/vue@3.5.13/dist/vue.global.prod.js"></script>
+  <script src="https://unpkg.com/dayjs@1.11.13/dayjs.min.js"></script>
+  <script src="https://unpkg.com/dayjs@1.11.13/locale/zh-cn.js"></script>
+  <!-- 原型说明: antd 的 UMD 包在全局分支下依赖下列 dayjs 插件全局变量，缺失会导致 antd is not defined；顺序不可调整 -->
+  <script src="https://unpkg.com/dayjs@1.11.13/plugin/advancedFormat.js"></script>
+  <script src="https://unpkg.com/dayjs@1.11.13/plugin/customParseFormat.js"></script>
+  <script src="https://unpkg.com/dayjs@1.11.13/plugin/localeData.js"></script>
+  <script src="https://unpkg.com/dayjs@1.11.13/plugin/quarterOfYear.js"></script>
+  <script src="https://unpkg.com/dayjs@1.11.13/plugin/weekOfYear.js"></script>
+  <script src="https://unpkg.com/dayjs@1.11.13/plugin/weekYear.js"></script>
+  <script src="https://unpkg.com/dayjs@1.11.13/plugin/weekday.js"></script>
+  <script src="https://unpkg.com/ant-design-vue@4.2.6/dist/antd.min.js"></script>
+  <style>
+    /* ===== 系统风格基线令牌（来源：baseline/系统风格基线.md，原始出处 hrms-hc-web/src/docs/系统风格基线.md） ===== */
+    :root {
+      --primary: #0E66FB;
+      --primary-hover: #036dde;
+      --primary-bg: #EEF2FF;
+      --success: #00b259;
+      --success-bg: #e0f7ea;
+      --warning: #FAAD14;
+      --error: #FF4D4F;
+      --error-bg: #fff0f0;
+      --bg-light: #f5f7fd;
+      --secondary: #2f3640;
+      --text: #333;
+      --text-title: rgba(0, 0, 0, 0.84);
+      --text-2: #666;
+      --text-3: #888;
+      --border: #eee;
+      --summary-bg: #FFF8E8;
+      --tabs-bg: #f9fafc;
+      --font-size-base: 12px;
+      --height-base: 30px;
+      --radius: 8px;
+      --header: 52px;
+      --side: 220px;
+      --side-collapsed: 80px;
+      --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      --box-shadow: 0 0 6px rgba(0, 0, 0, 0.07);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; height: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--text); background: var(--bg-light);
+      font-size: var(--font-size-base); line-height: 27px;
+    }
+    #app { height: 100%; }
+
+    /* ===== 全局控件尺寸对齐系统（global.less） =====
+       原型说明: 系统靠 line-height 让文字居中；这里统一改成 inline-flex + align-items:center，
+       同时覆盖 antd 默认的 padding: 4px 15px / 4px 11px，
+       否则中文/多语言字号变化时文字会偏下，出现「文字掉到下沿」的问题。 */
+    .ant-btn {
+      height: var(--height-base); line-height: 1; font-size: 12px;
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 0 10px;
+    }
+    .ant-btn-sm { height: 24px; padding: 0 7px; }
+    .ant-btn.ant-btn-link, .ant-btn.ant-btn-icon-only { padding: 0; }
+    .ant-btn > span { display: inline-flex; align-items: center; }
+    .ant-btn > svg + span, .ant-btn > span + svg, .ant-btn > .anticon + span { margin-inline-start: 4px; }
+    /* 原型说明: 内联 SVG 替代 @ant-design/icons-vue（UMD 包不导出图标），需要手动继承当前文字颜色 */
+    .ant-btn > svg, .table-icon-btn > svg, .search-config svg, .search-card-title svg { fill: currentColor; }
+
+    /* 输入类控件：flex 居中 + 去掉 antd 默认的上下内边距 */
+    .ant-input:not(textarea), .ant-input-affix-wrapper, .ant-input-number, .ant-picker {
+      height: var(--height-base); display: inline-flex; align-items: center; padding: 0 11px; line-height: 1;
+    }
+    .ant-input-affix-wrapper > input.ant-input { height: auto; padding: 0; line-height: 1; }
+    .ant-input-affix-wrapper .ant-input-prefix,
+    .ant-input-affix-wrapper .ant-input-suffix { display: inline-flex; align-items: center; }
+    .ant-select-single .ant-select-selector {
+      height: var(--height-base) !important; display: flex; align-items: center; padding: 0 11px;
+    }
+    .ant-select-single .ant-select-selector .ant-select-selection-item,
+    .ant-select-single .ant-select-selector .ant-select-selection-placeholder {
+      line-height: 1; display: flex; align-items: center; overflow: hidden;
+    }
+    .ant-form-item-label > label { font-size: 12px; }
+    .ant-form .ant-form-item { margin-bottom: 19px; }
+    .ant-typography, .ant-col { font-size: 12px; }
+    .ant-modal-title { font-size: 14px; }
+    .ant-picker { width: 100%; }
+
+    /* ===== 顶栏 52px ===== */
+    .layout-header {
+      height: var(--header); background: #fff; padding: 0 15px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-left, .header-right { display: flex; align-items: center; flex-shrink: 0; }
+    .layout-logo { display: flex; align-items: center; height: 24px; margin-right: 20px; padding-left: 12px; }
+    .layout-logo .logo-text { font-size: 18px; font-weight: 700; line-height: 24px; color: var(--primary); letter-spacing: 0.5px; }
+    .header-icon-btn {
+      width: 32px; height: 32px; border: 0 none; border-radius: 50%;
+      background: transparent; color: var(--text-3); cursor: pointer; font-size: 14px; line-height: 30px;
+    }
+    .header-icon-btn:hover { background: #f2f3f5; color: var(--primary); }
+    .header-all-menu {
+      height: 30px; margin-left: 10px; padding: 0 10px; font-size: 12px; cursor: pointer;
+      border: 1px solid #e5e5e5; border-radius: 6px; background: #fff; color: var(--text);
+    }
+    /* 打开态：手动加 .is-open，或用 a-dropdown 包裹后由 antd 自动加 .ant-dropdown-open */
+    .header-all-menu.is-open, .header-all-menu.ant-dropdown-open { color: var(--primary); border-color: #C7D7FE; background: #F0F5FF; }
+    .header-history { flex: 1; min-width: 0; display: flex; align-items: center; overflow: hidden; margin: 0 15px; }
+    .history-tag { height: 52px; line-height: 52px; padding: 0 12px; font-size: 12px; white-space: nowrap; cursor: pointer; }
+    .history-tag:hover { background: #F0F5FF; }
+    .history-tag.is-active { background: var(--primary); color: #fff; }
+    .layout-shortcuts-select { width: 200px; margin-right: 15px; }
+    /* 收起态宽 28px（layout.less） */
+    .layout-shortcuts-select.is-collapsed { width: 28px; }
+    .layout-shortcuts-select .ant-select-selector { border-radius: 16px !important; box-shadow: var(--box-shadow); }
+    /* 待办 / 通知徽标底色（layout.less #F74C4C） */
+    .layout-header .ant-badge-count { background: #F74C4C; box-shadow: none; }
+    .header-user { display: flex; align-items: center; margin-left: 15px; font-size: 12px; cursor: pointer; }
+    .header-user .ant-avatar { margin-right: 6px; }
+
+    /* ===== 左菜单 220px / 折叠 80px ===== */
+    .layout-content { display: flex; height: calc(100vh - var(--header)); }
+    .layout-left {
+      width: var(--side); flex-shrink: 0; background: #fff;
+      display: flex; flex-direction: column; transition: width 0.2s ease;
+      border-right: 1px solid #f6f6f6;
+    }
+    .layout-left.is-collapsed { width: var(--side-collapsed); }
+    .layout-menu { flex: 1; min-height: 0; overflow-y: auto; padding: 6px 8px; }
+    .menu-group-title { padding: 8px; font-size: 12px; color: var(--text-3); }
+    .menu-item {
+      display: block; width: 100%; height: 38px; line-height: 38px; padding: 0 12px;
+      border: 0; border-radius: 6px; background: transparent; color: var(--text-2);
+      font-size: 14px; text-align: left; cursor: pointer;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .menu-item:hover, .menu-item.is-active { background: var(--primary-bg); color: var(--primary); }
+    .layout-menu-footer {
+      flex-shrink: 0; padding: 6px 12px; text-align: right;
+      border-top: 1px solid #f6f6f6; background: #fff; color: var(--text-3); cursor: pointer;
+    }
+
+    /* ===== 内容区 ===== */
+    .layout-right {
+      flex: 1; min-width: 0; background: var(--bg-light);
+      padding: 5px 10px 10px; overflow: auto;
+      scrollbar-width: none; -ms-overflow-style: none;
+    }
+    .layout-right::-webkit-scrollbar { display: none; width: 0; height: 0; }
+    .layout-view { border-radius: var(--radius); overflow: hidden; box-shadow: var(--card-shadow); margin-bottom: 10px; }
+    .layout-view-main { flex: 1; }
+    .layout-tabs .ant-tabs-nav { margin-bottom: 0; background: var(--tabs-bg); }
+    .layout-tabs .ant-tabs-nav::before { border-bottom: 0 none !important; }
+    .layout-tabs .ant-tabs-tab {
+      margin-left: 0 !important; border-radius: 0 !important; background-color: transparent !important;
+      border-left: 0 none !important; border-top: 0 none !important; border-right: 0 none !important;
+      border-bottom-width: 2px; border-bottom-color: transparent;
+    }
+    .layout-tabs .ant-tabs-tab-btn { font-size: 12px; }
+    .layout-tabs .ant-tabs-tab-active { background-color: transparent !important; border-bottom-color: var(--primary) !important; }
+    .layout-tab-title { display: inline-flex; align-items: center; max-width: 300px; }
+    .layout-tab-title-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* ===== 列表页结构（table-public.vue） ===== */
+    .card-shadow { border-radius: var(--radius); box-shadow: var(--card-shadow); }
+    .pulic-table-box {
+      max-height: calc(100vh - 116px); overflow: auto;
+      scrollbar-width: none; -ms-overflow-style: none;
+    }
+    .pulic-table-box::-webkit-scrollbar { display: none; width: 0; height: 0; }
+    .pulic-table-search-form { margin-bottom: 10px; }
+    .pulic-table-search-form .ant-card-body { padding-top: 2px !important; }
+    .pulic-table-search-form .ant-card-head { min-height: 40px; padding: 0 12px; }
+    .pulic-table-search-form .ant-card-head-title { font-size: 14px; font-weight: 500; }
+    .search-card-title { display: inline-flex; align-items: center; gap: 5px; }
+    .search-card-title svg { fill: var(--primary); }
+    .table-main { background: #fff; padding: 0; border-radius: var(--radius); overflow: hidden; }
+    .table-toolBox { display: flex; justify-content: space-between; align-items: center; padding: 0 10px; margin: 10px 0; }
+    .table-main .baseTableElement { padding: 0 10px; }
+    .toolBox-left, .toolBox-right { display: flex; align-items: center; }
+    .toolBox-right { gap: 5px; }
+    .table-header-search { width: 140px; }
+    /* 列设置触发图标（column-setting.vue 的 <SettingOutlined />） */
+    .column-setting-trigger { cursor: pointer; color: var(--text-2); display: inline-flex; align-items: center; font-size: 14px; }
+    .column-setting-trigger:hover { color: var(--primary); }
+    .column-setting-trigger > svg, .column-setting-body svg { fill: currentColor; }
+    .column-setting-title { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+    .column-setting-body { max-height: 400px; overflow: auto; }
+    .column-setting-item { display: flex; align-items: center; padding: 4px 16px 8px 0; }
+    .column-setting-item .drag-icon { color: #bfbfbf; margin-right: 6px; cursor: move; }
+    .column-setting-item .drag-icon.is-fixed { cursor: default; }
+
+    /* 查询条件（index.less .my-search-form.vertical）：label 与控件上下结构，一行 4 项、每项 25% */
+    .my-search-form.vertical { text-align: left; padding-top: 2px; }
+    /* 原型说明: 系统用 inline-block + 25% 实现一行 4 项；原型改用 flex 保证 4 项精确占满一行 */
+    .my-search-form.vertical .item-group-down,
+    .my-search-form.vertical .item-group-up { display: flex; flex-wrap: wrap; }
+    .my-search-form.vertical .item-group-down { height: 67px; overflow: hidden; }
+    .my-search-form.vertical .item-group-down .ant-form-item { margin-bottom: 10px; }
+    .my-search-form.vertical .ant-form-item {
+      flex: 0 0 25%; width: 25%; padding: 0 6px; margin-bottom: 2px; vertical-align: top;
+    }
+    .my-search-form.vertical .ant-form-item-label { padding: 0 0 3px; }
+    .my-search-form.vertical .ant-form-item-label > label { height: 22px; line-height: 22px; color: var(--text-2); }
+    /* 查询条件卡片右上角配置区（search-plan-config.vue） */
+    .search-config { display: flex; align-items: center; }
+    .search-config .plan-select { width: 120px; }
+    .search-config .ant-btn { margin-left: 5px; color: var(--text-3); }
+    .search-action { display: flex; justify-content: space-between; align-items: center; margin-top: 5px; padding: 0 6px 6px; }
+    .search-action .action { display: flex; align-items: center; }
+    .search-action .action button { margin-right: 5px; }
+
+    /* ===== 表格（layout.less .ant-table-tbody） ===== */
+    .ant-table-summary,
+    .ant-table-summary .ant-table-cell-fix-right,
+    .ant-table-summary .ant-table-cell-fix-left { background-color: var(--summary-bg) !important; }
+    .ant-table-tbody .ant-table-cell { white-space: pre-line; }
+    .ant-table-tbody .ant-table-cell .ant-tag { margin-right: 0; border-radius: 11px; white-space: pre-wrap; }
+    .ant-table-tbody .ant-table-cell button.ant-btn { padding: 0 !important; height: 26px !important; line-height: 26px !important; }
+    .ant-table-tbody .ant-table-cell.ant-table-cell-fix-right .ant-btn-link { margin-right: 5px; }
+    .table-cell-link { display: inline-block; max-width: 100%; vertical-align: top; color: var(--primary); cursor: pointer; }
+    .table-cell-link:hover { color: var(--primary-hover); }
+    .ellip-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; max-width: 100%; vertical-align: top; }
+
+    /* 表格内 26×26 图标按钮（layout.less） */
+    .table-icon-btn {
+      width: 26px; height: 26px !important; min-width: 26px; padding: 0 !important;
+      border: 0 none; border-radius: 6px; background: var(--bg-light); color: var(--primary);
+      margin-right: 5px; line-height: 26px !important; box-shadow: none;
+    }
+    .table-icon-btn:hover { background: var(--primary-bg); color: var(--primary); }
+    .table-icon-btn.is-danger { background: var(--error-bg); color: var(--error); }
+    .table-icon-btn.is-success { background: var(--success-bg); color: #10b981; }
+    .table-icon-btn.is-more { background: var(--bg-light); color: var(--text-2); }
+    .table-icon-btn[disabled], .table-icon-btn.is-disabled {
+      background: #f1f1f1 !important; color: var(--text-3) !important; border: 0 none;
+    }
+    .table-cell-dropdown .ant-btn { width: 100%; padding: 0 !important; border: 0 none; text-align: left; }
+
+    /* ===== 区块标题 / 弹窗 / 其它系统组件 ===== */
+    .basic-title { font-size: 14px; font-weight: 500; line-height: 26px; color: var(--text-title); }
+    .basic-title::before {
+      content: ''; display: inline-block; vertical-align: middle;
+      margin: -3px 5px 0 0; width: 4px; height: 22px; background: #197aff;
+    }
+    .custom-modal .ant-modal-content { padding: 0; border-radius: var(--radius); overflow: hidden; }
+    .custom-modal .ant-modal-header { padding: 17px 20px; margin-bottom: 0; background: var(--primary-bg); border-radius: 0; }
+    .custom-modal .ant-modal-title { color: var(--primary); font-size: 14px; }
+    .custom-modal .ant-modal-body { padding: 10px 20px; max-height: calc(100vh - 200px); overflow: auto; }
+    .custom-modal .ant-modal-footer { padding: 10px 20px; margin-top: 0; border-top: 1px solid var(--border); }
+    .table-modal .ant-modal-content { width: calc(100vw - 160px); }
+    .ant-modal-confirm .ant-modal-content { padding: 16px 18px; }
+    .ant-modal-confirm .ant-modal-confirm-title,
+    .ant-modal-confirm .ant-modal-confirm-content { font-size: 12px; }
+    .ant-modal-confirm .ant-modal-confirm-btns button { height: var(--height-base) !important; }
+    .ant-radio-group-solid { background: var(--primary-bg); padding: 3px; border-radius: 15px; display: inline-flex; }
+    .ant-radio-group-solid .ant-radio-button-wrapper {
+      height: 24px; line-height: 24px; padding: 0 8px; border: 0 none;
+      border-radius: 12px !important; background: transparent; font-size: 12px;
+    }
+    .ant-radio-group-solid .ant-radio-button-wrapper::before { display: none; }
+    .ant-radio-group-solid .ant-radio-button-wrapper-checked { background: var(--primary); color: #fff; }
+    /* ===== 其它系统组件（layout.less） ===== */
+    /* 提示条：div div.ant-alert */
+    div div.ant-alert { padding: 6px; border-radius: 6px; }
+    div div.ant-alert .ant-alert-message { font-size: 12px; font-weight: bold; }
+    /* 抽屉：宽 36vw（用 :width="'36vw'"），body 底 #fafbfc，遮罩 rgba(0, 8, 25, 0.4) */
+    .ant-drawer .ant-drawer-body { background: #fafbfc; }
+    .ant-drawer-mask { background: rgba(0, 8, 25, 0.4) !important; }
+    /* 步骤条：进行中标题为主色 */
+    .ant-steps .ant-steps-item-process .ant-steps-item-title { color: var(--primary); }
+    .ant-tooltip-inner { white-space: pre-line; }
+
+    /* ===== 详情页专属（本页追加） ===== */
+    /* 说明：以上为与 list-page.html 完全一致的公共样式基线，以下为本页追加规则 */
+    /* 概览白卡：节标题行 + 右上角操作按钮 */
+    .detail-card { background: #fff; padding: 10px 20px; margin-bottom: 10px; }
+    .detail-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .detail-head-actions { display: flex; align-items: center; gap: 8px; }
+    /* 页签白卡 */
+    .detail-tabs-card { background: #fff; padding: 10px 20px; }
+    .detail-file-item { color: var(--text-3); }
+  </style>
+<link rel="stylesheet" href="../../assets/unified-navigation.css"><link rel="stylesheet" href="style.css"></head>
+<body data-unified-page="budget-plan" data-unified-root="../../">
+<div id="app"></div>
+<!-- 原型说明: 截图中的预算方案详情；组织仅支持列表头关键词筛选，不修改行内组织。 -->
+<script type="text/x-template" id="page-tpl">
+<a-config-provider :locale="zhCN" :theme="theme">
+  <header class="layout-header">
+    <div class="header-left"><a class="layout-logo" href="../../index.html"><span class="logo-text">HRONE</span></a><a class="header-home" href="../../index.html" aria-label="首页"><svg viewBox="0 0 24 24"><path d="m3 10 9-7 9 7M5 9v12h5v-7h4v7h5V9"/></svg></a><a href="../01-预算规划/index.html" class="header-all-menu">预算管理</a></div>
+    <div class="header-history"><a class="history-tag" href="../../01-基础配置/01-假期方案/index.html">假期方案</a><a class="history-tag" href="../01-预算规划/index.html">预算规划</a><span class="history-tag is-active">预算方案详情</span></div>
+    <div class="header-right"><span class="prototype-label">交互原型 · 示例数据</span><span class="user-avatar">HR</span></div>
+  </header>
+  <div class="layout-content">
+    <aside class="layout-left"><div class="layout-menu" id="unifiedAttendanceNav"></div></aside>
+    <main class="layout-right">
+      <div class="layout-view page-tab"><span>预算方案详情</span></div>
+      <section class="steps-card"><div class="step active"><b>1</b><span>预算测算</span></div><div class="step-line"></div><div class="step"><b>2</b><span>提交与统计</span></div></section>
+      <section class="statistics-card">
+        <div class="statistics-heading"><h1>预算统计</h1><div class="stat-actions"><a-button type="primary" @click="measure">预算测算</a-button><a-button href="../01-预算规划/index.html">编制规划 <span class="chevron">⌄</span></a-button><a-select aria-label="币种" value="CNY" :options="[{label:'人民币(CNY)',value:'CNY'}]" style="width:170px" /></div></div>
+        <!-- 对应 CardView：沿用来源截图统计值，奖金数据不自行计入总预算。 -->
+        <div class="metrics"><div class="metric" v-for="(item,index) in metrics" :key="item.label"><div class="metric-label"><span class="metric-icon"><svg viewBox="0 0 20 20"><rect x="3" y="4" width="14" height="12" rx="2"/><path d="M3 8h14M7 12h6M10 10v4"/></svg></span>{{item.label}}</div><div class="metric-value">{{item.value}}<span>万</span></div></div></div>
+      </section>
+      <section class="budget-table-card">
+        <div class="table-heading"><div class="budget-tabs" role="tablist" aria-label="预算明细"><button v-for="item in tabs" :key="item.key" role="tab" :aria-selected="tab===item.key" :class="{selected:tab===item.key}" @click="tab=item.key">{{item.label}}</button></div><a-button v-if="tab==='bonus'" type="primary" @click="openImport"><svg class="button-icon" viewBox="0 0 20 20"><path d="M10 13V3m-4 4 4-4 4 4M4 12v5h12v-5"/></svg>导入奖金提成</a-button></div>
+        <!-- 对应 dynamic-table；组织表头筛选对应 DropdownInputShell。 -->
+        <proto-table v-if="tab==='bonus'" class="bonus-table" :columns="bonusColumns" :data-source="filteredBonus" row-key="id" :pagination="false" :locale="{emptyText: orgFilter ? '未找到匹配的组织' : '暂无奖金提成数据'}">
+          <template #headerCell="{column}"><template v-if="column.key==='organization'"><span>组织</span><a-popover v-model:open="filterOpen" trigger="click" placement="bottomRight" overlay-class-name="organization-filter"><template #content><form class="filter-content" @submit.prevent="applyFilter"><label for="organization-query">组织</label><a-input id="organization-query" class="my-input-components" v-model:value="filterDraft" placeholder="请输入组织名称" allow-clear autocomplete="off" /><div class="filter-actions"><a-button @click="resetFilter">重置</a-button><a-button type="primary" html-type="submit">查询</a-button></div></form></template><button class="column-filter dropdown-over" :class="{active:orgFilter}" aria-label="筛选组织" :aria-expanded="filterOpen" title="筛选组织"><svg viewBox="0 0 16 16"><path d="M2 3h12L9.5 8.2v3.9l-3 1V8.2z"/></svg></button></a-popover></template></template>
+          <template #bodyCell="{column,text}"><span v-if="column.key==='amount'" class="amount">{{money(text)}}</span></template>
+        </proto-table>
+        <proto-table v-else-if="tab==='nonlabor'" :columns="costColumns" :data-source="costRows" row-key="id" :pagination="false" :scroll="{x:1120}"><template #bodyCell="{column,text}"><span v-if="column.numeric">{{money(text)}}</span></template><template #summary><a-table-summary fixed><a-table-summary-row><a-table-summary-cell :col-span="3">小计</a-table-summary-cell><a-table-summary-cell v-for="key in ['total','culture','recruitment','training','benefits','other']" :key="key" style="text-align:right">{{money(costRows.reduce((n,r)=>n+r[key],0))}}</a-table-summary-cell></a-table-summary-row></a-table-summary></template></proto-table>
+        <proto-table v-else :columns="laborColumns" :data-source="[]" :pagination="false" :locale="{emptyText:'暂无人力成本预算数据'}" />
+        <div class="pagination"><span>共 {{tab==='bonus'?filteredBonus.length:tab==='nonlabor'?costRows.length:0}} 条</span><a-pagination :current="1" :page-size="10" :total="tab==='bonus'?filteredBonus.length:tab==='nonlabor'?costRows.length:0" :show-size-changer="false" :hide-on-single-page="false" /></div>
+      </section>
+    </main>
+  </div>
+  <!-- 对应 UploadFileModal；只演示导入入口和本地文件选择，导入规则待业务确认。 -->
+  <a-modal v-model:open="importOpen" title="导入奖金提成" :width="560" class="custom-modal" :footer="null" @cancel="closeImport">
+    <div class="import-body"><a-upload-dragger accept=".xlsx,.xls" :before-upload="selectFile" :file-list="fileList" :max-count="1" @remove="removeFile"><p class="upload-symbol"><svg viewBox="0 0 48 48"><path d="M24 29V7m-8 8 8-8 8 8M9 26v14h30V26"/></svg></p><p class="upload-title">点击或拖拽文件到此区域上传</p><p class="upload-help">支持 .xlsx、.xls 文件</p></a-upload-dragger><div class="demo-note">原型演示：仅展示文件选择，导入规则待确认。</div><a-alert v-if="importSelected" message="已选择文件，原型未写入预算数据。" type="success" show-icon /></div>
+    <div class="import-footer"><a-button @click="closeImport">关闭</a-button></div>
+  </a-modal>
+</a-config-provider>
+</script>
+<script src="app.js"></script><script src="../../assets/unified-navigation.js?v=20261128-budget-plan"></script>
+</body></html>
